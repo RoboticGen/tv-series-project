@@ -1,0 +1,121 @@
+# Database
+
+PostgreSQL 16 schema for the RoboticGen Academy project platform, run in Docker.
+
+## Run it
+
+```bash
+cd database
+cp .env.example .env   # adjust credentials if needed
+docker compose up -d
+```
+
+The scripts in `init/` run once, in filename order, only when the
+`pgdata` volume is first created (empty data directory). To pick up
+schema changes after that, write a migration instead of editing an
+`init/*.sql` file in place — see "Changing the schema" below.
+
+Connect with:
+
+```
+postgresql://roboticgen:roboticgen@localhost:5432/roboticgen
+```
+
+## Layout
+
+| File | Contents |
+|---|---|
+| `init/001_extensions.sql` | `pgcrypto`, `citext`, `pg_trgm` |
+| `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category` enums |
+| `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns |
+| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions` |
+| `init/005_views.sql` | `user_dashboard_stats`, `pending_review_queue`, `user_liked_projects`, `user_starred_projects` |
+| `prisma/schema.prisma` | Prisma model of the same schema (schema-only, see below) |
+| `prisma/views/public/*.sql` | Each view's SQL, written by `prisma db pull` — required by Prisma's `views` preview feature so `prisma migrate dev` can recreate them; not hand-maintained |
+
+## Design notes
+
+- **Markdown lives in MongoDB, not Postgres.** `projects.content_doc_id`
+  and `submissions.content_doc_id` are the Mongo `_id` of the markdown
+  document. Postgres owns everything that needs relational integrity,
+  filtering, or transactions (workflow state, ownership, likes); Mongo
+  owns the prose.
+- **Images live on local disk**, referenced by `media_assets.file_path`
+  (relative to a configured storage root). `media_assets` is polymorphic
+  (`owner_type` + `owner_id`) so projects and submissions share one
+  gallery table instead of two identical ones. Postgres can't attach a
+  single `FOREIGN KEY` to two different target tables, so this is
+  emulated with triggers instead (`003_functions.sql`):
+  `validate_media_asset_owner` rejects an insert/update whose `owner_id`
+  doesn't exist in the table `owner_type` names (same `SQLSTATE` as a
+  real FK violation), and `cascade_delete_media_assets` (attached to
+  both `projects` and `submissions`) deletes the matching rows when the
+  owner is deleted. Net effect matches a real FK; Prisma just can't see
+  it as one (`schema.prisma`'s `MediaAsset` model has no `@relation` for
+  the same reason).
+- **Publish workflow**: `projects.status` moves
+  `draft → pending_review → published | rejected`. A `CHECK` constraint
+  requires `reviewed_by`/`reviewed_at` once a project is `published` or
+  `rejected`, so an approval can't be forgotten. Only a `mentor` or
+  `admin` role should be allowed (in the API/service layer) to move a
+  project out of `pending_review`.
+- **Avatars**: `users.avatar_url` is the picture URL straight from the
+  Google OAuth profile (`picture` claim) — no server-side generation or
+  storage. Refresh it from Google on login if you want it to stay current.
+- **Likes and stars are individually queryable, not just counted.**
+  `project_likes`/`project_stars` have a `(user_id, project_id)` primary
+  key, so "what did I like/star" is an index-only lookup, not a scan —
+  see `user_liked_projects` / `user_starred_projects` below.
+- **`like_count`/`star_count`** on `projects` are denormalized counters,
+  kept in sync by triggers on `project_likes`/`project_stars` (see
+  `003_functions.sql`). They exist so the browse/card-grid queries (by
+  far the hottest read path) never need a join + `COUNT`.
+- **Search**: `projects.search_vector` is a `GENERATED ALWAYS ... STORED`
+  `tsvector` (title weighted above summary), backed by a GIN index, for
+  ranked full-text search. A separate `pg_trgm` GIN index on `title`
+  supports typo-tolerant/`ILIKE '%...%'` autocomplete. Browse/pagination
+  itself is served by partial indexes scoped to `status = 'published'`
+  (see `idx_projects_published_feed`, `idx_projects_category_published`,
+  `idx_projects_featured`) so draft/rejected rows — most of the writes,
+  none of the public reads — never bloat the index.
+- **Categories are a fixed `project_category` enum, not a table.**
+  The set (`robotics`, `electronics`, `iot`, `coding_software`, `ai_ml`,
+  `drones`, `threed_printing`, `sensors_automation`, `competitions`,
+  `other`) is closed and only ever changes via a migration
+  (`ALTER TYPE project_category ADD VALUE ...`), never through an admin
+  UI — there's no `categories` table to manage.
+- **`user_dashboard_stats`**: per-user project counts by status plus
+  totals received (likes, stars, submissions) — for the small dashboard.
+- **`pending_review_queue`**: the mentor/admin approval queue, oldest
+  first.
+- **`user_liked_projects` / `user_starred_projects`**: what a user has
+  liked / starred, for "my likes" and "my starred projects" pages.
+- **Views have no foreign keys, by construction.** A view is a saved
+  `SELECT`, not stored data, so Postgres can't attach a constraint to it
+  — the relationship to `users`/`projects` lives entirely in the `JOIN`
+  inside `init/005_views.sql`. In `schema.prisma`, the 4 views' `user`/
+  `project`/`author` relation fields are hand-added on top of what
+  introspection produced (introspection alone generates only plain
+  nullable columns, no relations) — a Prisma Client convenience, not a
+  DB-enforced constraint. If a view's `SELECT` ever changes which column
+  feeds `user_id`, these have to be updated by hand.
+
+## Changing the schema
+
+Once the `pgdata` volume exists, `init/*.sql` no longer runs. From here,
+schema changes should go through whatever migration tool the NestJS
+backend adopts (e.g. TypeORM or Prisma migrations) rather than editing
+these files — keep `init/` as the from-scratch bootstrap and let
+migrations layer on top of it, or generate migrations that mirror it
+once the ORM is wired up.
+
+## Verifying indexes are used
+
+```sql
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT * FROM projects
+WHERE status = 'published' AND category = 'robotics'
+ORDER BY published_at DESC
+LIMIT 20;
+-- expect: Index Scan using idx_projects_category_published
+```

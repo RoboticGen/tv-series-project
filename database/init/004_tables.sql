@@ -1,0 +1,215 @@
+-- =====================================================================
+-- users
+-- Google OAuth is the only login path -- there is no local password, so
+-- google_id is the real identity and is what auth looks up on every
+-- request; email is kept for display/contact and still unique.
+-- =====================================================================
+CREATE TABLE users (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  google_id      TEXT NOT NULL UNIQUE,
+  email          CITEXT NOT NULL UNIQUE,
+  display_name   TEXT NOT NULL,
+  -- Picture URL straight from the Google OAuth profile (the `picture`
+  -- claim). No local generation/storage -- just refreshed from Google
+  -- on login if it changes.
+  avatar_url     TEXT,
+  role           user_role NOT NULL DEFAULT 'student',
+  bio            TEXT,
+  last_login_at  TIMESTAMPTZ,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_users_role ON users (role);
+
+CREATE TRIGGER trg_users_updated_at
+  BEFORE UPDATE ON users
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+-- =====================================================================
+-- projects
+-- Metadata + workflow state live here; the actual markdown body lives in
+-- MongoDB (content_doc_id is that document's _id) and step/gallery images
+-- live on local disk (see media_assets). Postgres owns everything that
+-- needs relational integrity, transactions, or fast filtering -- not the
+-- prose itself.
+-- =====================================================================
+CREATE TABLE projects (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  author_id        UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  category          project_category NOT NULL,
+  title            TEXT NOT NULL,
+  slug             TEXT NOT NULL UNIQUE,
+  summary          TEXT NOT NULL,
+  content_doc_id   TEXT NOT NULL,
+  status           project_status NOT NULL DEFAULT 'draft',
+  is_featured      BOOLEAN NOT NULL DEFAULT false,
+  reviewed_by      UUID REFERENCES users (id) ON DELETE SET NULL,
+  reviewed_at      TIMESTAMPTZ,
+  rejection_reason TEXT,
+  published_at     TIMESTAMPTZ,
+  view_count       BIGINT NOT NULL DEFAULT 0,
+  -- Maintained by triggers in 005_indexes.sql's sibling tables -- see 003_functions.sql.
+  like_count       BIGINT NOT NULL DEFAULT 0,
+  star_count       BIGINT NOT NULL DEFAULT 0,
+  -- Weighted full-text vector: title matches rank above summary matches.
+  -- GENERATED STORED so it's indexed like any other column and never
+  -- goes stale relative to title/summary.
+  search_vector    TSVECTOR GENERATED ALWAYS AS (
+    setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
+    setweight(to_tsvector('english', coalesce(summary, '')), 'B')
+  ) STORED,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT chk_projects_review_fields CHECK (
+    status NOT IN ('published', 'rejected')
+    OR (reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL)
+  ),
+  CONSTRAINT chk_projects_published_at CHECK (
+    (status = 'published') = (published_at IS NOT NULL)
+  )
+);
+
+-- Browse/search/pagination indexes -----------------------------------
+-- Public browse feed: newest published projects, optionally filtered by
+-- category. Partial (WHERE status = 'published') keeps drafts and
+-- rejected rows -- the majority of writes, none of the public reads --
+-- out of the index entirely.
+CREATE INDEX idx_projects_published_feed
+  ON projects (published_at DESC)
+  WHERE status = 'published';
+
+CREATE INDEX idx_projects_category_published
+  ON projects (category, published_at DESC)
+  WHERE status = 'published';
+
+-- Featured rail on the homepage.
+CREATE INDEX idx_projects_featured
+  ON projects (published_at DESC)
+  WHERE is_featured AND status = 'published';
+
+-- Mentor/admin review queue, oldest first (FIFO).
+CREATE INDEX idx_projects_pending_review
+  ON projects (created_at)
+  WHERE status = 'pending_review';
+
+-- "My projects" dashboard.
+CREATE INDEX idx_projects_author ON projects (author_id, status);
+
+-- Full-text search (ranked) and trigram search (typo-tolerant / ILIKE '%..%').
+CREATE INDEX idx_projects_search_vector ON projects USING GIN (search_vector);
+CREATE INDEX idx_projects_title_trgm ON projects USING GIN (title gin_trgm_ops);
+
+CREATE TRIGGER trg_projects_updated_at
+  BEFORE UPDATE ON projects
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Emulated FK cascade -- see media_assets below for why this can't be a
+-- real ON DELETE CASCADE.
+CREATE TRIGGER trg_projects_cascade_media
+  AFTER DELETE ON projects
+  FOR EACH ROW EXECUTE FUNCTION cascade_delete_media_assets();
+
+
+-- =====================================================================
+-- media_assets
+-- Local-disk image galleries for projects and submissions. file_path is
+-- relative to a single configured storage root (e.g. STORAGE_ROOT env var
+-- in the API) -- the DB never stores an absolute host path.
+-- =====================================================================
+CREATE TABLE media_assets (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_type  media_owner_type NOT NULL,
+  owner_id    UUID NOT NULL,
+  file_path   TEXT NOT NULL,
+  alt_text    TEXT,
+  position    INT NOT NULL DEFAULT 0,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- No single FOREIGN KEY on (owner_type, owner_id) -- Postgres can't
+-- target two different tables from one constraint. Integrity is instead
+-- enforced by triggers (defined in 003_functions.sql, attached below and
+-- on projects/submissions): validate_media_asset_owner rejects an
+-- owner_id that doesn't exist in the table owner_type names, and
+-- cascade_delete_media_assets removes a project's/submission's rows when
+-- it's deleted. Net effect matches a real FK -- existence-checked writes,
+-- cascading deletes -- just emulated instead of declared.
+CREATE INDEX idx_media_assets_owner ON media_assets (owner_type, owner_id, position);
+
+CREATE TRIGGER trg_media_assets_validate_owner
+  BEFORE INSERT OR UPDATE OF owner_type, owner_id ON media_assets
+  FOR EACH ROW EXECUTE FUNCTION validate_media_asset_owner();
+
+
+-- =====================================================================
+-- project_likes
+-- Simple "like" -- one row per (user, project), existence is the signal.
+-- =====================================================================
+CREATE TABLE project_likes (
+  user_id     UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  project_id  UUID NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, project_id)
+);
+
+CREATE INDEX idx_project_likes_project ON project_likes (project_id);
+
+CREATE TRIGGER trg_project_likes_count
+  AFTER INSERT OR DELETE ON project_likes
+  FOR EACH ROW EXECUTE FUNCTION adjust_project_like_count();
+
+
+-- =====================================================================
+-- project_stars
+-- "I'm going to build this" -- distinct from a like: it's what a learner
+-- taps before they start their own build, and is what a submission
+-- (below) is expected to follow.
+-- =====================================================================
+CREATE TABLE project_stars (
+  user_id     UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  project_id  UUID NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
+  started_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, project_id)
+);
+
+CREATE INDEX idx_project_stars_project ON project_stars (project_id);
+
+CREATE TRIGGER trg_project_stars_count
+  AFTER INSERT OR DELETE ON project_stars
+  FOR EACH ROW EXECUTE FUNCTION adjust_project_star_count();
+
+
+-- =====================================================================
+-- submissions
+-- A learner's own "I made it" build write-up against a project. Private
+-- by default -- is_private = true means only user_id may read it; nothing
+-- in this schema grants the project author or a mentor visibility, that
+-- has to stay an explicit, separate share action if it's ever added.
+-- Multiple attempts per project are allowed (no unique constraint), since
+-- a learner might rebuild and want a second write-up.
+-- =====================================================================
+CREATE TABLE submissions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id      UUID NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
+  user_id         UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  content_doc_id  TEXT NOT NULL,
+  is_private      BOOLEAN NOT NULL DEFAULT true,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_submissions_project ON submissions (project_id);
+CREATE INDEX idx_submissions_user ON submissions (user_id, created_at DESC);
+
+CREATE TRIGGER trg_submissions_updated_at
+  BEFORE UPDATE ON submissions
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Emulated FK cascade -- see media_assets above for why this can't be a
+-- real ON DELETE CASCADE.
+CREATE TRIGGER trg_submissions_cascade_media
+  AFTER DELETE ON submissions
+  FOR EACH ROW EXECUTE FUNCTION cascade_delete_media_assets();
