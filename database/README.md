@@ -30,8 +30,7 @@ postgresql://roboticgen:roboticgen@localhost:5432/roboticgen
 | `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns |
 | `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions` |
 | `init/005_views.sql` | `user_dashboard_stats`, `pending_review_queue`, `user_liked_projects`, `user_starred_projects` |
-| `prisma/schema.prisma` | Prisma model of the same schema (schema-only, see below) |
-| `prisma/views/public/*.sql` | Each view's SQL, written by `prisma db pull` — required by Prisma's `views` preview feature so `prisma migrate dev` can recreate them; not hand-maintained |
+| `frontend/src/db/schema.ts` | Drizzle model of the same schema (hand-maintained, see below) |
 
 ## Design notes
 
@@ -93,21 +92,25 @@ postgresql://roboticgen:roboticgen@localhost:5432/roboticgen
 - **Views have no foreign keys, by construction.** A view is a saved
   `SELECT`, not stored data, so Postgres can't attach a constraint to it
   — the relationship to `users`/`projects` lives entirely in the `JOIN`
-  inside `init/005_views.sql`. In `schema.prisma`, the 4 views' `user`/
-  `project`/`author` relation fields are hand-added on top of what
-  introspection produced (introspection alone generates only plain
-  nullable columns, no relations) — a Prisma Client convenience, not a
-  DB-enforced constraint. If a view's `SELECT` ever changes which column
-  feeds `user_id`, these have to be updated by hand.
+  inside `init/005_views.sql`. In `frontend/src/db/schema.ts`, the 4
+  views are declared with Drizzle's `.existing()` so app code gets a
+  typed `db.select().from(...)` target without Drizzle trying to manage
+  their DDL — there's still no DB-enforced constraint tying a view's
+  `user_id`/`project_id` columns back to `users`/`projects`. If a view's
+  `SELECT` ever changes which column feeds `user_id`, that's on the
+  application code that joins against it, not something the schema file
+  can catch.
 
 ## Changing the schema
 
 Once the `pgdata` volume exists, `init/*.sql` no longer runs. From here,
-schema changes should go through whatever migration tool the NestJS
-backend adopts (e.g. TypeORM or Prisma migrations) rather than editing
-these files — keep `init/` as the from-scratch bootstrap and let
-migrations layer on top of it, or generate migrations that mirror it
-once the ORM is wired up.
+schema changes should go through a migration step (plain SQL run against
+the running container) rather than editing these files in place — keep
+`init/` as the from-scratch bootstrap and let migrations layer on top of
+it. `frontend/src/db/schema.ts` is a hand-maintained TypeScript mirror of
+this SQL for query typing; update it to match whenever a migration
+changes a table/view shape, but it does not drive the schema itself —
+`drizzle-kit push`/`generate` are not part of this workflow.
 
 ## Verifying indexes are used
 
