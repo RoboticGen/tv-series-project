@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, unlink } from "node:fs/promises";
 
 // Uploaded images live outside frontend/public/ so they can never be
 // served as static files directly -- every read goes through
@@ -46,4 +46,12 @@ export async function saveUploadedFile(
   // Store with forward slashes regardless of host OS so file_path is
   // portable between dev (Windows) and prod (Linux) environments.
   return relativePath.split(path.sep).join("/");
+}
+
+export async function deleteUploadedFile(relativePath: string): Promise<void> {
+  try {
+    await unlink(resolveMediaPath(relativePath));
+  } catch {
+    // Best-effort -- the file may already be gone, that's fine.
+  }
 }

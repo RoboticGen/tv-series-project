@@ -34,7 +34,7 @@ export async function generateMetadata({
   if (!project) return { title: "Project not found" };
   return {
     title: `${project.title} — RoboticGen Projects`,
-    description: project.summary,
+    description: project.summary || `A RoboticGen project by ${project.authorName}.`,
   };
 }
 
@@ -70,7 +70,9 @@ export default async function ProjectDetailPage({
       <h1 className="mt-3 font-heading text-3xl font-bold text-brand-navy dark:text-white">
         {project.title}
       </h1>
-      <p className="mt-2 text-muted-foreground">{project.summary}</p>
+      <p className="mt-2 text-muted-foreground">
+        {project.summary ? project.summary : <em>This project has no description</em>}
+      </p>
 
       <div className="mt-4 flex items-center gap-2">
         <Avatar size="sm">

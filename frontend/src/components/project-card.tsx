@@ -31,6 +31,7 @@ interface ProjectCardProps {
   likeCount: number;
   starCount: number;
   statusBadge?: string;
+  href?: string;
 }
 
 export function ProjectCard({
@@ -42,9 +43,10 @@ export function ProjectCard({
   likeCount,
   starCount,
   statusBadge,
+  href,
 }: ProjectCardProps) {
   return (
-    <Link href={`/projects/${slug}`}>
+    <Link href={href ?? `/projects/${slug}`}>
       <Card className="h-full transition-colors hover:border-brand-teal">
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -58,7 +60,9 @@ export function ProjectCard({
             ) : null}
           </div>
           <CardTitle className="mt-1">{title}</CardTitle>
-          <CardDescription className="line-clamp-2">{summary}</CardDescription>
+          <CardDescription className="line-clamp-2">
+            {summary ? summary : <em>This project has no description</em>}
+          </CardDescription>
         </CardHeader>
         <CardFooter className="justify-between">
           <span className="text-sm text-muted-foreground">by {authorName}</span>

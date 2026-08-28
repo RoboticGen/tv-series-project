@@ -4,11 +4,12 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, Compass, Plus, Menu, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Compass, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { NewProjectButton } from "@/components/new-project-button";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -32,14 +33,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <div className="px-3">
-        <Button
-          className="w-full justify-start gap-2 rounded-lg"
-          nativeButton={false}
-          render={<Link href="/projects/new" onClick={onNavigate} />}
-        >
-          <Plus className="size-4" />
-          New project
-        </Button>
+        <NewProjectButton
+          className="w-full justify-start rounded-lg"
+          onNavigate={onNavigate}
+        />
       </div>
 
       <nav className="mt-4 flex flex-col gap-1 px-3">

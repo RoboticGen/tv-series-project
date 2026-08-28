@@ -5,9 +5,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { projectLikes, projects, projectStars, users } from "@/db/schema";
-import { createContentDoc, updateContentDoc } from "@/db/content";
+import { mediaAssets, projectLikes, projects, projectStars, users } from "@/db/schema";
+import { createContentDoc, updateContentDoc, deleteContentDoc } from "@/db/content";
 import { slugify, randomSlugSuffix } from "@/lib/slug";
+import { deleteUploadedFile } from "@/lib/storage";
 import { updateProjectSchema } from "@/lib/validation";
 
 async function requireSession() {
@@ -25,7 +26,7 @@ async function generateUniqueSlug(title: string) {
   return existing ? `${base}-${randomSlugSuffix()}` : base;
 }
 
-export async function createDraftProject() {
+export async function createDraftProjectRecord() {
   const session = await requireSession();
 
   const slug = await generateUniqueSlug("untitled-project");
@@ -44,6 +45,13 @@ export async function createDraftProject() {
     })
     .returning({ id: projects.id, slug: projects.slug });
 
+  return project;
+}
+
+// Used by the fallback /projects/new page (direct navigation/refresh, no
+// client-side transition to intercept into the slide-in panel).
+export async function createDraftProject() {
+  const project = await createDraftProjectRecord();
   redirect(`/projects/${project.slug}/edit`);
 }
 
@@ -109,6 +117,32 @@ export async function requestPublish(projectId: string) {
   revalidatePath("/dashboard");
 }
 
+export async function deleteProject(projectId: string) {
+  const session = await requireSession();
+
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, projectId));
+  if (!project || project.authorId !== session.user.id) {
+    throw new Error("Not authorized to delete this project");
+  }
+
+  const assets = await db
+    .select({ filePath: mediaAssets.filePath })
+    .from(mediaAssets)
+    .where(and(eq(mediaAssets.ownerType, "project"), eq(mediaAssets.ownerId, projectId)));
+
+  // Postgres cascade deletes the project row's likes/stars/submissions/
+  // media_assets rows; the files on disk and the Mongo body aren't
+  // Postgres's problem, clean those up ourselves first.
+  await Promise.all(assets.map((a) => deleteUploadedFile(a.filePath)));
+  await deleteContentDoc(project.contentDocId);
+  await db.delete(projects).where(eq(projects.id, projectId));
+
+  revalidatePath("/dashboard");
+}
+
 export async function toggleLike(projectId: string) {
   const session = await requireSession();
   const userId = session.user.id;
@@ -171,6 +205,7 @@ export async function getFeaturedProjects() {
       category: projects.category,
       likeCount: projects.likeCount,
       starCount: projects.starCount,
+      authorId: projects.authorId,
       authorName: users.displayName,
       publishedAt: projects.publishedAt,
     })
@@ -202,6 +237,7 @@ export async function listPublishedProjects(options?: {
       category: projects.category,
       likeCount: projects.likeCount,
       starCount: projects.starCount,
+      authorId: projects.authorId,
       authorName: users.displayName,
       publishedAt: projects.publishedAt,
     })

@@ -3,8 +3,9 @@ import { auth } from "@/auth";
 import { getProjectBySlug } from "@/actions/projects";
 import { getContentDoc } from "@/db/content";
 import { ProjectEditorPanel } from "@/components/project-editor-panel";
+import { SlidePanel } from "@/components/slide-panel";
 
-export default async function EditProjectPage({
+export default async function EditProjectModal({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -19,5 +20,9 @@ export default async function EditProjectPage({
 
   const body = (await getContentDoc(project.contentDocId)) ?? "";
 
-  return <ProjectEditorPanel project={project} body={body} variant="page" />;
+  return (
+    <SlidePanel>
+      <ProjectEditorPanel project={project} body={body} variant="modal" />
+    </SlidePanel>
+  );
 }

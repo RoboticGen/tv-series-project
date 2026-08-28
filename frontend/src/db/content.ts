@@ -56,3 +56,8 @@ export async function updateContentDoc(
     { $set: { body, updatedAt: new Date() } },
   );
 }
+
+export async function deleteContentDoc(id: string): Promise<void> {
+  const collection = await getCollection();
+  await collection.deleteOne({ _id: new ObjectId(id) });
+}

@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { NewProjectButton } from "@/components/new-project-button";
 
 const NAV_LINKS = [
   { id: "categories", label: "Categories" },
@@ -120,16 +121,7 @@ function HeroCta() {
   }
 
   if (session?.user) {
-    return (
-      <Button
-        size="lg"
-        className="rounded-full"
-        nativeButton={false}
-        render={<Link href="/projects/new" />}
-      >
-        Start a project
-      </Button>
-    );
+    return <NewProjectButton size="lg" className="rounded-full">Start a project</NewProjectButton>;
   }
 
   return (

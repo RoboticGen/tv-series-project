@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { auth } from "@/auth";
 import { listPublishedProjects } from "@/actions/projects";
 import { FeaturedRail } from "@/components/featured-rail";
 import { ProjectCard } from "@/components/project-card";
@@ -19,7 +20,11 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 async function PublishedGrid({ category }: { category?: string }) {
-  const projects = await listPublishedProjects({ category });
+  const [session, projects] = await Promise.all([
+    auth(),
+    listPublishedProjects({ category }),
+  ]);
+  const viewerId = session?.user?.id;
 
   if (projects.length === 0) {
     return (
@@ -41,6 +46,11 @@ async function PublishedGrid({ category }: { category?: string }) {
           authorName={project.authorName}
           likeCount={project.likeCount}
           starCount={project.starCount}
+          href={
+            project.authorId === viewerId
+              ? `/projects/${project.slug}/edit`
+              : undefined
+          }
         />
       ))}
     </div>

@@ -1,8 +1,10 @@
+import { auth } from "@/auth";
 import { getFeaturedProjects } from "@/actions/projects";
 import { ProjectCard } from "@/components/project-card";
 
 export async function FeaturedRail() {
-  const featured = await getFeaturedProjects();
+  const [session, featured] = await Promise.all([auth(), getFeaturedProjects()]);
+  const viewerId = session?.user?.id;
 
   if (featured.length === 0) {
     return (
@@ -24,6 +26,11 @@ export async function FeaturedRail() {
           authorName={project.authorName}
           likeCount={project.likeCount}
           starCount={project.starCount}
+          href={
+            project.authorId === viewerId
+              ? `/projects/${project.slug}/edit`
+              : undefined
+          }
         />
       ))}
     </div>

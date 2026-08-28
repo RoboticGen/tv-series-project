@@ -19,7 +19,7 @@ export default async function NewSubmissionPage({
   if (!isAuthor && project.status !== "published") notFound();
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-6 py-12">
       <h1 className="font-heading text-2xl font-bold text-brand-navy dark:text-white">
         I built this: {project.title}
       </h1>

@@ -46,6 +46,7 @@ interface ProjectFormProps {
   initialBody: string;
   status: string;
   rejectionReason: string | null;
+  inModal?: boolean;
 }
 
 export function ProjectForm({
@@ -56,6 +57,7 @@ export function ProjectForm({
   initialBody,
   status,
   rejectionReason,
+  inModal = false,
 }: ProjectFormProps) {
   const router = useRouter();
   const [title, setTitle] = React.useState(initialTitle);
@@ -78,7 +80,11 @@ export function ProjectForm({
         category,
         body,
       });
-      router.push(`/projects/${slug}/edit`);
+      if (inModal) {
+        router.replace(`/projects/${slug}/edit`);
+      } else {
+        router.push(`/projects/${slug}/edit`);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");

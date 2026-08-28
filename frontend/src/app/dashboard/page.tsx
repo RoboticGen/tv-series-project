@@ -63,6 +63,7 @@ export default async function DashboardPage() {
                     likeCount={project.likeCount}
                     starCount={project.starCount}
                     statusBadge={project.status.replace("_", " ")}
+                    href={`/projects/${project.slug}/edit`}
                   />
                 ))}
               </div>
