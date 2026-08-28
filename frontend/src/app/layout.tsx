@@ -19,18 +19,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RoboticGen Academy — UI Components",
-  description: "Component reference for the RoboticGen Academy design system.",
+  title: "RoboticGen Projects",
+  description: "Publish, discover, and build RoboticGen student projects.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+  modal,
+}: LayoutProps<"/"> & { modal: React.ReactNode }) {
   return (
     <html
       lang="en"
       className={`${raleway.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          {modal}
+        </Providers>
       </body>
     </html>
   );

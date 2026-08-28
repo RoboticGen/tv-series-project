@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import {
   LayoutGrid,
@@ -36,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { NewProjectButton } from "@/components/new-project-button";
 
 const NAV_LINKS = [
   { id: "categories", label: "Categories" },
@@ -84,6 +86,15 @@ function AuthButton({ size = "sm" }: { size?: "sm" | "lg" }) {
         <Badge variant="secondary" className="capitalize">
           {session.user.role}
         </Badge>
+        <Button
+          size={size}
+          variant="outline"
+          className="rounded-full"
+          nativeButton={false}
+          render={<Link href="/dashboard" />}
+        >
+          Dashboard
+        </Button>
         <Button size={size} variant="outline" className="rounded-full" onClick={() => signOut()}>
           Sign out
         </Button>
@@ -110,17 +121,7 @@ function HeroCta() {
   }
 
   if (session?.user) {
-    return (
-      <Button
-        size="lg"
-        className="rounded-full"
-        onClick={() =>
-          document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" })
-        }
-      >
-        Start a project
-      </Button>
-    );
+    return <NewProjectButton size="lg" className="rounded-full">Start a project</NewProjectButton>;
   }
 
   return (
@@ -201,7 +202,13 @@ export default function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <HeroCta />
-                <Button size="lg" variant="outline" className="rounded-full">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full"
+                  nativeButton={false}
+                  render={<Link href="/projects" />}
+                >
                   Browse projects
                 </Button>
               </div>

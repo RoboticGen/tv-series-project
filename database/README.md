@@ -1,6 +1,8 @@
 # Database
 
-PostgreSQL 16 schema for the RoboticGen Academy project platform, run in Docker.
+PostgreSQL 16 schema for the RoboticGen Academy project platform, run in
+Docker, alongside a MongoDB 7 container that stores the Markdown body of
+every project/submission (see "Design notes" below).
 
 ## Run it
 
@@ -19,7 +21,11 @@ Connect with:
 
 ```
 postgresql://roboticgen:roboticgen@localhost:5432/roboticgen
+mongodb://roboticgen:roboticgen@localhost:27017
 ```
+
+`frontend/.env` needs matching `MONGODB_URI`/`MONGODB_DB` values -- see
+`frontend/.env.example`.
 
 ## Layout
 
@@ -38,9 +44,18 @@ postgresql://roboticgen:roboticgen@localhost:5432/roboticgen
   and `submissions.content_doc_id` are the Mongo `_id` of the markdown
   document. Postgres owns everything that needs relational integrity,
   filtering, or transactions (workflow state, ownership, likes); Mongo
-  owns the prose.
+  owns the prose. The `mongo` service in `docker-compose.yml` runs it
+  alongside Postgres; the app connects via `frontend/src/db/mongo.ts`
+  (a `MongoClient` singleton, mirroring the Postgres client pattern in
+  `frontend/src/db/index.ts`) and reads/writes bodies through the typed
+  helpers in `frontend/src/db/content.ts`. There is no schema migration
+  for this -- it's a single `content_docs` collection, no fixed shape
+  enforced by Mongo itself.
 - **Images live on local disk**, referenced by `media_assets.file_path`
-  (relative to a configured storage root). `media_assets` is polymorphic
+  (relative to `STORAGE_ROOT`, an env var read by
+  `frontend/src/lib/storage.ts` -- kept outside `frontend/public/` so
+  every read goes through the ownership-checked
+  `frontend/src/app/api/media/[id]/route.ts` instead of static hosting). `media_assets` is polymorphic
   (`owner_type` + `owner_id`) so projects and submissions share one
   gallery table instead of two identical ones. Postgres can't attach a
   single `FOREIGN KEY` to two different target tables, so this is
