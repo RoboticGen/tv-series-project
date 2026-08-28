@@ -1,25 +1,11 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getProjectBySlug } from "@/actions/projects";
 import { getContentDoc } from "@/db/content";
 import { ProjectDetailPanel } from "@/components/project-detail-panel";
+import { SlidePanel } from "@/components/slide-panel";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const project = await getProjectBySlug(slug);
-  if (!project) return { title: "Project not found" };
-  return {
-    title: `${project.title} — RoboticGen Projects`,
-    description: project.summary || `A RoboticGen project by ${project.authorName}.`,
-  };
-}
-
-export default async function ProjectDetailPage({
+export default async function ProjectDetailModal({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -36,5 +22,9 @@ export default async function ProjectDetailPage({
 
   const body = (await getContentDoc(project.contentDocId)) ?? "";
 
-  return <ProjectDetailPanel project={project} body={body} viewerId={viewerId} variant="page" />;
+  return (
+    <SlidePanel>
+      <ProjectDetailPanel project={project} body={body} viewerId={viewerId} variant="modal" />
+    </SlidePanel>
+  );
 }

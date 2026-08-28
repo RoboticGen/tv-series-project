@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MarkdownEditor } from "@/components/markdown-editor";
+import { CoverImageUpload } from "@/components/cover-image-upload";
 import { updateProject, requestPublish } from "@/actions/projects";
 import { projectCategory } from "@/db/schema";
 
@@ -43,6 +44,7 @@ interface ProjectFormProps {
   initialTitle: string;
   initialSummary: string;
   initialCategory: string;
+  initialCoverImageUrl: string | null;
   initialBody: string;
   status: string;
   rejectionReason: string | null;
@@ -54,6 +56,7 @@ export function ProjectForm({
   initialTitle,
   initialSummary,
   initialCategory,
+  initialCoverImageUrl,
   initialBody,
   status,
   rejectionReason,
@@ -127,6 +130,11 @@ export function ProjectForm({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label>Cover image</Label>
+            <CoverImageUpload projectId={projectId} initialUrl={initialCoverImageUrl} />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input

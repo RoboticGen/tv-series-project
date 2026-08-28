@@ -19,6 +19,7 @@ interface ProjectEditorPanelProps {
     title: string;
     summary: string;
     category: string;
+    coverImageUrl: string | null;
     status: string;
     rejectionReason: string | null;
   };
@@ -95,6 +96,7 @@ export function ProjectEditorPanel({
           initialTitle={project.title}
           initialSummary={project.summary}
           initialCategory={project.category}
+          initialCoverImageUrl={project.coverImageUrl}
           initialBody={body}
           status={project.status}
           rejectionReason={project.rejectionReason}

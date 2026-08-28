@@ -1,13 +1,16 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 
-export default async function EditProjectLayout({
+export default async function ReviewLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const session = await auth();
   if (!session?.user) redirect("/landing");
+  if (session.user.role !== "mentor" && session.user.role !== "admin") {
+    redirect("/dashboard");
+  }
 
   return <>{children}</>;
 }

@@ -1,9 +1,10 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { auth } from "@/auth";
-import { listPublishedProjects } from "@/actions/projects";
-import { FeaturedRail } from "@/components/featured-rail";
+import { getFeaturedProjects } from "@/actions/projects";
 import { ProjectCard } from "@/components/project-card";
+import { Input } from "@/components/ui/input";
 import { projectCategory } from "@/db/schema";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -19,17 +20,17 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-async function PublishedGrid({ category }: { category?: string }) {
+async function FeaturedGrid({ query, category }: { query?: string; category?: string }) {
   const [session, projects] = await Promise.all([
     auth(),
-    listPublishedProjects({ category }),
+    getFeaturedProjects({ query, category }),
   ]);
   const viewerId = session?.user?.id;
 
   if (projects.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No published projects yet in this category.
+        No featured projects match your search yet.
       </p>
     );
   }
@@ -46,6 +47,7 @@ async function PublishedGrid({ category }: { category?: string }) {
           authorName={project.authorName}
           likeCount={project.likeCount}
           starCount={project.starCount}
+          coverImageUrl={project.coverImageUrl}
           href={
             project.authorId === viewerId
               ? `/projects/${project.slug}/edit`
@@ -60,54 +62,60 @@ async function PublishedGrid({ category }: { category?: string }) {
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { q, category } = await searchParams;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      <section>
+      <div>
         <h1 className="font-heading text-2xl font-bold text-brand-navy dark:text-white">
           Featured projects
         </h1>
-        <div className="mt-6">
-          <Suspense fallback={<GridSkeleton />}>
-            <FeaturedRail />
-          </Suspense>
-        </div>
-      </section>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Approved builds from the RoboticGen community.
+        </p>
+      </div>
 
-      <section className="mt-16">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-heading text-2xl font-bold text-brand-navy dark:text-white">
-            Browse projects
-          </h2>
-          <nav className="flex flex-wrap gap-2 text-sm">
-            <Link
-              href="/projects"
-              className={!category ? "font-medium text-brand-teal" : "text-muted-foreground"}
-            >
-              All
-            </Link>
-            {projectCategory.enumValues.map((value) => (
-              <Link
-                key={value}
-                href={`/projects?category=${value}`}
-                className={
-                  category === value ? "font-medium text-brand-teal" : "text-muted-foreground"
-                }
-              >
-                {CATEGORY_LABELS[value]}
-              </Link>
-            ))}
-          </nav>
+      <form className="mt-6 flex items-center gap-2" action="/projects">
+        {category ? <input type="hidden" name="category" value={category} /> : null}
+        <div className="relative flex-1 max-w-md">
+          <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="Search featured projects…"
+            className="h-9 pl-8"
+          />
         </div>
-        <div className="mt-6">
-          <Suspense fallback={<GridSkeleton />} key={category ?? "all"}>
-            <PublishedGrid category={category} />
-          </Suspense>
-        </div>
-      </section>
+      </form>
+
+      <nav className="mt-4 flex flex-wrap gap-2 text-sm">
+        <Link
+          href={q ? `/projects?q=${encodeURIComponent(q)}` : "/projects"}
+          className={!category ? "font-medium text-brand-teal" : "text-muted-foreground"}
+        >
+          All
+        </Link>
+        {projectCategory.enumValues.map((value) => (
+          <Link
+            key={value}
+            href={`/projects?category=${value}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+            className={
+              category === value ? "font-medium text-brand-teal" : "text-muted-foreground"
+            }
+          >
+            {CATEGORY_LABELS[value]}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="mt-8">
+        <Suspense fallback={<GridSkeleton />} key={`${category ?? "all"}-${q ?? ""}`}>
+          <FeaturedGrid query={q} category={category} />
+        </Suspense>
+      </div>
     </div>
   );
 }

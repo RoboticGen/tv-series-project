@@ -1,13 +1,7 @@
-"use client";
-
-import * as React from "react";
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
 import {
   LayoutGrid,
-  Search,
-  ChevronLeft,
-  ChevronRight,
+  ArrowRight,
   Heart,
   Star,
   Lock,
@@ -15,8 +9,12 @@ import {
   Boxes,
   Cpu,
   Radio,
-  Hammer,
+  Code2,
+  Brain,
+  Plane,
   SlidersHorizontal,
+  Trophy,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,110 +24,48 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { NewProjectButton } from "@/components/new-project-button";
+import { getFeaturedProjects } from "@/actions/projects";
+import { ProjectCard } from "@/components/project-card";
+import { LandingAuthButton } from "@/components/landing-auth-button";
+import { LandingHeroCta } from "@/components/landing-hero-cta";
+import { projectCategory } from "@/db/schema";
+
+// Featured projects change whenever a mentor approves a submission --
+// revalidate periodically instead of freezing the list at build time.
+export const revalidate = 60;
 
 const NAV_LINKS = [
   { id: "categories", label: "Categories" },
-  { id: "browse", label: "Browse" },
+  { id: "featured", label: "Featured" },
   { id: "community", label: "Community" },
 ];
 
-const CATEGORIES = [
-  { name: "Robotics", count: 128, icon: Bot },
-  { name: "3D Printing", count: 94, icon: Boxes },
-  { name: "Electronics", count: 76, icon: Cpu },
-  { name: "IoT", count: 52, icon: Radio },
-  { name: "Woodworking", count: 41, icon: Hammer },
-  { name: "Sensors", count: 33, icon: SlidersHorizontal },
-];
+const CATEGORY_LABELS: Record<string, string> = {
+  robotics: "Robotics",
+  electronics: "Electronics",
+  iot: "IoT",
+  coding_software: "Coding & Software",
+  ai_ml: "AI / ML",
+  drones: "Drones",
+  threed_printing: "3D Printing",
+  sensors_automation: "Sensors & Automation",
+  competitions: "Competitions",
+  other: "Other",
+};
 
-const PROJECTS = [
-  { title: "Line-Following Rover", author: "Obo P.", cat: "Robotics", likes: 214 },
-  { title: "3D-Printed Robotic Arm", author: "Kavindu S.", cat: "3D Printing", likes: 189 },
-  { title: "Smart Plant Monitor", author: "Amara J.", cat: "IoT", likes: 152 },
-  { title: "Obstacle-Avoiding Bot", author: "Nisal F.", cat: "Robotics", likes: 133 },
-  { title: "Home Automation Hub", author: "Dinithi R.", cat: "Electronics", likes: 121 },
-  { title: "Ultrasonic Distance Sensor Rig", author: "Sahan W.", cat: "Sensors", likes: 98 },
-];
-
-function AuthButton({ size = "sm" }: { size?: "sm" | "lg" }) {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return (
-      <Button size={size} className="rounded-full" disabled>
-        Loading…
-      </Button>
-    );
-  }
-
-  if (session?.user) {
-    return (
-      <div className="flex items-center gap-2">
-        <Avatar size={size === "lg" ? "default" : "sm"}>
-          <AvatarImage src={session.user.image ?? undefined} alt={session.user.name ?? "You"} />
-          <AvatarFallback>
-            {(session.user.name ?? session.user.email ?? "U").slice(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <Badge variant="secondary" className="capitalize">
-          {session.user.role}
-        </Badge>
-        <Button
-          size={size}
-          variant="outline"
-          className="rounded-full"
-          nativeButton={false}
-          render={<Link href="/dashboard" />}
-        >
-          Dashboard
-        </Button>
-        <Button size={size} variant="outline" className="rounded-full" onClick={() => signOut()}>
-          Sign out
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <Button size={size} className="rounded-full" onClick={() => signIn("google")}>
-      Sign in with Google
-    </Button>
-  );
-}
-
-function HeroCta() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return (
-      <Button size="lg" className="rounded-full" disabled>
-        Loading…
-      </Button>
-    );
-  }
-
-  if (session?.user) {
-    return <NewProjectButton size="lg" className="rounded-full">Start a project</NewProjectButton>;
-  }
-
-  return (
-    <Button size="lg" className="rounded-full" onClick={() => signIn("google")}>
-      Sign in with Google
-    </Button>
-  );
-}
+const CATEGORY_ICONS: Record<string, typeof Bot> = {
+  robotics: Bot,
+  electronics: Cpu,
+  iot: Radio,
+  coding_software: Code2,
+  ai_ml: Brain,
+  drones: Plane,
+  threed_printing: Boxes,
+  sensors_automation: SlidersHorizontal,
+  competitions: Trophy,
+  other: Sparkles,
+};
 
 function SectionHeading({
   eyebrow,
@@ -151,9 +87,9 @@ function SectionHeading({
   );
 }
 
-export default function LandingPage() {
-  const [page, setPage] = React.useState(1);
-  const totalPages = 5;
+export default async function LandingPage() {
+  const featured = await getFeaturedProjects({ page: 1 });
+  const previewProjects = featured.slice(0, 6);
 
   return (
     <div className="min-h-full bg-background">
@@ -179,7 +115,7 @@ export default function LandingPage() {
               </a>
             ))}
           </nav>
-          <AuthButton />
+          <LandingAuthButton />
         </div>
       </header>
 
@@ -201,7 +137,7 @@ export default function LandingPage() {
                 RoboticGen learners.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                <HeroCta />
+                <LandingHeroCta />
                 <Button
                   size="lg"
                   variant="outline"
@@ -224,23 +160,24 @@ export default function LandingPage() {
               title="Browse by category"
               desc="Admins curate the category list — projects are filed under one to keep discovery focused."
             />
-            <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c.name}
-                  className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-center transition-colors hover:border-brand-teal"
-                >
-                  <div className="flex size-10 items-center justify-center rounded-full bg-brand-teal/10 text-brand-teal">
-                    <c.icon className="size-5" />
-                  </div>
-                  <span className="text-sm font-medium text-brand-navy dark:text-white">
-                    {c.name}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {c.count} projects
-                  </span>
-                </button>
-              ))}
+            <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+              {projectCategory.enumValues.map((value) => {
+                const Icon = CATEGORY_ICONS[value];
+                return (
+                  <Link
+                    key={value}
+                    href={`/projects?category=${value}`}
+                    className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-center transition-colors hover:border-brand-teal"
+                  >
+                    <div className="flex size-10 items-center justify-center rounded-full bg-brand-teal/10 text-brand-teal">
+                      <Icon className="size-5" />
+                    </div>
+                    <span className="text-sm font-medium text-brand-navy dark:text-white">
+                      {CATEGORY_LABELS[value]}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
             <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <LayoutGrid className="size-3.5" />
@@ -249,86 +186,48 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Search & browse pagination */}
-        <section id="browse" className="scroll-mt-20 border-b bg-muted/40 py-20">
+        {/* Featured projects */}
+        <section id="featured" className="scroll-mt-20 border-b bg-muted/40 py-20">
           <div className="mx-auto max-w-6xl px-6">
             <SectionHeading
-              eyebrow="Search & browse"
-              title="Find any project, fast"
-              desc="Full-text search with category filtering, paginated results."
+              eyebrow="Featured"
+              title="Approved builds from the community"
+              desc="Every project here has been mentor-reviewed and approved — real write-ups, real learners."
             />
-            <div className="mx-auto mt-10 flex max-w-2xl flex-col gap-3 sm:flex-row">
-              <div className="relative flex-1">
-                <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Search projects…" className="pl-9" />
-              </div>
-              <Select defaultValue="all">
-                <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c.name} value={c.name.toLowerCase()}>
-                      {c.name}
-                    </SelectItem>
+
+            <div className="mt-10">
+              {previewProjects.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground">
+                  No featured projects yet — check back soon.
+                </p>
+              ) : (
+                <div className="grid gap-6 md:grid-cols-3">
+                  {previewProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      slug={project.slug}
+                      title={project.title}
+                      summary={project.summary}
+                      category={project.category}
+                      authorName={project.authorName}
+                      likeCount={project.likeCount}
+                      starCount={project.starCount}
+                      coverImageUrl={project.coverImageUrl}
+                    />
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
             </div>
 
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {PROJECTS.map((p) => (
-                <Card key={p.title}>
-                  <CardHeader>
-                    <Badge variant="secondary" className="w-fit">
-                      {p.cat}
-                    </Badge>
-                    <CardTitle className="mt-1">{p.title}</CardTitle>
-                    <CardDescription>by {p.author}</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="justify-between">
-                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Heart className="size-4 text-brand-coral" />
-                      {p.likes}
-                    </span>
-                    <Button size="sm" variant="outline">
-                      View
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-
-            <div className="mt-10 flex items-center justify-center gap-2">
+            <div className="mt-10 flex justify-center">
               <Button
-                size="sm"
                 variant="outline"
-                disabled={page === 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="gap-1.5 rounded-full"
+                nativeButton={false}
+                render={<Link href="/projects" />}
               >
-                <ChevronLeft className="size-4" />
-                Prev
-              </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                <Button
-                  key={n}
-                  size="sm"
-                  variant={n === page ? "default" : "ghost"}
-                  className="size-8 p-0"
-                  onClick={() => setPage(n)}
-                >
-                  {n}
-                </Button>
-              ))}
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next
-                <ChevronRight className="size-4" />
+                Search & browse all projects
+                <ArrowRight className="size-4" />
               </Button>
             </div>
           </div>
