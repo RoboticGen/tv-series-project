@@ -111,6 +111,9 @@ export const projects = pgTable("projects", {
   summary: text("summary").notNull(),
   // MongoDB _id of the markdown document. No FK -- Mongo is a separate store.
   contentDocId: text("content_doc_id").notNull(),
+  // FK declared after media_assets in database/init/004_tables.sql (that
+  // table doesn't exist yet at this point in the init script).
+  coverImageId: uuid("cover_image_id"),
   status: projectStatus("status").notNull().default("draft"),
   isFeatured: boolean("is_featured").notNull().default(false),
   reviewedById: uuid("reviewed_by").references(() => users.id, {
@@ -291,6 +294,7 @@ export const pendingReviewQueue = pgView("pending_review_queue", {
   authorId: uuid("author_id"),
   authorName: text("author_name"),
   category: projectCategory("category"),
+  coverImageId: uuid("cover_image_id"),
   createdAt: timestamp("created_at", { withTimezone: true }),
 }).existing();
 

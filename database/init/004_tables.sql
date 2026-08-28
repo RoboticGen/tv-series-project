@@ -43,6 +43,8 @@ CREATE TABLE projects (
   slug             TEXT NOT NULL UNIQUE,
   summary          TEXT NOT NULL,
   content_doc_id   TEXT NOT NULL,
+  -- FK added after media_assets below (media_assets doesn't exist yet here).
+  cover_image_id   UUID,
   status           project_status NOT NULL DEFAULT 'draft',
   is_featured      BOOLEAN NOT NULL DEFAULT false,
   reviewed_by      UUID REFERENCES users (id) ON DELETE SET NULL,
@@ -142,6 +144,13 @@ CREATE INDEX idx_media_assets_owner ON media_assets (owner_type, owner_id, posit
 CREATE TRIGGER trg_media_assets_validate_owner
   BEFORE INSERT OR UPDATE OF owner_type, owner_id ON media_assets
   FOR EACH ROW EXECUTE FUNCTION validate_media_asset_owner();
+
+-- Deferred from the projects table above -- media_assets didn't exist yet
+-- at that point. SET NULL (not CASCADE) so removing/replacing a cover
+-- image never takes the project row down with it.
+ALTER TABLE projects
+  ADD CONSTRAINT fk_projects_cover_image
+  FOREIGN KEY (cover_image_id) REFERENCES media_assets (id) ON DELETE SET NULL;
 
 
 -- =====================================================================

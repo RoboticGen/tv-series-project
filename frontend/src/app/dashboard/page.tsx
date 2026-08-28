@@ -62,6 +62,7 @@ export default async function DashboardPage() {
                     authorName={session.user.name ?? "You"}
                     likeCount={project.likeCount}
                     starCount={project.starCount}
+                    coverImageUrl={project.coverImageUrl}
                     statusBadge={project.status.replace("_", " ")}
                     href={`/projects/${project.slug}/edit`}
                   />

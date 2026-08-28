@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, Compass, Menu, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Compass, ClipboardCheck, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,9 +17,16 @@ const NAV_ITEMS = [
   { href: "/projects", label: "Browse projects", icon: Compass },
 ];
 
+const REVIEWER_NAV_ITEMS = [
+  { href: "/dashboard/review", label: "Review queue", icon: ClipboardCheck },
+];
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const isReviewer =
+    session?.user?.role === "mentor" || session?.user?.role === "admin";
+  const navItems = isReviewer ? [...NAV_ITEMS, ...REVIEWER_NAV_ITEMS] : NAV_ITEMS;
 
   return (
     <div className="flex h-full flex-col">
@@ -40,7 +47,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="mt-4 flex flex-col gap-1 px-3">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const isActive =
             item.href === "/dashboard"
               ? pathname === "/dashboard"

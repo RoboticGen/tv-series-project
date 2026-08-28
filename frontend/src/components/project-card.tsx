@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Heart, Star } from "lucide-react";
+import Image from "next/image";
+import { Heart, Star, ImageOff } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -32,6 +33,7 @@ interface ProjectCardProps {
   starCount: number;
   statusBadge?: string;
   href?: string;
+  coverImageUrl?: string | null;
 }
 
 export function ProjectCard({
@@ -44,10 +46,27 @@ export function ProjectCard({
   starCount,
   statusBadge,
   href,
+  coverImageUrl,
 }: ProjectCardProps) {
   return (
-    <Link href={href ?? `/projects/${slug}`}>
-      <Card className="h-full transition-colors hover:border-brand-teal">
+    <Link href={href ?? `/projects/${slug}`} className="block h-full">
+      <Card className="h-full pt-0 transition-colors hover:border-brand-teal">
+        <div className="relative aspect-video w-full overflow-hidden rounded-t-xl bg-muted">
+          {coverImageUrl ? (
+            <Image
+              src={coverImageUrl}
+              alt={title}
+              fill
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+              <ImageOff className="size-6" />
+            </div>
+          )}
+        </div>
         <CardHeader>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="w-fit">
@@ -64,7 +83,7 @@ export function ProjectCard({
             {summary ? summary : <em>This project has no description</em>}
           </CardDescription>
         </CardHeader>
-        <CardFooter className="justify-between">
+        <CardFooter className="mt-auto justify-between">
           <span className="text-sm text-muted-foreground">by {authorName}</span>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">

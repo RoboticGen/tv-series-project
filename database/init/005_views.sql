@@ -26,6 +26,7 @@ SELECT
   p.author_id,
   u.display_name AS author_name,
   p.category,
+  p.cover_image_id,
   p.created_at
 FROM projects p
 JOIN users u ON u.id = p.author_id
