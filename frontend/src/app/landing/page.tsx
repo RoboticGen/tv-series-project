@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import {
   LayoutGrid,
@@ -84,6 +85,15 @@ function AuthButton({ size = "sm" }: { size?: "sm" | "lg" }) {
         <Badge variant="secondary" className="capitalize">
           {session.user.role}
         </Badge>
+        <Button
+          size={size}
+          variant="outline"
+          className="rounded-full"
+          nativeButton={false}
+          render={<Link href="/dashboard" />}
+        >
+          Dashboard
+        </Button>
         <Button size={size} variant="outline" className="rounded-full" onClick={() => signOut()}>
           Sign out
         </Button>
@@ -114,9 +124,8 @@ function HeroCta() {
       <Button
         size="lg"
         className="rounded-full"
-        onClick={() =>
-          document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" })
-        }
+        nativeButton={false}
+        render={<Link href="/projects/new" />}
       >
         Start a project
       </Button>
@@ -201,7 +210,13 @@ export default function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <HeroCta />
-                <Button size="lg" variant="outline" className="rounded-full">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full"
+                  nativeButton={false}
+                  render={<Link href="/projects" />}
+                >
                   Browse projects
                 </Button>
               </div>

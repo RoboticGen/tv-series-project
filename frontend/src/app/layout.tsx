@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RoboticGen Academy — UI Components",
-  description: "Component reference for the RoboticGen Academy design system.",
+  title: "RoboticGen Projects",
+  description: "Publish, discover, and build RoboticGen student projects.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
