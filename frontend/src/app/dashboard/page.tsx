@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getDashboardStats } from "@/actions/dashboard";
-import { getMyProjects } from "@/actions/projects";
+import { getMyProjects, getMyStarredProjects } from "@/actions/projects";
 import { getMySubmissions } from "@/actions/submissions";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { ProjectCard } from "@/components/project-card";
@@ -18,10 +18,11 @@ export default async function DashboardPage() {
   if (!session?.user) redirect("/landing");
 
   const userId = session.user.id;
-  const [stats, myProjects, mySubmissions] = await Promise.all([
+  const [stats, myProjects, mySubmissions, starredProjects] = await Promise.all([
     getDashboardStats(userId),
     getMyProjects(userId),
     getMySubmissions(userId),
+    getMyStarredProjects(userId),
   ]);
 
   return (
@@ -44,6 +45,7 @@ export default async function DashboardPage() {
           <TabsList>
             <TabsTrigger value="projects">My Projects</TabsTrigger>
             <TabsTrigger value="submissions">My Submissions</TabsTrigger>
+            <TabsTrigger value="starred">Starred Projects</TabsTrigger>
           </TabsList>
           <TabsContent value="projects" className="mt-6">
             {myProjects.length === 0 ? (
@@ -83,6 +85,31 @@ export default async function DashboardPage() {
                     id={submission.id}
                     projectTitle={submission.projectTitle}
                     createdAt={submission.createdAt}
+                    isPrivate={submission.isPrivate}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="starred" className="mt-6">
+            {starredProjects.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                You haven&apos;t starred any projects yet.
+              </p>
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {starredProjects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    slug={project.slug}
+                    title={project.title}
+                    summary={project.summary}
+                    category={project.category}
+                    authorName={project.authorName}
+                    likeCount={project.likeCount}
+                    starCount={project.starCount}
+                    coverImageUrl={project.coverImageUrl}
+                    href={`/projects/${project.slug}`}
                   />
                 ))}
               </div>

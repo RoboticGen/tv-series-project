@@ -228,6 +228,7 @@ export async function toggleStar(projectId: string) {
     .from(projects)
     .where(eq(projects.id, projectId));
   if (project) revalidatePath(`/projects/${project.slug}`);
+  revalidatePath("/dashboard");
 
   return { starred: !existing };
 }
@@ -346,6 +347,32 @@ export async function getMyProjects(userId: string) {
     .from(projects)
     .where(eq(projects.authorId, userId))
     .orderBy(desc(projects.createdAt));
+
+  return rows.map(({ coverImageId, ...row }) => ({
+    ...row,
+    coverImageUrl: coverImageId ? `/api/media/${coverImageId}` : null,
+  }));
+}
+
+export async function getMyStarredProjects(userId: string) {
+  const rows = await db
+    .select({
+      id: projects.id,
+      title: projects.title,
+      slug: projects.slug,
+      summary: projects.summary,
+      category: projects.category,
+      likeCount: projects.likeCount,
+      starCount: projects.starCount,
+      authorName: users.displayName,
+      coverImageId: projects.coverImageId,
+      starredAt: projectStars.startedAt,
+    })
+    .from(projectStars)
+    .innerJoin(projects, eq(projectStars.projectId, projects.id))
+    .innerJoin(users, eq(projects.authorId, users.id))
+    .where(and(eq(projectStars.userId, userId), eq(projects.status, "published")))
+    .orderBy(desc(projectStars.startedAt));
 
   return rows.map(({ coverImageId, ...row }) => ({
     ...row,

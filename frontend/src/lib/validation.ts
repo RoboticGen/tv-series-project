@@ -12,6 +12,7 @@ export const updateProjectSchema = createProjectSchema;
 
 export const createSubmissionSchema = z.object({
   body: z.string().trim().min(20),
+  isPrivate: z.boolean().optional(),
 });
 
 export const ALLOWED_IMAGE_MIME_TYPES = [

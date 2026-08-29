@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getSubmissionById } from "@/actions/submissions";
 import { getContentDoc } from "@/db/content";
-import { MarkdownViewer } from "@/components/markdown-viewer";
+import { SubmissionViewPanel } from "@/components/submission-view-panel";
 
 export default async function SubmissionDetailPage({
   params,
@@ -20,22 +19,17 @@ export default async function SubmissionDetailPage({
   const body = (await getContentDoc(submission.contentDocId)) ?? "";
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <p className="text-sm text-muted-foreground">
-        Your private submission for{" "}
-        <Link
-          href={`/projects/${submission.projectSlug}`}
-          className="text-brand-teal hover:underline"
-        >
-          {submission.projectTitle}
-        </Link>
-      </p>
-      <h1 className="mt-1 font-heading text-2xl font-bold text-brand-navy dark:text-white">
-        Submitted {submission.createdAt.toLocaleDateString()}
-      </h1>
-      <div className="mt-8 border-t pt-8">
-        <MarkdownViewer body={body} />
-      </div>
-    </div>
+    <SubmissionViewPanel
+      submission={{
+        createdAt: submission.createdAt,
+        projectTitle: submission.projectTitle,
+        projectSlug: submission.projectSlug,
+        authorName: session.user.name ?? "You",
+        authorAvatarUrl: session.user.image ?? null,
+      }}
+      body={body}
+      isPrivate={submission.isPrivate}
+      variant="page"
+    />
   );
 }

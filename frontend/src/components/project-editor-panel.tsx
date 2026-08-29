@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ProjectForm } from "@/components/project-form";
 import { DeleteProjectButton } from "@/components/delete-project-button";
+import { ProjectModeSwitch } from "@/components/project-mode-switch";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -73,15 +74,7 @@ export function ProjectEditorPanel({
           <p className="mt-1 text-sm text-muted-foreground">{project.title}</p>
         </div>
         <div className="flex items-center gap-3">
-          {project.status === "published" ? (
-            <Link
-              href={`/projects/${project.slug}`}
-              className="inline-flex items-center gap-1.5 text-sm text-brand-teal hover:underline"
-            >
-              View live project
-              <ExternalLink className="size-3.5" />
-            </Link>
-          ) : null}
+          <ProjectModeSwitch slug={project.slug} mode="edit" />
           <DeleteProjectButton
             projectId={project.id}
             title={project.title}

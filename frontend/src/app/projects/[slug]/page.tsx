@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getProjectBySlug } from "@/actions/projects";
+import { getPublicSubmissionsForProject } from "@/actions/submissions";
 import { getContentDoc } from "@/db/content";
 import { ProjectDetailPanel } from "@/components/project-detail-panel";
 
@@ -34,7 +35,18 @@ export default async function ProjectDetailPage({
   const isAuthor = viewerId === project.authorId;
   if (project.status !== "published" && !isAuthor) notFound();
 
-  const body = (await getContentDoc(project.contentDocId)) ?? "";
+  const [body, submissions] = await Promise.all([
+    getContentDoc(project.contentDocId),
+    getPublicSubmissionsForProject(project.id),
+  ]);
 
-  return <ProjectDetailPanel project={project} body={body} viewerId={viewerId} variant="page" />;
+  return (
+    <ProjectDetailPanel
+      project={project}
+      body={body ?? ""}
+      viewerId={viewerId}
+      variant="page"
+      submissions={submissions}
+    />
+  );
 }
