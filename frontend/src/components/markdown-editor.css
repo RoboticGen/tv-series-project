@@ -1,0 +1,42 @@
+/* Light-touch remap of MDXEditor's Radix-style theme tokens onto this
+   app's own design tokens (globals.css), scoped to the editor shell so it
+   doesn't leak into the rest of the app. */
+.markdown-editor-shell {
+  --basePageBg: var(--background);
+  --baseBg: var(--background);
+  --baseBgHover: var(--muted);
+  --baseBgActive: var(--muted);
+  --baseBorder: var(--border);
+  --baseBorderHover: var(--brand-teal);
+  --baseText: var(--brand-navy);
+  --baseTextContrast: var(--brand-navy);
+  --accentBase: var(--brand-teal);
+  --accentBg: color-mix(in oklch, var(--brand-teal) 12%, white);
+  --accentBgHover: color-mix(in oklch, var(--brand-teal) 20%, white);
+  --accentBorder: var(--brand-teal);
+  --accentSolid: var(--brand-teal);
+  --accentSolidHover: var(--brand-navy);
+  --accentText: var(--brand-teal);
+  --accentTextContrast: var(--brand-teal);
+  font-family: var(--font-sans);
+}
+
+.markdown-editor-shell .mdxeditor {
+  font-size: 1rem;
+}
+
+.markdown-editor-shell .mdxeditor-toolbar {
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 0.125rem;
+}
+
+.markdown-editor-shell .markdown-editor-content {
+  min-height: 24rem;
+  padding: 1rem 1.25rem;
+}
+
+.markdown-editor-shell .markdown-editor-content img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+}
