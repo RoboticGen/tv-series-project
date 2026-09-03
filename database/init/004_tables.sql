@@ -234,23 +234,73 @@ CREATE TRIGGER trg_submissions_cascade_media
 
 
 -- =====================================================================
+-- collections
+-- A user-curated, ordered set of projects (their own and/or others'),
+-- Instructables-style. Public by default; is_private = true hides it from
+-- everyone but owner_id. Only the owner may add/remove projects.
+-- =====================================================================
+CREATE TABLE collections (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  title       TEXT NOT NULL,
+  slug        TEXT NOT NULL UNIQUE,
+  description TEXT,
+  is_private  BOOLEAN NOT NULL DEFAULT false,
+  -- Maintained by trg_collection_items_count -- do not write from app code.
+  item_count  BIGINT NOT NULL DEFAULT 0,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_collections_owner ON collections (owner_id);
+
+CREATE TRIGGER trg_collections_updated_at
+  BEFORE UPDATE ON collections
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+-- =====================================================================
+-- collection_items
+-- Membership + manual ordering (position) of projects within a collection.
+-- =====================================================================
+CREATE TABLE collection_items (
+  collection_id  UUID NOT NULL REFERENCES collections (id) ON DELETE CASCADE,
+  project_id     UUID NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
+  position       INT NOT NULL DEFAULT 0,
+  added_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (collection_id, project_id)
+);
+
+CREATE INDEX idx_collection_items_project ON collection_items (project_id);
+
+CREATE TRIGGER trg_collection_items_count
+  AFTER INSERT OR DELETE ON collection_items
+  FOR EACH ROW EXECUTE FUNCTION adjust_collection_item_count();
+
+
+-- =====================================================================
 -- comments
--- Flat -- no parent_comment_id/threading. Only ever addable to published
--- projects (enforced in the server action, not here) so this table can
--- carry comments on unpublished/rejected projects only if a project is
--- later taken down.
+-- One level of threading: parent_comment_id is null for a top-level
+-- comment, or points at one for a reply. A reply's own parent_comment_id
+-- is never itself a reply -- enforced in the server action, not here (see
+-- addComment) -- so there's no unbounded nesting to render. Only ever
+-- addable to published projects (also enforced in the server action) so
+-- this table can carry comments on unpublished/rejected projects only if
+-- a project is later taken down.
 -- =====================================================================
 CREATE TABLE comments (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id  UUID NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-  body        TEXT NOT NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id         UUID NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
+  user_id            UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  parent_comment_id  UUID REFERENCES comments (id) ON DELETE CASCADE,
+  body               TEXT NOT NULL,
+  created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   CONSTRAINT chk_comments_body_not_blank CHECK (length(trim(body)) > 0)
 );
 
 CREATE INDEX idx_comments_project ON comments (project_id, created_at DESC);
+CREATE INDEX idx_comments_parent ON comments (parent_comment_id);
 
 CREATE TRIGGER trg_comments_count
   AFTER INSERT OR DELETE ON comments

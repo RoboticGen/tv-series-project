@@ -60,6 +60,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Denormalized item_count on collections, same reasoning as like_count/
+-- star_count above -- keeps collection list/card queries free of a
+-- join+COUNT over collection_items.
+CREATE OR REPLACE FUNCTION adjust_collection_item_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE collections SET item_count = item_count + 1 WHERE id = NEW.collection_id;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE collections SET item_count = item_count - 1 WHERE id = OLD.collection_id;
+    RETURN OLD;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Denormalized follower_count / following_count on users -- one row insert/
 -- delete on follows touches both sides at once, so a single trigger
 -- function (not a pair) handles both counters together.
