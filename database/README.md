@@ -34,8 +34,9 @@ mongodb://roboticgen:roboticgen@localhost:27017
 | `init/001_extensions.sql` | `pgcrypto`, `citext`, `pg_trgm` |
 | `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category` enums |
 | `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns |
-| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions` |
+| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items` |
 | `init/005_views.sql` | `user_dashboard_stats`, `pending_review_queue`, `user_liked_projects`, `user_starred_projects` |
+| `migrations/*.sql` | Schema changes applied after `init/` already ran once (see "Changing the schema" below) |
 | `frontend/src/db/schema.ts` | Drizzle model of the same schema (hand-maintained, see below) |
 
 ## Design notes
@@ -76,6 +77,14 @@ mongodb://roboticgen:roboticgen@localhost:27017
 - **Avatars**: `users.avatar_url` is the picture URL straight from the
   Google OAuth profile (`picture` claim) — no server-side generation or
   storage. Refresh it from Google on login if you want it to stay current.
+- **Collections** are a user-curated, ordered set of projects (their own
+  and/or others'), Instructables-style. `collections` holds the metadata
+  (`owner_id`, `title`, `slug`, `description`, `is_private`); only the
+  owner may add/remove projects, enforced in the application layer, not
+  the schema. `collection_items` is the membership/ordering join table
+  (`position` for manual ordering); `item_count` on `collections` is a
+  denormalized counter kept in sync by `trg_collection_items_count` /
+  `adjust_collection_item_count`, same pattern as `like_count`/`star_count`.
 - **Likes and stars are individually queryable, not just counted.**
   `project_likes`/`project_stars` have a `(user_id, project_id)` primary
   key, so "what did I like/star" is an index-only lookup, not a scan —
@@ -119,10 +128,12 @@ mongodb://roboticgen:roboticgen@localhost:27017
 ## Changing the schema
 
 Once the `pgdata` volume exists, `init/*.sql` no longer runs. From here,
-schema changes should go through a migration step (plain SQL run against
-the running container) rather than editing these files in place — keep
-`init/` as the from-scratch bootstrap and let migrations layer on top of
-it. `frontend/src/db/schema.ts` is a hand-maintained TypeScript mirror of
+schema changes should go through a migration step -- a new numbered file
+under `migrations/` (plain SQL, run against the running container) --
+rather than editing these files in place. Keep `init/` as the from-scratch
+bootstrap (still updated to match, so a fresh volume gets the same schema
+directly) and let `migrations/` layer on top of it for databases that
+already exist. `frontend/src/db/schema.ts` is a hand-maintained TypeScript mirror of
 this SQL for query typing; update it to match whenever a migration
 changes a table/view shape, but it does not drive the schema itself —
 `drizzle-kit push`/`generate` are not part of this workflow.
