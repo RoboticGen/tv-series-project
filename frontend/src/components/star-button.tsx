@@ -45,7 +45,8 @@ export function StarButton({
       disabled={!signedIn}
       onClick={handleClick}
       className="gap-1.5"
-      title="I'm building this"
+      title="Save this project"
+      aria-label="Favorite / Save this project"
     >
       <Star className={cn("size-4 text-brand-yellow", starred && "fill-brand-yellow")} />
       {count}

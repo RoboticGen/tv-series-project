@@ -15,6 +15,10 @@ CREATE TABLE users (
   avatar_url     TEXT,
   role           user_role NOT NULL DEFAULT 'student',
   bio            TEXT,
+  -- Maintained by triggers on follows -- see adjust_follow_counts in
+  -- 003_functions.sql. Do not write from app code.
+  follower_count   BIGINT NOT NULL DEFAULT 0,
+  following_count  BIGINT NOT NULL DEFAULT 0,
   last_login_at  TIMESTAMPTZ,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -47,14 +51,18 @@ CREATE TABLE projects (
   cover_image_id   UUID,
   status           project_status NOT NULL DEFAULT 'draft',
   is_featured      BOOLEAN NOT NULL DEFAULT false,
+  -- Set only by moderation takedowns now (status = 'rejected'); publishing
+  -- itself has no reviewer and leaves these null.
   reviewed_by      UUID REFERENCES users (id) ON DELETE SET NULL,
   reviewed_at      TIMESTAMPTZ,
+  -- Moderation takedown reason, not a pre-publish rejection reason.
   rejection_reason TEXT,
   published_at     TIMESTAMPTZ,
   view_count       BIGINT NOT NULL DEFAULT 0,
   -- Maintained by triggers in 005_indexes.sql's sibling tables -- see 003_functions.sql.
   like_count       BIGINT NOT NULL DEFAULT 0,
   star_count       BIGINT NOT NULL DEFAULT 0,
+  comment_count    BIGINT NOT NULL DEFAULT 0,
   -- Weighted full-text vector: title matches rank above summary matches.
   -- GENERATED STORED so it's indexed like any other column and never
   -- goes stale relative to title/summary.
@@ -65,8 +73,10 @@ CREATE TABLE projects (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
 
+  -- Only a moderation takedown ('rejected') requires an actor -- publishing
+  -- is self-serve and has no reviewer.
   CONSTRAINT chk_projects_review_fields CHECK (
-    status NOT IN ('published', 'rejected')
+    status <> 'rejected'
     OR (reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL)
   ),
   CONSTRAINT chk_projects_published_at CHECK (
@@ -92,10 +102,9 @@ CREATE INDEX idx_projects_featured
   ON projects (published_at DESC)
   WHERE is_featured AND status = 'published';
 
--- Mentor/admin review queue, oldest first (FIFO).
-CREATE INDEX idx_projects_pending_review
-  ON projects (created_at)
-  WHERE status = 'pending_review';
+-- Mentor/admin moderation view over already-live projects, newest first --
+-- same shape idx_projects_published_feed already provides, so no separate
+-- index is needed; the old pre-publish pending_review queue is gone.
 
 -- "My projects" dashboard.
 CREATE INDEX idx_projects_author ON projects (author_id, status);
@@ -222,3 +231,49 @@ CREATE TRIGGER trg_submissions_updated_at
 CREATE TRIGGER trg_submissions_cascade_media
   AFTER DELETE ON submissions
   FOR EACH ROW EXECUTE FUNCTION cascade_delete_media_assets();
+
+
+-- =====================================================================
+-- comments
+-- Flat -- no parent_comment_id/threading. Only ever addable to published
+-- projects (enforced in the server action, not here) so this table can
+-- carry comments on unpublished/rejected projects only if a project is
+-- later taken down.
+-- =====================================================================
+CREATE TABLE comments (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id  UUID NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
+  user_id     UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  body        TEXT NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT chk_comments_body_not_blank CHECK (length(trim(body)) > 0)
+);
+
+CREATE INDEX idx_comments_project ON comments (project_id, created_at DESC);
+
+CREATE TRIGGER trg_comments_count
+  AFTER INSERT OR DELETE ON comments
+  FOR EACH ROW EXECUTE FUNCTION adjust_project_comment_count();
+
+
+-- =====================================================================
+-- follows
+-- Follower/following counts only -- no personalized feed reads this
+-- table today, it exists purely for the (follower_id, followee_id) edge
+-- and the denormalized counts on users it maintains.
+-- =====================================================================
+CREATE TABLE follows (
+  follower_id  UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  followee_id  UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (follower_id, followee_id),
+
+  CONSTRAINT chk_follows_no_self_follow CHECK (follower_id <> followee_id)
+);
+
+CREATE INDEX idx_follows_followee ON follows (followee_id);
+
+CREATE TRIGGER trg_follows_count
+  AFTER INSERT OR DELETE ON follows
+  FOR EACH ROW EXECUTE FUNCTION adjust_follow_counts();

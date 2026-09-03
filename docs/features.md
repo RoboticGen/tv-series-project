@@ -70,6 +70,10 @@ every feature in this doc.
 7. **Track it on the dashboard** (feature 6): draft/pending/published/
    rejected counts, likes and stars received, all from
    `user_dashboard_stats` — updates automatically as steps above happen.
+8. **Submit your own build against your own project**, any time (feature
+   4) — the one case where you can publish a submission instead of
+   keeping it private, since it's your own work. It then shows on the
+   project's public "Community builds" list.
 
 ### B. Mentor / Admin — review queue
 
@@ -101,10 +105,12 @@ every feature in this doc.
    *Requires being signed in.*
 4. **Star** it (feature 4) — "I'm going to build this," bumps
    `star_count`. Also requires sign-in.
-5. **Build it and submit** their own attempt (feature 4): a private
-   write-up in the same Markdown editor (feature 5), against that
-   project. `is_private = true` by default — **only they** can ever read
-   it back, not even the project's original author.
+5. **Build it and submit** their own attempt (feature 4): a write-up in
+   the same Markdown editor (feature 5), against that project.
+   `is_private = true` by default — **only they** can ever read it back,
+   not even the project's original author. (Building against *your own*
+   project is the one case where you can choose to publish it instead —
+   see flow A below.)
 6. **Track their own activity** on their dashboard (feature 6): their
    submission count, and — if they've also published projects of their
    own — the same stats as flow A, step 7.
@@ -132,7 +138,7 @@ flowchart TD
 | 1 | Categories | ⚠️ built as fixed enum, not admin-manageable — see [below](#1-categories) | ❌ | 🟡 static demo on `/landing` |
 | 2 | Search & browse pagination | ✅ indexes in place | ❌ | 🟡 static demo on `/landing` |
 | 3 | Accounts & publishing | ✅ | 🟡 login only, review actions not built | 🟡 sign-in wired, no dashboard/review screens |
-| 4 | Community interaction | ✅ likes/stars/submissions tables | ❌ | 🟡 static demo on `/landing` |
+| 4 | Community interaction | ✅ likes/stars/submissions tables | ✅ toggle + create/list actions | ✅ like/star buttons, submission form + project-page builds list |
 | 5 | Markdown storage + editor/viewer | ✅ Postgres side (`content_doc_id`) · ❌ Mongo not wired up yet | ❌ | ❌ removed from landing, not rebuilt |
 | 6 | Dashboard + DiceBear avatars | ✅ `user_dashboard_stats` view · ⚠️ avatar source conflicts with Google-sourced `avatar_url` — see [below](#6-dashboard--avatars) | ❌ | ❌ removed from landing, not rebuilt |
 
@@ -256,21 +262,39 @@ Three separate signals, each already modeled in Postgres:
   (If "star features project" in the brief meant something else, flag it
   — this doc assumes it's the bookmark/"I'm building this" signal, since
   that's what the schema already models.)
-- **Private submissions** (`submissions`) — a learner's own "I made it"
-  write-up against a project, `is_private` defaulting to `true`. Nothing
-  in the schema grants the project's author or a mentor visibility into
-  someone else's submission — **only `user_id` can read it, full stop**,
-  by design, for now. Multiple submissions per project are allowed (no
-  unique constraint), since a learner might rebuild and want a second
-  write-up.
+- **Submissions** (`submissions`) — a learner's own "I made it" write-up
+  against a project, `is_private` defaulting to `true`. A submission
+  **against someone else's project** is always private — nothing grants
+  that project's author or a mentor visibility into it, **only `user_id`
+  can read it, full stop**. A submission against **your own** project is
+  the one exception: you (the author) can choose to publish it, and it
+  then shows publicly on the project page's "Community builds" list —
+  everyone else still only ever gets the private, author-only default.
+  Multiple submissions per project are allowed (no unique constraint),
+  since a learner might rebuild and want a second write-up.
 
-**Still open:** the like/star toggle endpoints and the submission
-create/list endpoints; the UI for all three (the `/landing` page's cards
-are static mock content).
+  Creating a submission against someone else's project requires that
+  project to be `published` **and** `is_featured` (in v1 these are set
+  together, see [§3](#3-user-accounts--publishing)); creating one against
+  your own project has no such gate.
 
-**Explicitly out of scope for v1:** sharing a private submission with
+  Built: `createSubmission`/`getMySubmissions`/`getSubmissionById`/
+  `getPublicSubmission`/`getPublicSubmissionsForProject`
+  (`frontend/src/actions/submissions.ts`), the write-up form with a
+  public/private switch (`submission-form.tsx`, only shown to the
+  project's own author), `app/projects/[slug]/submissions/new` (create)
+  and `app/projects/[slug]/submissions/[id]` (view a public one), plus
+  the "Community builds" list and "I built this" CTA on the project
+  detail panel.
+
+**Still open:** the like/star toggle UI is wired (`like-button.tsx`,
+`star-button.tsx`); nothing left for feature 4 beyond polish.
+
+**Explicitly out of scope for v1:** sharing a *private* submission with
 anyone else (including the project's own author) — that would need an
-explicit new grant mechanism, not a flag flip on the existing schema.
+explicit new grant mechanism, not a flag flip on the existing schema. A
+public submission is only ever public because its own author chose that,
+never because of a grant to a third party.
 
 ## 5. Markdown storage + a viewer/writer
 

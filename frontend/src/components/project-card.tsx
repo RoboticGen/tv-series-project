@@ -32,6 +32,7 @@ interface ProjectCardProps {
   likeCount: number;
   starCount: number;
   statusBadge?: string;
+  isFeatured?: boolean;
   href?: string;
   coverImageUrl?: string | null;
 }
@@ -45,6 +46,7 @@ export function ProjectCard({
   likeCount,
   starCount,
   statusBadge,
+  isFeatured,
   href,
   coverImageUrl,
 }: ProjectCardProps) {
@@ -72,6 +74,9 @@ export function ProjectCard({
             <Badge variant="secondary" className="w-fit">
               {CATEGORY_LABELS[category] ?? category}
             </Badge>
+            {isFeatured ? (
+              <Badge className="w-fit bg-brand-yellow text-brand-navy">Featured</Badge>
+            ) : null}
             {statusBadge ? (
               <Badge variant="outline" className="w-fit capitalize">
                 {statusBadge}

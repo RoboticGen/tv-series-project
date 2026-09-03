@@ -5,9 +5,10 @@
 CREATE TYPE user_role AS ENUM ('student', 'mentor', 'admin');
 
 -- draft            -> author is still writing, not visible to anyone else
--- pending_review   -> author asked to publish; sits in the mentor/admin queue
--- published        -> approved, visible in browse/search/featured
--- rejected         -> reviewed and declined; author can edit and resubmit (-> draft)
+-- pending_review   -> vestigial; publishing is self-serve now, nothing sets this
+-- published        -> live, visible in browse/search/featured -- author-published, no gate
+-- rejected         -> repurposed as "unpublished/removed by moderation" -- a mentor/admin
+--                     took an already-published project back down; author can republish
 CREATE TYPE project_status AS ENUM ('draft', 'pending_review', 'published', 'rejected');
 
 -- Which parent row a media_assets row belongs to. Polymorphic on purpose:

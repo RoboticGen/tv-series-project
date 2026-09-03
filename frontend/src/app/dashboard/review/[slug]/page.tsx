@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getProjectForReview } from "@/actions/review";
+import { getPublishedProjectForModeration } from "@/actions/review";
 import { getContentDoc } from "@/db/content";
 import { MarkdownViewer } from "@/components/markdown-viewer";
-import { ApproveProjectButton } from "@/components/approve-project-button";
-import { RejectProjectButton } from "@/components/reject-project-button";
+import { FeatureProjectButton } from "@/components/feature-project-button";
+import { UnpublishProjectButton } from "@/components/unpublish-project-button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -22,13 +22,13 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-export default async function ReviewProjectPage({
+export default async function ModerateProjectPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await getProjectForReview(slug);
+  const project = await getPublishedProjectForModeration(slug);
   if (!project) notFound();
 
   const body = (await getContentDoc(project.contentDocId)) ?? "";
@@ -50,7 +50,7 @@ export default async function ReviewProjectPage({
 
       <div className={cn("flex flex-wrap items-center gap-2", project.coverImageUrl && "mt-6")}>
         <Badge variant="secondary">{CATEGORY_LABELS[project.category]}</Badge>
-        <Badge variant="outline">Pending review</Badge>
+        {project.isFeatured ? <Badge variant="outline">Featured</Badge> : null}
       </div>
 
       <h1 className="mt-3 font-heading text-3xl font-bold text-brand-navy dark:text-white">
@@ -69,8 +69,8 @@ export default async function ReviewProjectPage({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <ApproveProjectButton projectId={project.id} />
-        <RejectProjectButton projectId={project.id} title={project.title} />
+        <FeatureProjectButton projectId={project.id} isFeatured={project.isFeatured} />
+        <UnpublishProjectButton projectId={project.id} title={project.title} />
       </div>
 
       <div className="mt-10 border-t pt-8">

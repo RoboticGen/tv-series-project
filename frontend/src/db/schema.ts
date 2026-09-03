@@ -29,6 +29,10 @@ import { relations } from "drizzle-orm";
 
 export const userRole = pgEnum("user_role", ["student", "mentor", "admin"]);
 
+// pending_review is vestigial -- publishing is self-serve, nothing sets it.
+// rejected is repurposed as "unpublished/removed by moderation" -- a
+// mentor/admin took an already-published project back down; not a
+// pre-publish rejection.
 export const projectStatus = pgEnum("project_status", [
   "draft",
   "pending_review",
@@ -69,6 +73,9 @@ export const users = pgTable("users", {
   avatarUrl: text("avatar_url"),
   role: userRole("role").notNull().default("student"),
   bio: text("bio"),
+  // Denormalized, kept in sync by DB triggers on follows -- do not write from app code.
+  followerCount: bigint("follower_count", { mode: "number" }).notNull().default(0),
+  followingCount: bigint("following_count", { mode: "number" }).notNull().default(0),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -85,6 +92,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   likes: many(projectLikes),
   stars: many(projectStars),
   submissions: many(submissions),
+  comments: many(comments),
+  following: many(follows, { relationName: "followerUser" }),
+  followers: many(follows, { relationName: "followeeUser" }),
 }));
 
 // ---------------------------------------------------------------------
@@ -94,8 +104,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 //   - search_vector TSVECTOR GENERATED ALWAYS AS (...) STORED, plus its
 //     GIN index and the pg_trgm GIN index on title.
 //   - Partial indexes: idx_projects_published_feed,
-//     idx_projects_category_published, idx_projects_featured,
-//     idx_projects_pending_review.
+//     idx_projects_category_published, idx_projects_featured.
 //   - CHECK constraints chk_projects_review_fields and
 //     chk_projects_published_at.
 // ---------------------------------------------------------------------
@@ -115,11 +124,16 @@ export const projects = pgTable("projects", {
   // table doesn't exist yet at this point in the init script).
   coverImageId: uuid("cover_image_id"),
   status: projectStatus("status").notNull().default("draft"),
+  // Toggled independently by a mentor/admin as a curatorial action --
+  // never set automatically by publishing.
   isFeatured: boolean("is_featured").notNull().default(false),
+  // Set only by moderation takedowns now (status = 'rejected'); publishing
+  // itself has no reviewer and leaves these null.
   reviewedById: uuid("reviewed_by").references(() => users.id, {
     onDelete: "set null",
   }),
   reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  // Moderation takedown reason, not a pre-publish rejection reason.
   rejectionReason: text("rejection_reason"),
   publishedAt: timestamp("published_at", { withTimezone: true }),
   viewCount: bigint("view_count", { mode: "number" }).notNull().default(0),
@@ -127,6 +141,8 @@ export const projects = pgTable("projects", {
   likeCount: bigint("like_count", { mode: "number" }).notNull().default(0),
   // Denormalized, kept in sync by DB triggers on project_stars -- do not write from app code.
   starCount: bigint("star_count", { mode: "number" }).notNull().default(0),
+  // Denormalized, kept in sync by DB triggers on comments -- do not write from app code.
+  commentCount: bigint("comment_count", { mode: "number" }).notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -150,6 +166,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   likes: many(projectLikes),
   stars: many(projectStars),
   submissions: many(submissions),
+  comments: many(comments),
 }));
 
 // ---------------------------------------------------------------------
@@ -269,6 +286,73 @@ export const submissionsRelations = relations(submissions, ({ one }) => ({
 }));
 
 // ---------------------------------------------------------------------
+// comments
+//
+// NOT REPRESENTED (kept only in database/init/004_tables.sql):
+//   - CHECK constraint chk_comments_body_not_blank.
+// ---------------------------------------------------------------------
+
+export const comments = pgTable("comments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const commentsRelations = relations(comments, ({ one }) => ({
+  project: one(projects, {
+    fields: [comments.projectId],
+    references: [projects.id],
+  }),
+  user: one(users, {
+    fields: [comments.userId],
+    references: [users.id],
+  }),
+}));
+
+// ---------------------------------------------------------------------
+// follows
+//
+// NOT REPRESENTED (kept only in database/init/004_tables.sql):
+//   - CHECK constraint chk_follows_no_self_follow.
+//   - Composite PRIMARY KEY (follower_id, followee_id) -- Drizzle has no
+//     multi-column primaryKey() helper wired up here, so both columns are
+//     just declared NOT NULL; the DB still enforces uniqueness.
+// ---------------------------------------------------------------------
+
+export const follows = pgTable("follows", {
+  followerId: uuid("follower_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  followeeId: uuid("followee_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const followsRelations = relations(follows, ({ one }) => ({
+  follower: one(users, {
+    fields: [follows.followerId],
+    references: [users.id],
+    relationName: "followerUser",
+  }),
+  followee: one(users, {
+    fields: [follows.followeeId],
+    references: [users.id],
+    relationName: "followeeUser",
+  }),
+}));
+
+// ---------------------------------------------------------------------
 // Views (database/init/005_views.sql)
 //
 // Declared with `.existing()` so Drizzle never tries to manage their
@@ -279,15 +363,19 @@ export const submissionsRelations = relations(submissions, ({ one }) => ({
 export const userDashboardStats = pgView("user_dashboard_stats", {
   userId: uuid("user_id"),
   draftProjects: bigint("draft_projects", { mode: "number" }),
+  // Vestigial: publishing is self-serve now, always reads 0.
   pendingProjects: bigint("pending_projects", { mode: "number" }),
   publishedProjects: bigint("published_projects", { mode: "number" }),
+  featuredProjects: bigint("featured_projects", { mode: "number" }),
   rejectedProjects: bigint("rejected_projects", { mode: "number" }),
   totalLikesReceived: bigint("total_likes_received", { mode: "number" }),
   totalStarsReceived: bigint("total_stars_received", { mode: "number" }),
   submissionsCount: bigint("submissions_count", { mode: "number" }),
 }).existing();
 
-export const pendingReviewQueue = pgView("pending_review_queue", {
+// Mentor/admin moderation view over already-live projects -- not a
+// pre-publish queue. Replaces the old pending_review_queue.
+export const publishedProjectsFeed = pgView("published_projects_feed", {
   id: uuid("id"),
   title: text("title"),
   slug: text("slug"),
@@ -295,7 +383,8 @@ export const pendingReviewQueue = pgView("pending_review_queue", {
   authorName: text("author_name"),
   category: projectCategory("category"),
   coverImageId: uuid("cover_image_id"),
-  createdAt: timestamp("created_at", { withTimezone: true }),
+  isFeatured: boolean("is_featured"),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
 }).existing();
 
 export const userLikedProjects = pgView("user_liked_projects", {

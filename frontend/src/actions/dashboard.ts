@@ -14,6 +14,7 @@ export async function getDashboardStats(userId: string) {
     draftProjects: stats?.draftProjects ?? 0,
     pendingProjects: stats?.pendingProjects ?? 0,
     publishedProjects: stats?.publishedProjects ?? 0,
+    featuredProjects: stats?.featuredProjects ?? 0,
     rejectedProjects: stats?.rejectedProjects ?? 0,
     totalLikesReceived: stats?.totalLikesReceived ?? 0,
     totalStarsReceived: stats?.totalStarsReceived ?? 0,

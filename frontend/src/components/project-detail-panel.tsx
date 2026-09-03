@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Calendar, Eye, Pencil } from "lucide-react";
+import { ArrowLeft, Calendar, Download, Eye, Hammer } from "lucide-react";
 import { MarkdownViewer } from "@/components/markdown-viewer";
 import { LikeButton } from "@/components/like-button";
 import { StarButton } from "@/components/star-button";
+import { CommentSection } from "@/components/comment-section";
+import { ProjectModeSwitch } from "@/components/project-mode-switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -52,18 +54,37 @@ interface ProjectDetailPanelProps {
   };
   body: string;
   viewerId?: string;
+  viewerCanModerate?: boolean;
   variant?: "page" | "modal";
+  submissions?: {
+    id: string;
+    createdAt: Date;
+    authorName: string;
+    authorAvatarUrl: string | null;
+  }[];
+  comments?: {
+    id: string;
+    body: string;
+    createdAt: Date;
+    userId: string;
+    authorName: string;
+    authorAvatarUrl: string | null;
+  }[];
 }
 
 export function ProjectDetailPanel({
   project,
   body,
   viewerId,
+  viewerCanModerate = false,
   variant = "page",
+  submissions = [],
+  comments = [],
 }: ProjectDetailPanelProps) {
   const isModal = variant === "modal";
   const isAuthor = viewerId === project.authorId;
   const publishedDate = project.publishedAt ?? project.createdAt;
+  const canSubmitBuild = Boolean(viewerId) && (isAuthor || project.isFeatured);
 
   return (
     <article
@@ -129,13 +150,15 @@ export function ProjectDetailPanel({
         ) : null}
 
         <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <div className="flex items-center gap-2">
+          <Link href={`/authors/${project.authorId}`} className="flex items-center gap-2">
             <Avatar size="sm">
               <AvatarImage src={project.authorAvatarUrl ?? undefined} alt={project.authorName} />
               <AvatarFallback>{project.authorName.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium text-foreground">{project.authorName}</span>
-          </div>
+            <span className="text-sm font-medium text-foreground hover:underline">
+              {project.authorName}
+            </span>
+          </Link>
           <Separator orientation="vertical" className="hidden h-4 sm:block" />
           <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
             <Calendar className="size-3.5" />
@@ -160,19 +183,34 @@ export function ProjectDetailPanel({
             initialCount={project.starCount}
             signedIn={Boolean(viewerId)}
           />
+          {project.status === "published" ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              nativeButton={false}
+              render={<a href={`/api/projects/${project.slug}/pdf`} download />}
+            >
+              <Download className="size-3.5" />
+              Download PDF
+            </Button>
+          ) : null}
+          {canSubmitBuild ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className={cn("gap-1.5", !isAuthor && "ml-auto")}
+              nativeButton={false}
+              render={<Link href={`/projects/${project.slug}/submissions/new`} />}
+            >
+              <Hammer className="size-3.5" />
+              I built this
+            </Button>
+          ) : null}
           {isAuthor ? (
             <>
               <Separator orientation="vertical" className="h-5" />
-              <Button
-                size="sm"
-                variant="outline"
-                className="ml-auto gap-1.5"
-                nativeButton={false}
-                render={<Link href={`/projects/${project.slug}/edit`} />}
-              >
-                <Pencil className="size-3.5" />
-                Edit
-              </Button>
+              <ProjectModeSwitch slug={project.slug} mode="preview" className="ml-auto" />
             </>
           ) : null}
         </div>
@@ -181,6 +219,50 @@ export function ProjectDetailPanel({
       <div className="mt-10 border-t pt-8">
         <MarkdownViewer body={body} />
       </div>
+
+      {submissions.length > 0 ? (
+        <div className="mt-10 border-t pt-8">
+          <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-white">
+            Community builds
+          </h2>
+          <ul className="mt-4 space-y-2">
+            {submissions.map((submission) => (
+              <li key={submission.id}>
+                <Link
+                  href={`/projects/${project.slug}/submissions/${submission.id}`}
+                  className="flex items-center gap-2 rounded-xl border bg-card/50 p-3 text-sm transition-colors hover:border-brand-teal"
+                >
+                  <Avatar size="sm">
+                    <AvatarImage
+                      src={submission.authorAvatarUrl ?? undefined}
+                      alt={submission.authorName}
+                    />
+                    <AvatarFallback>
+                      {submission.authorName.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium text-foreground">
+                    {submission.authorName}
+                  </span>
+                  <span className="text-muted-foreground">built this</span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {submission.createdAt.toLocaleDateString()}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {project.status === "published" ? (
+        <CommentSection
+          projectId={project.id}
+          comments={comments}
+          viewerId={viewerId}
+          viewerCanModerate={viewerCanModerate}
+        />
+      ) : null}
     </article>
   );
 }

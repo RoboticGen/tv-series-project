@@ -130,7 +130,11 @@ export async function setProjectCoverImage(projectId: string, mediaAssetId: stri
   revalidatePath("/projects");
 }
 
-export async function requestPublish(projectId: string) {
+// Instructables-style self-serve publish -- no mentor/admin gate. A
+// rejected project (moderation takedown) can be republished directly by
+// its author; is_featured is left untouched, that's a separate curatorial
+// action.
+export async function publishProject(projectId: string) {
   const session = await requireSession();
 
   const [project] = await db
@@ -141,17 +145,24 @@ export async function requestPublish(projectId: string) {
     throw new Error("Not authorized to publish this project");
   }
   if (project.status !== "draft" && project.status !== "rejected") {
-    throw new Error("Only draft or rejected projects can be resubmitted");
+    throw new Error("Only draft or unpublished projects can be published");
   }
 
   await db
     .update(projects)
-    .set({ status: "pending_review", rejectionReason: null })
+    .set({
+      status: "published",
+      publishedAt: new Date(),
+      rejectionReason: null,
+      reviewedById: null,
+      reviewedAt: null,
+    })
     .where(eq(projects.id, projectId));
 
   revalidatePath(`/projects/${project.slug}`);
   revalidatePath(`/projects/${project.slug}/edit`);
   revalidatePath("/dashboard");
+  revalidatePath("/projects");
 }
 
 export async function deleteProject(projectId: string) {
@@ -228,6 +239,7 @@ export async function toggleStar(projectId: string) {
     .from(projects)
     .where(eq(projects.id, projectId));
   if (project) revalidatePath(`/projects/${project.slug}`);
+  revalidatePath("/dashboard");
 
   return { starred: !existing };
 }
@@ -267,6 +279,53 @@ export async function getFeaturedProjects(options?: {
     .innerJoin(users, eq(projects.authorId, users.id))
     .where(and(...conditions))
     .orderBy(desc(projects.publishedAt))
+    .limit(pageSize)
+    .offset((page - 1) * pageSize);
+
+  return rows.map(({ coverImageId, ...row }) => ({
+    ...row,
+    coverImageUrl: coverImageId ? `/api/media/${coverImageId}` : null,
+  }));
+}
+
+// Browse/search page: every published project, not just featured ones --
+// featured projects just sort first within that.
+export async function getPublishedProjects(options?: {
+  query?: string;
+  category?: string;
+  page?: number;
+}) {
+  const page = options?.page ?? 1;
+  const pageSize = 12;
+
+  const conditions = [eq(projects.status, "published")];
+  if (options?.category) {
+    conditions.push(eq(projects.category, options.category as (typeof projects.category.enumValues)[number]));
+  }
+  if (options?.query) {
+    const term = `%${options.query}%`;
+    conditions.push(or(ilike(projects.title, term), ilike(projects.summary, term))!);
+  }
+
+  const rows = await db
+    .select({
+      id: projects.id,
+      title: projects.title,
+      slug: projects.slug,
+      summary: projects.summary,
+      category: projects.category,
+      likeCount: projects.likeCount,
+      starCount: projects.starCount,
+      authorId: projects.authorId,
+      authorName: users.displayName,
+      isFeatured: projects.isFeatured,
+      publishedAt: projects.publishedAt,
+      coverImageId: projects.coverImageId,
+    })
+    .from(projects)
+    .innerJoin(users, eq(projects.authorId, users.id))
+    .where(and(...conditions))
+    .orderBy(desc(projects.isFeatured), desc(projects.publishedAt))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 
@@ -346,6 +405,55 @@ export async function getMyProjects(userId: string) {
     .from(projects)
     .where(eq(projects.authorId, userId))
     .orderBy(desc(projects.createdAt));
+
+  return rows.map(({ coverImageId, ...row }) => ({
+    ...row,
+    coverImageUrl: coverImageId ? `/api/media/${coverImageId}` : null,
+  }));
+}
+
+export async function getPublishedProjectsByAuthor(authorId: string) {
+  const rows = await db
+    .select({
+      id: projects.id,
+      title: projects.title,
+      slug: projects.slug,
+      summary: projects.summary,
+      category: projects.category,
+      likeCount: projects.likeCount,
+      starCount: projects.starCount,
+      coverImageId: projects.coverImageId,
+      publishedAt: projects.publishedAt,
+    })
+    .from(projects)
+    .where(and(eq(projects.authorId, authorId), eq(projects.status, "published")))
+    .orderBy(desc(projects.publishedAt));
+
+  return rows.map(({ coverImageId, ...row }) => ({
+    ...row,
+    coverImageUrl: coverImageId ? `/api/media/${coverImageId}` : null,
+  }));
+}
+
+export async function getMyStarredProjects(userId: string) {
+  const rows = await db
+    .select({
+      id: projects.id,
+      title: projects.title,
+      slug: projects.slug,
+      summary: projects.summary,
+      category: projects.category,
+      likeCount: projects.likeCount,
+      starCount: projects.starCount,
+      authorName: users.displayName,
+      coverImageId: projects.coverImageId,
+      starredAt: projectStars.startedAt,
+    })
+    .from(projectStars)
+    .innerJoin(projects, eq(projectStars.projectId, projects.id))
+    .innerJoin(users, eq(projects.authorId, users.id))
+    .where(and(eq(projectStars.userId, userId), eq(projects.status, "published")))
+    .orderBy(desc(projectStars.startedAt));
 
   return rows.map(({ coverImageId, ...row }) => ({
     ...row,

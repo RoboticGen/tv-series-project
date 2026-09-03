@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@mdxeditor/editor": "^4.2.3",
     "@uiw/react-md-editor": "^4.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -19,6 +20,7 @@
     "next": "16.3.3",
     "next-auth": "^5.0.0-beta.32",
     "postgres": "^3.4.9",
+    "puppeteer": "^24.10.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "shadcn": "^4.19.0",
