@@ -164,7 +164,7 @@ export function ProjectDetailPanel({
               <AvatarImage src={project.authorAvatarUrl ?? undefined} alt={project.authorName} />
               <AvatarFallback>{project.authorName.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium text-foreground hover:underline">
+            <span className="text-sm font-medium text-foreground transition-colors hover:text-brand-teal hover:underline">
               {project.authorName}
             </span>
           </Link>
@@ -240,7 +240,7 @@ export function ProjectDetailPanel({
               <li key={submission.id}>
                 <Link
                   href={`/projects/${project.slug}/submissions/${submission.id}`}
-                  className="flex items-center gap-2 rounded-xl border bg-card/50 p-3 text-sm transition-colors hover:border-brand-teal"
+                  className="flex items-center gap-2 rounded-xl border bg-card/50 p-3 text-sm transition-all hover:-translate-y-0.5 hover:border-brand-teal hover:shadow-md hover:shadow-brand-teal/10"
                 >
                   <Avatar size="sm">
                     <AvatarImage
@@ -256,7 +256,7 @@ export function ProjectDetailPanel({
                   </span>
                   <span className="text-muted-foreground">built this</span>
                   <span className="ml-auto text-xs text-muted-foreground">
-                    {submission.createdAt.toLocaleDateString()}
+                    {dateFormatter.format(submission.createdAt)}
                   </span>
                 </Link>
               </li>

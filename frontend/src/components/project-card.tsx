@@ -37,6 +37,24 @@ interface ProjectCardProps {
   coverImageUrl?: string | null;
 }
 
+export function ProjectCardSkeleton() {
+  return (
+    <div className="flex h-full flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 ring-1 ring-foreground/10">
+      <div className="aspect-video w-full animate-pulse bg-muted" />
+      <div className="flex flex-col gap-2 px-4">
+        <div className="h-5 w-20 animate-pulse rounded-full bg-muted" />
+        <div className="mt-1 h-5 w-3/4 animate-pulse rounded bg-muted" />
+        <div className="h-4 w-full animate-pulse rounded bg-muted" />
+        <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+      </div>
+      <div className="mt-auto flex items-center justify-between rounded-b-xl border-t bg-muted/50 px-4 pt-4">
+        <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+        <div className="h-4 w-16 animate-pulse rounded bg-muted" />
+      </div>
+    </div>
+  );
+}
+
 export function ProjectCard({
   slug,
   title,
@@ -52,7 +70,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   return (
     <Link href={href ?? `/projects/${slug}`} className="block h-full">
-      <Card className="h-full pt-0 transition-colors hover:border-brand-teal">
+      <Card className="h-full pt-0 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-teal/10 hover:ring-brand-teal/40">
         <div className="relative aspect-video w-full overflow-hidden rounded-t-xl bg-muted">
           {coverImageUrl ? (
             <Image

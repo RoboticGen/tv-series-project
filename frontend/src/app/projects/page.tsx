@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search, SearchX, X } from "lucide-react";
 import { getPublishedProjects } from "@/actions/projects";
-import { ProjectCard } from "@/components/project-card";
+import { ProjectCard, ProjectCardSkeleton } from "@/components/project-card";
 import { Input } from "@/components/ui/input";
 import { projectCategory } from "@/db/schema";
+import { cn } from "@/lib/utils";
 
 const CATEGORY_LABELS: Record<string, string> = {
   robotics: "Robotics",
@@ -23,10 +24,28 @@ async function BrowseGrid({ query, category }: { query?: string; category?: stri
   const projects = await getPublishedProjects({ query, category });
 
   if (projects.length === 0) {
+    const hasFilters = Boolean(query || category);
     return (
-      <p className="text-sm text-muted-foreground">
-        No projects match your search yet.
-      </p>
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16 text-center">
+        <SearchX className="size-8 text-muted-foreground" aria-hidden="true" />
+        <p className="text-sm font-medium text-foreground">
+          {hasFilters ? "No projects match your search." : "No projects have been published yet."}
+        </p>
+        <p className="max-w-sm text-pretty text-sm text-muted-foreground">
+          {hasFilters
+            ? "Try a different keyword or category."
+            : "Check back soon — new builds are added regularly."}
+        </p>
+        {hasFilters ? (
+          <Link
+            href="/projects"
+            className="inline-flex items-center gap-1 text-sm font-medium text-brand-teal transition-colors hover:text-brand-teal/80"
+          >
+            <X className="size-3.5" />
+            Clear search and filters
+          </Link>
+        ) : null}
+      </div>
     );
   }
 
@@ -60,10 +79,10 @@ export default async function ProjectsPage({
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brand-navy dark:text-white">
+        <h1 className="text-balance font-heading text-2xl font-bold text-brand-navy dark:text-white">
           Browse projects
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-pretty text-sm text-muted-foreground">
           Published builds from the RoboticGen community — featured picks first.
         </p>
       </div>
@@ -80,12 +99,26 @@ export default async function ProjectsPage({
             className="h-9 pl-8"
           />
         </div>
+        {q ? (
+          <Link
+            href={category ? `/projects?category=${category}` : "/projects"}
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Clear
+          </Link>
+        ) : null}
       </form>
 
-      <nav className="mt-4 flex flex-wrap gap-2 text-sm">
+      <nav aria-label="Filter by category" className="mt-4 flex flex-wrap gap-2 text-sm">
         <Link
           href={q ? `/projects?q=${encodeURIComponent(q)}` : "/projects"}
-          className={!category ? "font-medium text-brand-teal" : "text-muted-foreground"}
+          aria-current={!category ? "page" : undefined}
+          className={cn(
+            "rounded-full border px-3 py-1 transition-colors",
+            !category
+              ? "border-brand-teal bg-brand-teal/10 font-medium text-brand-teal"
+              : "border-transparent text-muted-foreground hover:border-border hover:text-foreground",
+          )}
         >
           All
         </Link>
@@ -93,9 +126,13 @@ export default async function ProjectsPage({
           <Link
             key={value}
             href={`/projects?category=${value}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
-            className={
-              category === value ? "font-medium text-brand-teal" : "text-muted-foreground"
-            }
+            aria-current={category === value ? "page" : undefined}
+            className={cn(
+              "rounded-full border px-3 py-1 transition-colors",
+              category === value
+                ? "border-brand-teal bg-brand-teal/10 font-medium text-brand-teal"
+                : "border-transparent text-muted-foreground hover:border-border hover:text-foreground",
+            )}
           >
             {CATEGORY_LABELS[value]}
           </Link>
@@ -113,9 +150,9 @@ export default async function ProjectsPage({
 
 function GridSkeleton() {
   return (
-    <div className="grid animate-pulse gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 3 }, (_, i) => (
-        <div key={i} className="h-40 rounded-lg bg-muted" />
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+      {Array.from({ length: 6 }, (_, i) => (
+        <ProjectCardSkeleton key={i} />
       ))}
     </div>
   );

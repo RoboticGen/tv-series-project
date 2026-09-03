@@ -8,7 +8,6 @@ import {
   Star,
   Upload,
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface DashboardStatsProps {
@@ -25,74 +24,97 @@ function StatTile({
   label,
   value,
   icon: Icon,
-  tone,
+  wash,
+  chip,
+  emphasize,
 }: {
   label: string;
   value: number;
   icon: LucideIcon;
-  tone: string;
+  wash: string;
+  chip: string;
+  emphasize?: boolean;
 }) {
   return (
-    <Card className="gap-3 p-4">
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-xl p-4",
+        wash,
+        emphasize && "sm:col-span-2",
+      )}
+    >
       <div
         className={cn(
-          "flex size-9 items-center justify-center rounded-full",
-          tone,
+          "flex size-8 items-center justify-center rounded-lg",
+          chip,
         )}
       >
-        <Icon className="size-4.5" />
+        <Icon className="size-4" />
       </div>
-      <div>
-        <p className="text-2xl font-bold text-brand-navy dark:text-white">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-      </div>
-    </Card>
+      <p
+        className={cn(
+          "mt-3 font-bold tabular-nums text-brand-navy dark:text-white",
+          emphasize ? "text-3xl" : "text-2xl",
+        )}
+      >
+        {value}
+      </p>
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+    </div>
   );
 }
 
 export function DashboardStats(stats: DashboardStatsProps) {
   const tiles = [
     {
-      label: "Drafts",
-      value: stats.draftProjects,
-      icon: FileEdit,
-      tone: "bg-brand-grey/15 text-brand-grey",
-    },
-    {
       label: "Published",
       value: stats.publishedProjects,
       icon: CheckCircle2,
-      tone: "bg-brand-green/15 text-brand-green",
+      wash: "bg-brand-green/8 dark:bg-brand-green/12",
+      chip: "bg-brand-green/15 text-brand-green",
+      emphasize: true,
+    },
+    {
+      label: "Drafts",
+      value: stats.draftProjects,
+      icon: FileEdit,
+      wash: "bg-brand-grey/8 dark:bg-brand-grey/12",
+      chip: "bg-brand-grey/15 text-brand-grey",
     },
     {
       label: "Featured",
       value: stats.featuredProjects,
       icon: Sparkles,
-      tone: "bg-brand-yellow/20 text-brand-navy",
+      wash: "bg-brand-yellow/10 dark:bg-brand-yellow/12",
+      chip: "bg-brand-yellow/20 text-brand-navy dark:text-brand-yellow",
     },
     {
       label: "Unpublished",
       value: stats.rejectedProjects,
       icon: XCircle,
-      tone: "bg-destructive/10 text-destructive",
+      wash: "bg-destructive/6 dark:bg-destructive/10",
+      chip: "bg-destructive/10 text-destructive",
     },
     {
       label: "Likes received",
       value: stats.totalLikesReceived,
       icon: Heart,
-      tone: "bg-brand-coral/15 text-brand-coral",
+      wash: "bg-brand-coral/8 dark:bg-brand-coral/12",
+      chip: "bg-brand-coral/15 text-brand-coral",
     },
     {
       label: "Favorites received",
       value: stats.totalStarsReceived,
       icon: Star,
-      tone: "bg-brand-yellow/20 text-brand-navy",
+      wash: "bg-brand-yellow/10 dark:bg-brand-yellow/12",
+      chip: "bg-brand-yellow/20 text-brand-navy dark:text-brand-yellow",
     },
     {
       label: "Submissions",
       value: stats.submissionsCount,
       icon: Upload,
-      tone: "bg-brand-sky/15 text-brand-sky",
+      wash: "bg-brand-sky/8 dark:bg-brand-sky/12",
+      chip: "bg-brand-sky/15 text-brand-sky",
     },
   ];
 
