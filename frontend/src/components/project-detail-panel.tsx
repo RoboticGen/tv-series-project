@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Download, Eye, Hammer } from "lucide-react";
 import { MarkdownViewer } from "@/components/markdown-viewer";
 import { LikeButton } from "@/components/like-button";
 import { StarButton } from "@/components/star-button";
+import { AddToCollectionButton } from "@/components/add-to-collection-button";
 import { CommentSection } from "@/components/comment-section";
 import { ProjectModeSwitch } from "@/components/project-mode-switch";
 import { Badge } from "@/components/ui/badge";
@@ -69,6 +70,14 @@ interface ProjectDetailPanelProps {
     userId: string;
     authorName: string;
     authorAvatarUrl: string | null;
+    replies: {
+      id: string;
+      body: string;
+      createdAt: Date;
+      userId: string;
+      authorName: string;
+      authorAvatarUrl: string | null;
+    }[];
   }[];
 }
 
@@ -183,6 +192,7 @@ export function ProjectDetailPanel({
             initialCount={project.starCount}
             signedIn={Boolean(viewerId)}
           />
+          <AddToCollectionButton projectId={project.id} signedIn={Boolean(viewerId)} />
           {project.status === "published" ? (
             <Button
               size="sm"

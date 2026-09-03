@@ -3,9 +3,12 @@ import { auth } from "@/auth";
 import { getDashboardStats } from "@/actions/dashboard";
 import { getMyProjects, getMyStarredProjects } from "@/actions/projects";
 import { getMySubmissions } from "@/actions/submissions";
+import { getMyCollections } from "@/actions/collections";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { ProjectCard } from "@/components/project-card";
 import { SubmissionCard } from "@/components/submission-card";
+import { CollectionCard } from "@/components/collection-card";
+import { CreateCollectionButton } from "@/components/create-collection-button";
 import {
   Tabs,
   TabsContent,
@@ -18,11 +21,12 @@ export default async function DashboardPage() {
   if (!session?.user) redirect("/landing");
 
   const userId = session.user.id;
-  const [stats, myProjects, mySubmissions, starredProjects] = await Promise.all([
+  const [stats, myProjects, mySubmissions, starredProjects, myCollections] = await Promise.all([
     getDashboardStats(userId),
     getMyProjects(userId),
     getMySubmissions(userId),
     getMyStarredProjects(userId),
+    getMyCollections(userId),
   ]);
 
   return (
@@ -46,6 +50,7 @@ export default async function DashboardPage() {
             <TabsTrigger value="projects">My Projects</TabsTrigger>
             <TabsTrigger value="submissions">My Submissions</TabsTrigger>
             <TabsTrigger value="starred">Favorites</TabsTrigger>
+            <TabsTrigger value="collections">Collections</TabsTrigger>
           </TabsList>
           <TabsContent value="projects" className="mt-6">
             {myProjects.length === 0 ? (
@@ -110,6 +115,30 @@ export default async function DashboardPage() {
                     starCount={project.starCount}
                     coverImageUrl={project.coverImageUrl}
                     href={`/projects/${project.slug}`}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="collections" className="mt-6">
+            <div className="mb-4 flex justify-end">
+              <CreateCollectionButton />
+            </div>
+            {myCollections.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                You haven&apos;t created a collection yet.
+              </p>
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {myCollections.map((collection) => (
+                  <CollectionCard
+                    key={collection.id}
+                    slug={collection.slug}
+                    title={collection.title}
+                    description={collection.description}
+                    itemCount={collection.itemCount}
+                    isPrivate={collection.isPrivate}
+                    coverImageUrls={collection.coverImageUrls}
                   />
                 ))}
               </div>

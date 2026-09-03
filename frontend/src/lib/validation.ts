@@ -19,6 +19,14 @@ export const createCommentSchema = z.object({
   body: z.string().trim().min(1).max(2000),
 });
 
+export const createCollectionSchema = z.object({
+  title: z.string().trim().min(3).max(120),
+  description: z.string().trim().max(500).optional(),
+  isPrivate: z.boolean().optional(),
+});
+
+export const updateCollectionSchema = createCollectionSchema;
+
 export const ALLOWED_IMAGE_MIME_TYPES = [
   "image/png",
   "image/jpeg",

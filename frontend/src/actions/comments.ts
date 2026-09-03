@@ -13,7 +13,7 @@ async function requireSession() {
   return session;
 }
 
-export async function addComment(projectId: string, body: string) {
+export async function addComment(projectId: string, body: string, parentCommentId?: string) {
   const session = await requireSession();
   const parsed = createCommentSchema.parse({ body });
 
@@ -26,9 +26,23 @@ export async function addComment(projectId: string, body: string) {
     throw new Error("Comments are only allowed on published projects");
   }
 
+  if (parentCommentId) {
+    const [parent] = await db
+      .select({ projectId: comments.projectId, parentCommentId: comments.parentCommentId })
+      .from(comments)
+      .where(eq(comments.id, parentCommentId));
+    if (!parent || parent.projectId !== projectId) {
+      throw new Error("Comment not found");
+    }
+    if (parent.parentCommentId) {
+      throw new Error("Can't reply to a reply");
+    }
+  }
+
   await db.insert(comments).values({
     projectId,
     userId: session.user.id,
+    parentCommentId: parentCommentId ?? null,
     body: parsed.body,
   });
 
@@ -55,18 +69,21 @@ export async function deleteComment(commentId: string) {
     .from(projects)
     .where(eq(projects.id, comment.projectId));
 
+  // Postgres cascades the delete to any replies (parent_comment_id ON
+  // DELETE CASCADE) -- no separate cleanup needed here.
   await db.delete(comments).where(eq(comments.id, commentId));
 
   if (project) revalidatePath(`/projects/${project.slug}`);
 }
 
 export async function listComments(projectId: string) {
-  return db
+  const rows = await db
     .select({
       id: comments.id,
       body: comments.body,
       createdAt: comments.createdAt,
       userId: comments.userId,
+      parentCommentId: comments.parentCommentId,
       authorName: users.displayName,
       authorAvatarUrl: users.avatarUrl,
     })
@@ -74,4 +91,29 @@ export async function listComments(projectId: string) {
     .innerJoin(users, eq(comments.userId, users.id))
     .where(and(eq(comments.projectId, projectId)))
     .orderBy(asc(comments.createdAt));
+
+  const topLevel = rows.filter((row) => !row.parentCommentId);
+  const repliesByParent = new Map<string, typeof rows>();
+  for (const row of rows) {
+    if (!row.parentCommentId) continue;
+    const replies = repliesByParent.get(row.parentCommentId) ?? [];
+    replies.push(row);
+    repliesByParent.set(row.parentCommentId, replies);
+  }
+
+  function toEntry(row: (typeof rows)[number]) {
+    return {
+      id: row.id,
+      body: row.body,
+      createdAt: row.createdAt,
+      userId: row.userId,
+      authorName: row.authorName,
+      authorAvatarUrl: row.authorAvatarUrl,
+    };
+  }
+
+  return topLevel.map((comment) => ({
+    ...toEntry(comment),
+    replies: (repliesByParent.get(comment.id) ?? []).map(toEntry),
+  }));
 }

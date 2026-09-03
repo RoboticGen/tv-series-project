@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Trash2 } from "lucide-react";
+import { Trash2, Reply as ReplyIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,13 +14,17 @@ const dateFormatter = new Intl.DateTimeFormat("en", {
   year: "numeric",
 });
 
-interface Comment {
+interface CommentEntry {
   id: string;
   body: string;
   createdAt: Date;
   userId: string;
   authorName: string;
   authorAvatarUrl: string | null;
+}
+
+interface Comment extends CommentEntry {
+  replies: CommentEntry[];
 }
 
 interface CommentSectionProps {
@@ -30,6 +34,52 @@ interface CommentSectionProps {
   viewerCanModerate: boolean;
 }
 
+function CommentRow({
+  comment,
+  isPending,
+  viewerId,
+  viewerCanModerate,
+  onDelete,
+  replyForm,
+}: {
+  comment: CommentEntry;
+  isPending: boolean;
+  viewerId?: string;
+  viewerCanModerate: boolean;
+  onDelete: (commentId: string) => void;
+  replyForm?: React.ReactNode;
+}) {
+  return (
+    <li className="flex gap-3">
+      <Avatar size="sm">
+        <AvatarImage src={comment.authorAvatarUrl ?? undefined} alt={comment.authorName} />
+        <AvatarFallback>{comment.authorName.slice(0, 2).toUpperCase()}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-foreground">{comment.authorName}</span>
+          <span className="text-xs text-muted-foreground">
+            {dateFormatter.format(comment.createdAt)}
+          </span>
+          {viewerId === comment.userId || viewerCanModerate ? (
+            <button
+              type="button"
+              onClick={() => onDelete(comment.id)}
+              disabled={isPending}
+              className="ml-auto text-muted-foreground transition-colors hover:text-destructive"
+              aria-label="Delete comment"
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          ) : null}
+        </div>
+        <p className="mt-1 text-sm text-pretty text-foreground">{comment.body}</p>
+        {replyForm}
+      </div>
+    </li>
+  );
+}
+
 export function CommentSection({
   projectId,
   comments,
@@ -37,8 +87,12 @@ export function CommentSection({
   viewerCanModerate,
 }: CommentSectionProps) {
   const [body, setBody] = React.useState("");
+  const [replyingTo, setReplyingTo] = React.useState<string | null>(null);
+  const [replyBody, setReplyBody] = React.useState("");
   const [isPending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
+
+  const totalCount = comments.reduce((sum, c) => sum + 1 + c.replies.length, 0);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -54,6 +108,21 @@ export function CommentSection({
     });
   }
 
+  function handleReplySubmit(event: React.FormEvent, parentCommentId: string) {
+    event.preventDefault();
+    if (!viewerId || isPending || !replyBody.trim()) return;
+    setError(null);
+    startTransition(async () => {
+      try {
+        await addComment(projectId, replyBody, parentCommentId);
+        setReplyBody("");
+        setReplyingTo(null);
+      } catch {
+        setError("Couldn't post your reply. Try again.");
+      }
+    });
+  }
+
   function handleDelete(commentId: string) {
     startTransition(async () => {
       await deleteComment(commentId);
@@ -63,7 +132,7 @@ export function CommentSection({
   return (
     <div className="mt-10 border-t pt-8">
       <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-white">
-        Comments ({comments.length})
+        Comments ({totalCount})
       </h2>
 
       {viewerId ? (
@@ -90,32 +159,76 @@ export function CommentSection({
 
       <ul className="mt-6 space-y-4">
         {comments.map((comment) => (
-          <li key={comment.id} className="flex gap-3">
-            <Avatar size="sm">
-              <AvatarImage src={comment.authorAvatarUrl ?? undefined} alt={comment.authorName} />
-              <AvatarFallback>{comment.authorName.slice(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-foreground">{comment.authorName}</span>
-                <span className="text-xs text-muted-foreground">
-                  {dateFormatter.format(comment.createdAt)}
-                </span>
-                {viewerId === comment.userId || viewerCanModerate ? (
+          <CommentRow
+            key={comment.id}
+            comment={comment}
+            isPending={isPending}
+            viewerId={viewerId}
+            viewerCanModerate={viewerCanModerate}
+            onDelete={handleDelete}
+            replyForm={
+              <div className="mt-2">
+                {viewerId ? (
                   <button
                     type="button"
-                    onClick={() => handleDelete(comment.id)}
-                    disabled={isPending}
-                    className="ml-auto text-muted-foreground transition-colors hover:text-destructive"
-                    aria-label="Delete comment"
+                    onClick={() =>
+                      setReplyingTo(replyingTo === comment.id ? null : comment.id)
+                    }
+                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    <Trash2 className="size-3.5" />
+                    <ReplyIcon className="size-3" />
+                    Reply
                   </button>
                 ) : null}
+
+                {replyingTo === comment.id ? (
+                  <form
+                    onSubmit={(event) => handleReplySubmit(event, comment.id)}
+                    className="mt-2 space-y-2"
+                  >
+                    <Textarea
+                      value={replyBody}
+                      onChange={(event) => setReplyBody(event.target.value)}
+                      placeholder={`Reply to ${comment.authorName}...`}
+                      disabled={isPending}
+                      className="min-h-12"
+                    />
+                    <div className="flex gap-2">
+                      <Button type="submit" size="sm" disabled={isPending || !replyBody.trim()}>
+                        Post reply
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setReplyingTo(null);
+                          setReplyBody("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                ) : null}
+
+                {comment.replies.length > 0 ? (
+                  <ul className="mt-3 space-y-3 border-l pl-4">
+                    {comment.replies.map((reply) => (
+                      <CommentRow
+                        key={reply.id}
+                        comment={reply}
+                        isPending={isPending}
+                        viewerId={viewerId}
+                        viewerCanModerate={viewerCanModerate}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </ul>
+                ) : null}
               </div>
-              <p className="mt-1 text-sm text-pretty text-foreground">{comment.body}</p>
-            </div>
-          </li>
+            }
+          />
         ))}
       </ul>
     </div>
