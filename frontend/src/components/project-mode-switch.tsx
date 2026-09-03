@@ -21,6 +21,7 @@ export function ProjectModeSwitch({ slug, mode, className }: ProjectModeSwitchPr
     >
       <Link
         href={`/projects/${slug}/edit`}
+        replace
         className={cn(
           segmentClassName,
           mode === "edit"
@@ -33,6 +34,7 @@ export function ProjectModeSwitch({ slug, mode, className }: ProjectModeSwitchPr
       </Link>
       <Link
         href={`/projects/${slug}`}
+        replace
         className={cn(
           segmentClassName,
           mode === "preview"

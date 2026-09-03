@@ -15,6 +15,10 @@ export const createSubmissionSchema = z.object({
   isPrivate: z.boolean().optional(),
 });
 
+export const createCommentSchema = z.object({
+  body: z.string().trim().min(1).max(2000),
+});
+
 export const ALLOWED_IMAGE_MIME_TYPES = [
   "image/png",
   "image/jpeg",

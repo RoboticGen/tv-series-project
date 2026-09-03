@@ -45,7 +45,7 @@ export default async function DashboardPage() {
           <TabsList>
             <TabsTrigger value="projects">My Projects</TabsTrigger>
             <TabsTrigger value="submissions">My Submissions</TabsTrigger>
-            <TabsTrigger value="starred">Starred Projects</TabsTrigger>
+            <TabsTrigger value="starred">Favorites</TabsTrigger>
           </TabsList>
           <TabsContent value="projects" className="mt-6">
             {myProjects.length === 0 ? (
@@ -65,7 +65,7 @@ export default async function DashboardPage() {
                     likeCount={project.likeCount}
                     starCount={project.starCount}
                     coverImageUrl={project.coverImageUrl}
-                    statusBadge={project.status.replace("_", " ")}
+                    statusBadge={project.status === "rejected" ? "unpublished" : project.status}
                     href={`/projects/${project.slug}/edit`}
                   />
                 ))}
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
           <TabsContent value="starred" className="mt-6">
             {starredProjects.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                You haven&apos;t starred any projects yet.
+                You haven&apos;t favorited any projects yet.
               </p>
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

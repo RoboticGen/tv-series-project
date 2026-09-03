@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { auth } from "@/auth";
-import { getFeaturedProjects } from "@/actions/projects";
+import { getPublishedProjects } from "@/actions/projects";
 import { ProjectCard } from "@/components/project-card";
 import { Input } from "@/components/ui/input";
 import { projectCategory } from "@/db/schema";
@@ -20,17 +19,13 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-async function FeaturedGrid({ query, category }: { query?: string; category?: string }) {
-  const [session, projects] = await Promise.all([
-    auth(),
-    getFeaturedProjects({ query, category }),
-  ]);
-  const viewerId = session?.user?.id;
+async function BrowseGrid({ query, category }: { query?: string; category?: string }) {
+  const projects = await getPublishedProjects({ query, category });
 
   if (projects.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No featured projects match your search yet.
+        No projects match your search yet.
       </p>
     );
   }
@@ -47,12 +42,8 @@ async function FeaturedGrid({ query, category }: { query?: string; category?: st
           authorName={project.authorName}
           likeCount={project.likeCount}
           starCount={project.starCount}
+          isFeatured={project.isFeatured}
           coverImageUrl={project.coverImageUrl}
-          href={
-            project.authorId === viewerId
-              ? `/projects/${project.slug}/edit`
-              : undefined
-          }
         />
       ))}
     </div>
@@ -70,10 +61,10 @@ export default async function ProjectsPage({
     <div className="mx-auto max-w-6xl px-6 py-12">
       <div>
         <h1 className="font-heading text-2xl font-bold text-brand-navy dark:text-white">
-          Featured projects
+          Browse projects
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Approved builds from the RoboticGen community.
+          Published builds from the RoboticGen community — featured picks first.
         </p>
       </div>
 
@@ -85,7 +76,7 @@ export default async function ProjectsPage({
             type="search"
             name="q"
             defaultValue={q}
-            placeholder="Search featured projects…"
+            placeholder="Search projects…"
             className="h-9 pl-8"
           />
         </div>
@@ -113,7 +104,7 @@ export default async function ProjectsPage({
 
       <div className="mt-8">
         <Suspense fallback={<GridSkeleton />} key={`${category ?? "all"}-${q ?? ""}`}>
-          <FeaturedGrid query={q} category={category} />
+          <BrowseGrid query={q} category={category} />
         </Suspense>
       </div>
     </div>

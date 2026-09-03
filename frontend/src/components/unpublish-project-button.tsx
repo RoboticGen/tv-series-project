@@ -15,9 +15,9 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { rejectProject } from "@/actions/review";
+import { unpublishProject } from "@/actions/review";
 
-export function RejectProjectButton({
+export function UnpublishProjectButton({
   projectId,
   title,
 }: {
@@ -29,15 +29,15 @@ export function RejectProjectButton({
   const [isPending, setIsPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  async function handleReject() {
+  async function handleUnpublish() {
     setError(null);
     setIsPending(true);
     try {
-      await rejectProject(projectId, reason);
+      await unpublishProject(projectId, reason);
       router.push("/dashboard/review");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reject project");
+      setError(err instanceof Error ? err.message : "Failed to unpublish project");
       setIsPending(false);
     }
   }
@@ -46,19 +46,20 @@ export function RejectProjectButton({
     <Dialog>
       <DialogTrigger render={<Button variant="destructive" className="gap-1.5" />}>
         <X className="size-4" />
-        Reject
+        Unpublish
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reject &ldquo;{title}&rdquo;?</DialogTitle>
+          <DialogTitle>Unpublish &ldquo;{title}&rdquo;?</DialogTitle>
           <DialogDescription>
-            The author will see this reason and can edit and resubmit.
+            This takes it out of the public browse feed. The author will see this
+            reason and can edit and republish.
           </DialogDescription>
         </DialogHeader>
         <Textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="What needs to change before this can be approved?"
+          placeholder="Why is this being taken down?"
           rows={4}
         />
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
@@ -66,10 +67,10 @@ export function RejectProjectButton({
           <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
           <Button
             variant="destructive"
-            onClick={handleReject}
+            onClick={handleUnpublish}
             disabled={isPending || reason.trim().length < 5}
           >
-            {isPending ? "Rejecting…" : "Reject project"}
+            {isPending ? "Unpublishing…" : "Unpublish project"}
           </Button>
         </DialogFooter>
       </DialogContent>

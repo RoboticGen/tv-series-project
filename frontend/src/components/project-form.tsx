@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { MarkdownEditor } from "@/components/markdown-editor";
 import { CoverImageUpload } from "@/components/cover-image-upload";
-import { updateProject, requestPublish } from "@/actions/projects";
+import { updateProject, publishProject } from "@/actions/projects";
 import { projectCategory } from "@/db/schema";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -71,7 +71,7 @@ export function ProjectForm({
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const canRequestPublish = status === "draft" || status === "rejected";
+  const canPublish = status === "draft" || status === "rejected";
 
   async function handleSave() {
     setError(null);
@@ -96,15 +96,15 @@ export function ProjectForm({
     }
   }
 
-  async function handleRequestPublish() {
+  async function handlePublish() {
     setError(null);
     setIsPublishing(true);
     try {
       await handleSave();
-      await requestPublish(projectId);
+      await publishProject(projectId);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to request publish");
+      setError(err instanceof Error ? err.message : "Failed to publish");
     } finally {
       setIsPublishing(false);
     }
@@ -116,7 +116,7 @@ export function ProjectForm({
         <div className="flex gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" />
           <div>
-            <p className="font-medium">This project was rejected</p>
+            <p className="font-medium">This project was unpublished</p>
             <p className="mt-1">{rejectionReason}</p>
           </div>
         </div>
@@ -200,9 +200,9 @@ export function ProjectForm({
         <Button onClick={handleSave} disabled={isSaving || isPublishing} variant="outline">
           {isSaving ? "Saving…" : "Save draft"}
         </Button>
-        {canRequestPublish ? (
-          <Button onClick={handleRequestPublish} disabled={isSaving || isPublishing}>
-            {isPublishing ? "Submitting…" : "Request publish"}
+        {canPublish ? (
+          <Button onClick={handlePublish} disabled={isSaving || isPublishing}>
+            {isPublishing ? "Publishing…" : "Publish"}
           </Button>
         ) : null}
         {error ? <p className="text-sm text-destructive">{error}</p> : null}

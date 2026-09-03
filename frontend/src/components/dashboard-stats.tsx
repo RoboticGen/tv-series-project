@@ -1,8 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import {
   FileEdit,
-  Clock,
   CheckCircle2,
+  Sparkles,
   XCircle,
   Heart,
   Star,
@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils";
 
 interface DashboardStatsProps {
   draftProjects: number;
-  pendingProjects: number;
   publishedProjects: number;
+  featuredProjects: number;
   rejectedProjects: number;
   totalLikesReceived: number;
   totalStarsReceived: number;
@@ -59,19 +59,19 @@ export function DashboardStats(stats: DashboardStatsProps) {
       tone: "bg-brand-grey/15 text-brand-grey",
     },
     {
-      label: "Pending review",
-      value: stats.pendingProjects,
-      icon: Clock,
-      tone: "bg-brand-yellow/20 text-brand-navy",
-    },
-    {
       label: "Published",
       value: stats.publishedProjects,
       icon: CheckCircle2,
       tone: "bg-brand-green/15 text-brand-green",
     },
     {
-      label: "Rejected",
+      label: "Featured",
+      value: stats.featuredProjects,
+      icon: Sparkles,
+      tone: "bg-brand-yellow/20 text-brand-navy",
+    },
+    {
+      label: "Unpublished",
       value: stats.rejectedProjects,
       icon: XCircle,
       tone: "bg-destructive/10 text-destructive",
@@ -83,7 +83,7 @@ export function DashboardStats(stats: DashboardStatsProps) {
       tone: "bg-brand-coral/15 text-brand-coral",
     },
     {
-      label: "Stars received",
+      label: "Favorites received",
       value: stats.totalStarsReceived,
       icon: Star,
       tone: "bg-brand-yellow/20 text-brand-navy",

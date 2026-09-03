@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getProjectBySlug } from "@/actions/projects";
 import { getPublicSubmissionsForProject } from "@/actions/submissions";
+import { listComments } from "@/actions/comments";
 import { getContentDoc } from "@/db/content";
 import { ProjectDetailPanel } from "@/components/project-detail-panel";
 
@@ -35,18 +36,23 @@ export default async function ProjectDetailPage({
   const isAuthor = viewerId === project.authorId;
   if (project.status !== "published" && !isAuthor) notFound();
 
-  const [body, submissions] = await Promise.all([
+  const [body, submissions, comments] = await Promise.all([
     getContentDoc(project.contentDocId),
     getPublicSubmissionsForProject(project.id),
+    listComments(project.id),
   ]);
+
+  const viewerCanModerate = session?.user?.role === "mentor" || session?.user?.role === "admin";
 
   return (
     <ProjectDetailPanel
       project={project}
       body={body ?? ""}
       viewerId={viewerId}
+      viewerCanModerate={viewerCanModerate}
       variant="page"
       submissions={submissions}
+      comments={comments}
     />
   );
 }

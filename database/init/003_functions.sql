@@ -43,6 +43,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Denormalized comment_count on projects, same reasoning as like_count/
+-- star_count above -- keeps the card-grid/project-page hot path free of a
+-- join+COUNT over comments.
+CREATE OR REPLACE FUNCTION adjust_project_comment_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE projects SET comment_count = comment_count + 1 WHERE id = NEW.project_id;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE projects SET comment_count = comment_count - 1 WHERE id = OLD.project_id;
+    RETURN OLD;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Denormalized follower_count / following_count on users -- one row insert/
+-- delete on follows touches both sides at once, so a single trigger
+-- function (not a pair) handles both counters together.
+CREATE OR REPLACE FUNCTION adjust_follow_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE users SET following_count = following_count + 1 WHERE id = NEW.follower_id;
+    UPDATE users SET follower_count = follower_count + 1 WHERE id = NEW.followee_id;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE users SET following_count = following_count - 1 WHERE id = OLD.follower_id;
+    UPDATE users SET follower_count = follower_count - 1 WHERE id = OLD.followee_id;
+    RETURN OLD;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
 -- media_assets.owner_id is polymorphic (points at projects.id or
 -- submissions.id depending on owner_type) -- a single column can't carry
 -- two different FOREIGN KEY targets, so Postgres has no native way to

@@ -7,8 +7,14 @@ CREATE VIEW user_dashboard_stats AS
 SELECT
   u.id AS user_id,
   COUNT(p.id) FILTER (WHERE p.status = 'draft')           AS draft_projects,
+  -- Vestigial: publishing is self-serve now, so this is always 0. Column
+  -- kept rather than dropped to avoid churning every dashboard query.
   COUNT(p.id) FILTER (WHERE p.status = 'pending_review')  AS pending_projects,
   COUNT(p.id) FILTER (WHERE p.status = 'published')       AS published_projects,
+  -- Featured is independent of status (a mentor/admin toggle on top of an
+  -- already-published project), so this is a subset of published_projects,
+  -- not a separate status bucket.
+  COUNT(p.id) FILTER (WHERE p.is_featured)                AS featured_projects,
   COUNT(p.id) FILTER (WHERE p.status = 'rejected')        AS rejected_projects,
   COALESCE(SUM(p.like_count), 0)                          AS total_likes_received,
   COALESCE(SUM(p.star_count), 0)                          AS total_stars_received,
@@ -17,8 +23,9 @@ FROM users u
 LEFT JOIN projects p ON p.author_id = u.id
 GROUP BY u.id;
 
--- Mentor/admin review queue, oldest first.
-CREATE VIEW pending_review_queue AS
+-- Mentor/admin moderation view: already-live projects, newest first, for
+-- post-hoc action (feature/unpublish) -- not a pre-publish gate.
+CREATE VIEW published_projects_feed AS
 SELECT
   p.id,
   p.title,
@@ -27,11 +34,12 @@ SELECT
   u.display_name AS author_name,
   p.category,
   p.cover_image_id,
-  p.created_at
+  p.is_featured,
+  p.published_at
 FROM projects p
 JOIN users u ON u.id = p.author_id
-WHERE p.status = 'pending_review'
-ORDER BY p.created_at ASC;
+WHERE p.status = 'published'
+ORDER BY p.published_at DESC;
 
 -- "My likes" / "My starred projects" pages -- a user looking back at what
 -- they liked or starred. The PK on project_likes/project_stars is
