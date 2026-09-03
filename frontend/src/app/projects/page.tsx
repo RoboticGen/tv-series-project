@@ -26,9 +26,11 @@ async function BrowseGrid({ query, category }: { query?: string; category?: stri
   if (projects.length === 0) {
     const hasFilters = Boolean(query || category);
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-16 text-center">
-        <SearchX className="size-8 text-muted-foreground" aria-hidden="true" />
-        <p className="text-sm font-medium text-foreground">
+      <div className="flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-white">
+        <div className="flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]">
+          <SearchX className="size-5" aria-hidden="true" />
+        </div>
+        <p className="font-bold text-foreground">
           {hasFilters ? "No projects match your search." : "No projects have been published yet."}
         </p>
         <p className="max-w-sm text-pretty text-sm text-muted-foreground">
@@ -39,7 +41,7 @@ async function BrowseGrid({ query, category }: { query?: string; category?: stri
         {hasFilters ? (
           <Link
             href="/projects"
-            className="inline-flex items-center gap-1 text-sm font-medium text-brand-teal transition-colors hover:text-brand-teal/80"
+            className="inline-flex items-center gap-1 text-sm font-bold text-brand-teal transition-colors hover:text-brand-teal/80"
           >
             <X className="size-3.5" />
             Clear search and filters
@@ -114,10 +116,10 @@ export default async function ProjectsPage({
           href={q ? `/projects?q=${encodeURIComponent(q)}` : "/projects"}
           aria-current={!category ? "page" : undefined}
           className={cn(
-            "rounded-full border px-3 py-1 transition-colors",
+            "rounded-sm border-2 px-3 py-1 font-bold transition-all",
             !category
-              ? "border-brand-teal bg-brand-teal/10 font-medium text-brand-teal"
-              : "border-transparent text-muted-foreground hover:border-border hover:text-foreground",
+              ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]"
+              : "border-transparent text-muted-foreground hover:border-brand-navy hover:text-foreground dark:hover:border-white",
           )}
         >
           All
@@ -128,10 +130,10 @@ export default async function ProjectsPage({
             href={`/projects?category=${value}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             aria-current={category === value ? "page" : undefined}
             className={cn(
-              "rounded-full border px-3 py-1 transition-colors",
+              "rounded-sm border-2 px-3 py-1 font-bold transition-all",
               category === value
-                ? "border-brand-teal bg-brand-teal/10 font-medium text-brand-teal"
-                : "border-transparent text-muted-foreground hover:border-border hover:text-foreground",
+                ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]"
+                : "border-transparent text-muted-foreground hover:border-brand-navy hover:text-foreground dark:hover:border-white",
             )}
           >
             {CATEGORY_LABELS[value]}

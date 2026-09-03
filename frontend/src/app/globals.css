@@ -87,7 +87,7 @@
   --chart-3: var(--brand-green);
   --chart-4: var(--brand-yellow);
   --chart-5: var(--brand-navy);
-  --radius: 0.75rem;
+  --radius: 0.5rem;
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: var(--brand-navy);
   --sidebar-primary: var(--brand-teal);

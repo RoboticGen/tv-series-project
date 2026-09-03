@@ -24,31 +24,24 @@ function StatTile({
   label,
   value,
   icon: Icon,
-  wash,
-  chip,
+  fill,
   emphasize,
 }: {
   label: string;
   value: number;
   icon: LucideIcon;
-  wash: string;
-  chip: string;
+  fill: string;
   emphasize?: boolean;
 }) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl p-4",
-        wash,
+        "relative overflow-hidden rounded-md border-2 border-brand-navy p-4 shadow-[4px_4px_0_0_var(--brand-navy)] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[4px_4px_0_0_#fff] dark:hover:shadow-[6px_6px_0_0_#fff]",
+        fill,
         emphasize && "sm:col-span-2",
       )}
     >
-      <div
-        className={cn(
-          "flex size-8 items-center justify-center rounded-lg",
-          chip,
-        )}
-      >
+      <div className="flex size-8 items-center justify-center rounded-sm border-2 border-brand-navy bg-white text-brand-navy dark:border-white dark:bg-black dark:text-white">
         <Icon className="size-4" />
       </div>
       <p
@@ -59,7 +52,9 @@ function StatTile({
       >
         {value}
       </p>
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-xs font-bold tracking-wide text-brand-navy/70 uppercase dark:text-white/70">
+        {label}
+      </p>
     </div>
   );
 }
@@ -70,51 +65,44 @@ export function DashboardStats(stats: DashboardStatsProps) {
       label: "Published",
       value: stats.publishedProjects,
       icon: CheckCircle2,
-      wash: "bg-brand-green/8 dark:bg-brand-green/12",
-      chip: "bg-brand-green/15 text-brand-green",
+      fill: "bg-brand-green/25",
       emphasize: true,
     },
     {
       label: "Drafts",
       value: stats.draftProjects,
       icon: FileEdit,
-      wash: "bg-brand-grey/8 dark:bg-brand-grey/12",
-      chip: "bg-brand-grey/15 text-brand-grey",
+      fill: "bg-brand-grey/25",
     },
     {
       label: "Featured",
       value: stats.featuredProjects,
       icon: Sparkles,
-      wash: "bg-brand-yellow/10 dark:bg-brand-yellow/12",
-      chip: "bg-brand-yellow/20 text-brand-navy dark:text-brand-yellow",
+      fill: "bg-brand-yellow/35",
     },
     {
       label: "Unpublished",
       value: stats.rejectedProjects,
       icon: XCircle,
-      wash: "bg-destructive/6 dark:bg-destructive/10",
-      chip: "bg-destructive/10 text-destructive",
+      fill: "bg-destructive/20",
     },
     {
       label: "Likes received",
       value: stats.totalLikesReceived,
       icon: Heart,
-      wash: "bg-brand-coral/8 dark:bg-brand-coral/12",
-      chip: "bg-brand-coral/15 text-brand-coral",
+      fill: "bg-brand-coral/25",
     },
     {
       label: "Favorites received",
       value: stats.totalStarsReceived,
       icon: Star,
-      wash: "bg-brand-yellow/10 dark:bg-brand-yellow/12",
-      chip: "bg-brand-yellow/20 text-brand-navy dark:text-brand-yellow",
+      fill: "bg-brand-yellow/35",
     },
     {
       label: "Submissions",
       value: stats.submissionsCount,
       icon: Upload,
-      wash: "bg-brand-sky/8 dark:bg-brand-sky/12",
-      chip: "bg-brand-sky/15 text-brand-sky",
+      fill: "bg-brand-sky/25",
     },
   ];
 

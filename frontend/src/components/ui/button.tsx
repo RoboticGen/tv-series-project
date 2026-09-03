@@ -4,19 +4,20 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border-2 border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap transition-all outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none disabled:hover:translate-x-0 disabled:hover:translate-y-0 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "border-brand-navy bg-primary text-primary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-primary hover:shadow-[5px_5px_0_0_var(--brand-navy)] active:translate-x-0 active:translate-y-0 active:shadow-none dark:border-white dark:shadow-[3px_3px_0_0_#fff] dark:hover:shadow-[5px_5px_0_0_#fff]",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-brand-navy bg-background shadow-[3px_3px_0_0_var(--brand-navy)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground hover:shadow-[5px_5px_0_0_var(--brand-navy)] active:translate-x-0 active:translate-y-0 active:shadow-none aria-expanded:bg-muted aria-expanded:text-foreground dark:border-white dark:bg-input/30 dark:shadow-[3px_3px_0_0_#fff] dark:hover:bg-input/50 dark:hover:shadow-[5px_5px_0_0_#fff]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "border-brand-navy bg-secondary text-secondary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-[5px_5px_0_0_var(--brand-navy)] active:translate-x-0 active:translate-y-0 active:shadow-none aria-expanded:bg-secondary aria-expanded:text-secondary-foreground dark:border-white dark:shadow-[3px_3px_0_0_#fff] dark:hover:shadow-[5px_5px_0_0_#fff]",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "hover:border-brand-navy hover:bg-muted hover:text-foreground aria-expanded:border-brand-navy aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:border-white dark:hover:bg-muted/50 dark:aria-expanded:border-white",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+          "border-destructive bg-destructive/10 text-destructive shadow-[3px_3px_0_0_var(--destructive)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-destructive/20 hover:shadow-[5px_5px_0_0_var(--destructive)] active:translate-x-0 active:translate-y-0 active:shadow-none dark:bg-destructive/20 dark:hover:bg-destructive/30",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

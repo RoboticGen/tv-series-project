@@ -33,16 +33,12 @@ function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col items-center gap-3 overflow-hidden rounded-xl border border-dashed py-16 text-center">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[radial-gradient(ellipse_at_top,var(--brand-teal)_0%,transparent_70%)] opacity-[0.06]"
-      />
-      <div className="relative flex size-12 items-center justify-center rounded-2xl bg-brand-teal/10 text-brand-teal ring-1 ring-brand-teal/15">
+    <div className="relative flex flex-col items-center gap-3 overflow-hidden rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-white">
+      <div className="relative flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]">
         <Icon className="size-5" />
       </div>
       <div className="relative">
-        <p className="font-medium text-foreground">{title}</p>
+        <p className="font-bold text-foreground">{title}</p>
         <p className="mx-auto mt-1 max-w-xs text-sm text-pretty text-muted-foreground">
           {description}
         </p>
@@ -69,12 +65,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">
-      <div className="flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 border-b-[3px] border-brand-navy pb-6 sm:flex-row sm:items-end sm:justify-between dark:border-white">
         <div>
-          <p className="text-xs font-semibold tracking-wide text-brand-teal uppercase">
+          <span className="inline-block rounded-sm border-2 border-brand-navy bg-brand-navy px-2 py-0.5 text-xs font-black tracking-wide text-white uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white dark:bg-white dark:text-brand-navy dark:shadow-[2px_2px_0_0_#fff]">
             Dashboard
-          </p>
-          <h1 className="mt-1 text-balance font-heading text-3xl font-bold tracking-tight text-brand-navy dark:text-white">
+          </span>
+          <h1 className="mt-2 text-balance font-heading text-3xl font-black tracking-tight text-brand-navy dark:text-white">
             Welcome back, {firstName}
           </h1>
           <p className="mt-1 text-pretty text-sm text-muted-foreground">
@@ -90,28 +86,28 @@ export default async function DashboardPage() {
 
       <div className="mt-10">
         <Tabs defaultValue="projects">
-          <TabsList variant="line" className="w-full border-b">
-            <TabsTrigger value="projects" className="gap-1.5">
+          <TabsList>
+            <TabsTrigger value="projects">
               My Projects
-              <span className="text-xs tabular-nums text-muted-foreground">
+              <span className="text-xs tabular-nums opacity-70">
                 {myProjects.length}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="submissions" className="gap-1.5">
+            <TabsTrigger value="submissions">
               My Submissions
-              <span className="text-xs tabular-nums text-muted-foreground">
+              <span className="text-xs tabular-nums opacity-70">
                 {mySubmissions.length}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="starred" className="gap-1.5">
+            <TabsTrigger value="starred">
               Favorites
-              <span className="text-xs tabular-nums text-muted-foreground">
+              <span className="text-xs tabular-nums opacity-70">
                 {starredProjects.length}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="collections" className="gap-1.5">
+            <TabsTrigger value="collections">
               Collections
-              <span className="text-xs tabular-nums text-muted-foreground">
+              <span className="text-xs tabular-nums opacity-70">
                 {myCollections.length}
               </span>
             </TabsTrigger>
@@ -184,6 +180,7 @@ export default async function DashboardPage() {
                   <Button
                     variant="outline"
                     nativeButton={false}
+                    className="gap-2"
                     render={<Link href="/projects" />}
                   >
                     <Compass className="size-4" />

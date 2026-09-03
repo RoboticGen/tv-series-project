@@ -19,8 +19,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { createCollection } from "@/actions/collections";
+import { cn } from "@/lib/utils";
 
-export function CreateCollectionButton() {
+export function CreateCollectionButton({ className }: { className?: string }) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [title, setTitle] = React.useState("");
@@ -48,7 +49,7 @@ export function CreateCollectionButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" className="gap-1.5" />}>
+      <DialogTrigger render={<Button size="sm" className={cn("gap-1.5", className)} />}>
         <Plus className="size-4" />
         New collection
       </DialogTrigger>

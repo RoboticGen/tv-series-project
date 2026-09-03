@@ -8,7 +8,7 @@ export default function Loading() {
       <div className="mt-6 h-9 w-full max-w-md animate-pulse rounded-md bg-muted" />
       <div className="mt-4 flex flex-wrap gap-2">
         {Array.from({ length: 5 }, (_, i) => (
-          <div key={i} className="h-6 w-20 animate-pulse rounded-full bg-muted" />
+          <div key={i} className="h-6 w-20 animate-pulse rounded-sm bg-muted" />
         ))}
       </div>
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
