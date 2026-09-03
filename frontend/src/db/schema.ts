@@ -20,6 +20,7 @@ import {
   bigint,
   integer,
   timestamp,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -95,6 +96,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   comments: many(comments),
   following: many(follows, { relationName: "followerUser" }),
   followers: many(follows, { relationName: "followeeUser" }),
+  collections: many(collections),
 }));
 
 // ---------------------------------------------------------------------
@@ -167,6 +169,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   stars: many(projectStars),
   submissions: many(submissions),
   comments: many(comments),
+  collectionItems: many(collectionItems),
 }));
 
 // ---------------------------------------------------------------------
@@ -288,6 +291,10 @@ export const submissionsRelations = relations(submissions, ({ one }) => ({
 // ---------------------------------------------------------------------
 // comments
 //
+// One level of threading via parent_comment_id (null = top-level, set =
+// reply). A reply's own parent_comment_id is never itself a reply --
+// enforced in the addComment server action, not here.
+//
 // NOT REPRESENTED (kept only in database/init/004_tables.sql):
 //   - CHECK constraint chk_comments_body_not_blank.
 // ---------------------------------------------------------------------
@@ -300,13 +307,16 @@ export const comments = pgTable("comments", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  parentCommentId: uuid("parent_comment_id").references((): AnyPgColumn => comments.id, {
+    onDelete: "cascade",
+  }),
   body: text("body").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
 
-export const commentsRelations = relations(comments, ({ one }) => ({
+export const commentsRelations = relations(comments, ({ one, many }) => ({
   project: one(projects, {
     fields: [comments.projectId],
     references: [projects.id],
@@ -315,6 +325,12 @@ export const commentsRelations = relations(comments, ({ one }) => ({
     fields: [comments.userId],
     references: [users.id],
   }),
+  parent: one(comments, {
+    fields: [comments.parentCommentId],
+    references: [comments.id],
+    relationName: "commentReplies",
+  }),
+  replies: many(comments, { relationName: "commentReplies" }),
 }));
 
 // ---------------------------------------------------------------------
@@ -349,6 +365,70 @@ export const followsRelations = relations(follows, ({ one }) => ({
     fields: [follows.followeeId],
     references: [users.id],
     relationName: "followeeUser",
+  }),
+}));
+
+// ---------------------------------------------------------------------
+// collections
+// ---------------------------------------------------------------------
+
+export const collections = pgTable("collections", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  isPrivate: boolean("is_private").notNull().default(false),
+  // Denormalized, kept in sync by DB triggers on collection_items -- do not write from app code.
+  itemCount: bigint("item_count", { mode: "number" }).notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  // Kept in sync by trg_collections_updated_at -- do not set from app code.
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const collectionsRelations = relations(collections, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [collections.ownerId],
+    references: [users.id],
+  }),
+  items: many(collectionItems),
+}));
+
+// ---------------------------------------------------------------------
+// collection_items
+//
+// NOT REPRESENTED (kept only in database/init/004_tables.sql):
+//   - Composite PRIMARY KEY (collection_id, project_id) -- same caveat as
+//     follows above; the DB still enforces uniqueness.
+// ---------------------------------------------------------------------
+
+export const collectionItems = pgTable("collection_items", {
+  collectionId: uuid("collection_id")
+    .notNull()
+    .references(() => collections.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  position: integer("position").notNull().default(0),
+  addedAt: timestamp("added_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const collectionItemsRelations = relations(collectionItems, ({ one }) => ({
+  collection: one(collections, {
+    fields: [collectionItems.collectionId],
+    references: [collections.id],
+  }),
+  project: one(projects, {
+    fields: [collectionItems.projectId],
+    references: [projects.id],
   }),
 }));
 

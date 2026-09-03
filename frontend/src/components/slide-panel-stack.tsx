@@ -21,6 +21,13 @@ interface SlidePanelStackProps {
  * the active panel on the right with the close control. Closing pops both,
  * since there's no separate history entry for `back` alone in this flow.
  */
+// max-w-2xl, the default frontWidthClassName -- also the drag-to-resize
+// minimum, so resizing only ever makes the front panel wider than its
+// default. If a caller passes a wider frontWidthClassName, resizing still
+// floors out at this value rather than that wider default; no caller does
+// today.
+const DEFAULT_FRONT_WIDTH_PX = 672;
+
 export function SlidePanelStack({
   back,
   front,
@@ -28,6 +35,8 @@ export function SlidePanelStack({
   frontWidthClassName = "max-w-2xl",
 }: SlidePanelStackProps) {
   const router = useRouter();
+  const frontRef = React.useRef<HTMLElement>(null);
+  const [frontWidth, setFrontWidth] = React.useState<number | null>(null);
 
   function close() {
     router.back();
@@ -42,6 +51,31 @@ export function SlidePanelStack({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function handleResizeStart(event: React.PointerEvent) {
+    event.preventDefault();
+    const front = frontRef.current;
+    if (!front) return;
+
+    const startX = event.clientX;
+    const startWidth = front.offsetWidth;
+
+    // Panel is anchored to the right edge and the handle sits on its left
+    // edge, so dragging left (negative clientX delta) grows it.
+    function handlePointerMove(moveEvent: PointerEvent) {
+      const next = startWidth + (startX - moveEvent.clientX);
+      const max = window.innerWidth - 32;
+      setFrontWidth(Math.min(max, Math.max(DEFAULT_FRONT_WIDTH_PX, next)));
+    }
+
+    function handlePointerUp() {
+      document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerup", handlePointerUp);
+    }
+
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+  }
+
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/40" onClick={close} />
@@ -55,11 +89,22 @@ export function SlidePanelStack({
           {back}
         </aside>
         <aside
+          ref={frontRef}
+          style={frontWidth ? { width: frontWidth, maxWidth: "none" } : undefined}
           className={cn(
             "relative flex min-h-0 w-screen flex-col overflow-y-auto bg-background shadow-2xl",
             frontWidthClassName,
           )}
         >
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize panel width"
+            onPointerDown={handleResizeStart}
+            className="absolute inset-y-0 left-0 z-10 hidden w-3 -translate-x-1/2 cursor-col-resize items-center justify-center touch-none sm:flex"
+          >
+            <div className="h-10 w-1 rounded-full bg-border transition-colors hover:bg-brand-teal" />
+          </div>
           <Button
             size="icon-sm"
             variant="ghost"

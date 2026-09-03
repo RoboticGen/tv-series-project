@@ -122,7 +122,7 @@ export function ProjectForm({
         </div>
       ) : null}
 
-      <Card>
+      <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Project details</CardTitle>
           <CardDescription>
