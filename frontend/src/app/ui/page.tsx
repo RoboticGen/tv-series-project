@@ -50,7 +50,6 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-
 const brandColors = [
   { name: "Navy", token: "--brand-navy", hex: "#022f49", fg: "text-white" },
   { name: "Teal", token: "--brand-teal", hex: "#219cbc", fg: "text-white" },
@@ -59,6 +58,7 @@ const brandColors = [
   { name: "Green", token: "--brand-green", hex: "#43b268", fg: "text-white" },
   { name: "Yellow", token: "--brand-yellow", hex: "#fdb713", fg: "text-brand-navy" },
   { name: "Grey", token: "--brand-grey", hex: "#939598", fg: "text-white" },
+  { name: "Black", token: "--brand-black", hex: "#1f2022", fg: "text-white" },
 ];
 
 function Section({
@@ -69,7 +69,7 @@ function Section({
 }: {
   id: string;
   title: string;
-  description?: string;
+  description?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -513,7 +513,7 @@ export default function UiPage() {
               </div>
             </Demo>
             <Demo label="Accordion">
-              <Accordion defaultValue={["item-1"]} className="w-full">
+              <Accordion type="multiple" defaultValue={["item-1"]} className="w-full">
                 <AccordionItem value="item-1">
                   <AccordionTrigger>How do I enrol my child?</AccordionTrigger>
                   <AccordionContent>

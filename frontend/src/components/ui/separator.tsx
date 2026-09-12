@@ -1,21 +1,27 @@
 "use client"
 
-import { Separator as SeparatorPrimitive } from "@base-ui/react/separator"
+import * as SeparatorPrimitive from "@radix-ui/react-separator"
+
+import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// The neobrutalism registry has no separator; this follows its conventions
+// (solid brand-navy rule rather than a hairline) on the Radix primitive.
 function Separator({
   className,
   orientation = "horizontal",
+  decorative = true,
   ...props
-}: SeparatorPrimitive.Props) {
+}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
   return (
-    <SeparatorPrimitive
+    <SeparatorPrimitive.Root
       data-slot="separator"
       orientation={orientation}
+      decorative={decorative}
       className={cn(
-        "shrink-0 bg-border data-horizontal:h-px data-horizontal:w-full data-vertical:w-px data-vertical:self-stretch",
-        className
+        "shrink-0 bg-brand-navy data-[orientation=horizontal]:h-0.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:self-stretch dark:bg-white",
+        className,
       )}
       {...props}
     />

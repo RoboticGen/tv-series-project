@@ -43,7 +43,7 @@ export default async function ProjectPrintPage({
         margin: 0,
         padding: "48px 56px",
         background: "#ffffff",
-        color: "#111827",
+        color: "#1f2022",
         fontFamily: "Georgia, 'Times New Roman', serif",
       }}
     >
@@ -62,24 +62,24 @@ export default async function ProjectPrintPage({
         />
       ) : null}
 
-      <p style={{ fontSize: 11, letterSpacing: 1, textTransform: "uppercase", color: "#6b7280" }}>
+      <p style={{ fontSize: 11, letterSpacing: 1, textTransform: "uppercase", color: "#939598" }}>
         {CATEGORY_LABELS[project.category] ?? project.category}
       </p>
 
-      <h1 style={{ fontSize: 30, fontWeight: 700, margin: "8px 0", color: "#0f2540" }}>
+      <h1 style={{ fontSize: 30, fontWeight: 700, margin: "8px 0", color: "#022f49" }}>
         {project.title}
       </h1>
 
       {project.summary ? (
-        <p style={{ fontSize: 15, lineHeight: 1.6, color: "#374151" }}>{project.summary}</p>
+        <p style={{ fontSize: 15, lineHeight: 1.6, color: "#1f2022" }}>{project.summary}</p>
       ) : null}
 
-      <p style={{ fontSize: 13, color: "#6b7280", margin: "16px 0 32px" }}>
+      <p style={{ fontSize: 13, color: "#939598", margin: "16px 0 32px" }}>
         By {project.authorName} &middot;{" "}
         {dateFormatter.format(project.publishedAt ?? project.createdAt)}
       </p>
 
-      <div style={{ borderTop: "1px solid #d1d5db", paddingTop: 24 }}>
+      <div style={{ borderTop: "1px solid rgba(147, 149, 152, 0.4)", paddingTop: 24 }}>
         <div data-color-mode="light">
           <MarkdownViewer body={body ?? ""} />
         </div>
