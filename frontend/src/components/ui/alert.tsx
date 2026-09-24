@@ -1,22 +1,24 @@
-import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
+
+import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
 const alertVariants = cva(
-  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
+  "relative grid w-full items-start gap-y-0.5 rounded-lg border-2 px-4 py-3 text-left text-sm shadow-[3px_3px_0_0_var(--brand-navy)] has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 grid-cols-[0_1fr] [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
+        default:
+          "border-brand-navy bg-primary text-primary-foreground dark:border-white dark:shadow-[3px_3px_0_0_#fff]",
         destructive:
-          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+          "border-destructive bg-card text-destructive shadow-[3px_3px_0_0_var(--destructive)] *:data-[slot=alert-description]:text-destructive/90",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 )
 
 function Alert({
@@ -39,8 +41,8 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="alert-title"
       className={cn(
-        "font-medium group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
-        className
+        "col-start-2 line-clamp-1 min-h-4 font-bold tracking-tight [&_a]:underline [&_a]:underline-offset-3",
+        className,
       )}
       {...props}
     />
@@ -55,8 +57,8 @@ function AlertDescription({
     <div
       data-slot="alert-description"
       className={cn(
-        "text-sm text-balance text-muted-foreground md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
-        className
+        "col-start-2 grid justify-items-start gap-1 text-sm font-medium [&_a]:underline [&_a]:underline-offset-3 [&_p]:leading-relaxed [&_p:not(:last-child)]:mb-4",
+        className,
       )}
       {...props}
     />

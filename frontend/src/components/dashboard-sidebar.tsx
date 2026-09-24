@@ -31,22 +31,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex size-8 items-center justify-center rounded-full bg-brand-teal text-sm font-bold text-white">
+        <div className="flex size-8 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-sm font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[2px_2px_0_0_#fff]">
           R
         </div>
-        <span className="font-heading text-sm font-bold text-brand-navy dark:text-white">
+        <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-white">
           RoboticGen Projects
         </span>
       </div>
 
       <div className="px-3">
-        <NewProjectButton
-          className="w-full justify-start rounded-lg"
-          onNavigate={onNavigate}
-        />
+        <NewProjectButton className="w-full justify-start" onNavigate={onNavigate} />
       </div>
 
-      <nav className="mt-4 flex flex-col gap-1 px-3">
+      <nav className="mt-4 flex flex-col gap-1.5 px-3">
         {navItems.map((item) => {
           const isActive =
             item.href === "/dashboard"
@@ -58,10 +55,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-2.5 rounded-md border-2 px-3 py-2 text-sm font-bold transition-all",
                 isActive
-                  ? "bg-brand-teal/10 text-brand-teal"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]"
+                  : "border-transparent text-muted-foreground hover:border-brand-navy hover:bg-muted hover:text-foreground dark:hover:border-white",
               )}
             >
               <item.icon className="size-4" />
@@ -72,9 +69,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="mt-auto p-3">
-        <Separator className="mb-3" />
+        <Separator className="mb-3 border-2 border-brand-navy dark:border-white" />
         {session?.user ? (
-          <div className="flex items-center gap-2.5 rounded-lg p-2">
+          <div className="flex items-center gap-2.5 rounded-md border-2 border-brand-navy p-2 dark:border-white">
             <Avatar size="sm">
               <AvatarImage src={session.user.image ?? undefined} alt={session.user.name ?? "You"} />
               <AvatarFallback>
@@ -82,16 +79,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">
+              <p className="truncate text-sm font-bold text-foreground">
                 {session.user.name ?? session.user.email}
               </p>
-              <Badge variant="secondary" className="mt-0.5 capitalize">
+              <Badge variant="secondary" className="mt-0.5 uppercase">
                 {session.user.role}
               </Badge>
             </div>
             <Button
               size="icon-sm"
               variant="ghost"
+              className="hover:bg-brand-coral/20"
               onClick={() => signOut()}
               title="Sign out"
             >
@@ -109,12 +107,12 @@ export function DashboardSidebar() {
 
   return (
     <>
-      <header className="flex items-center justify-between border-b bg-card px-4 py-3 md:hidden">
+      <header className="flex items-center justify-between border-b-2 border-brand-navy bg-card px-4 py-3 md:hidden dark:border-white">
         <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-full bg-brand-teal text-xs font-bold text-white">
+          <div className="flex size-7 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-xs font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[2px_2px_0_0_#fff]">
             R
           </div>
-          <span className="font-heading text-sm font-bold text-brand-navy dark:text-white">
+          <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-white">
             RoboticGen Projects
           </span>
         </div>
@@ -129,7 +127,7 @@ export function DashboardSidebar() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative flex h-full w-72 flex-col bg-card">
+          <aside className="relative flex h-full w-72 flex-col border-r-2 border-brand-navy bg-card dark:border-white">
             <Button
               size="icon-sm"
               variant="ghost"
@@ -143,7 +141,7 @@ export function DashboardSidebar() {
         </div>
       ) : null}
 
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 border-r bg-card md:flex md:flex-col">
+      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 border-r-2 border-brand-navy bg-card md:flex md:flex-col dark:border-white">
         <SidebarContent />
       </aside>
     </>
