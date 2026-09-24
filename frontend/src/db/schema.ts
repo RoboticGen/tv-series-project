@@ -73,6 +73,8 @@ export const users = pgTable("users", {
   displayName: text("display_name").notNull(),
   avatarUrl: text("avatar_url"),
   role: userRole("role").notNull().default("student"),
+  // Set by an admin; a disabled user can't sign in (enforced in src/auth.ts).
+  isDisabled: boolean("is_disabled").notNull().default(false),
   bio: text("bio"),
   // Denormalized, kept in sync by DB triggers on follows -- do not write from app code.
   followerCount: bigint("follower_count", { mode: "number" }).notNull().default(0),

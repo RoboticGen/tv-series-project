@@ -20,7 +20,7 @@ interface DashboardStatsProps {
   submissionsCount: number;
 }
 
-function StatTile({
+export function StatTile({
   label,
   value,
   icon: Icon,
