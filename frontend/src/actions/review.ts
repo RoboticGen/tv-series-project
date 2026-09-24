@@ -140,6 +140,8 @@ export async function toggleFeatured(projectId: string) {
   if (!project || project.status !== "published") {
     throw new Error("Only published projects can be featured");
   }
+  // Reviewers may feature their own projects too -- which means featuring
+  // your own project still pays you the one-time award_featured_points.
 
   await db
     .update(projects)
@@ -171,6 +173,9 @@ export async function unpublishProject(projectId: string, reason: string) {
     .update(projects)
     .set({
       status: "rejected",
+      // A taken-down project is no longer featured anywhere -- clearing the
+      // flag keeps the dashboard stats, badges and sort honest.
+      isFeatured: false,
       reviewedById: session.user.id,
       reviewedAt: new Date(),
       rejectionReason: trimmedReason,

@@ -1,20 +1,10 @@
 import type { LucideIcon } from "lucide-react";
-import {
-  FileEdit,
-  CheckCircle2,
-  Sparkles,
-  XCircle,
-  Heart,
-  Star,
-  Upload,
-} from "lucide-react";
+import { Rocket, Sparkles, Heart, Star, Hammer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DashboardStatsProps {
-  draftProjects: number;
   publishedProjects: number;
   featuredProjects: number;
-  rejectedProjects: number;
   totalLikesReceived: number;
   totalStarsReceived: number;
   submissionsCount: number;
@@ -25,92 +15,85 @@ export function StatTile({
   value,
   icon: Icon,
   fill,
-  emphasize,
+  iconFill,
 }: {
   label: string;
   value: number;
   icon: LucideIcon;
   fill: string;
-  emphasize?: boolean;
+  iconFill: string;
 }) {
   return (
-    <div
+    <li
       className={cn(
-        "relative overflow-hidden rounded-md border-2 border-brand-navy p-4 shadow-[4px_4px_0_0_var(--brand-navy)] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[4px_4px_0_0_#fff] dark:hover:shadow-[6px_6px_0_0_#fff]",
+        "flex flex-col items-start gap-3 rounded-xl border-2 border-brand-navy p-4 shadow-[4px_4px_0_0_var(--brand-navy)] motion-safe:transition-transform hover:-translate-y-1 dark:border-white dark:shadow-[4px_4px_0_0_#fff]",
         fill,
-        emphasize && "sm:col-span-2",
       )}
     >
-      <div className="flex size-8 items-center justify-center rounded-sm border-2 border-brand-navy bg-white text-brand-navy dark:border-white dark:bg-black dark:text-white">
-        <Icon className="size-4" />
-      </div>
-      <p
+      <div
         className={cn(
-          "mt-3 font-bold tabular-nums text-brand-navy dark:text-white",
-          emphasize ? "text-3xl" : "text-2xl",
+          "flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy dark:border-white",
+          iconFill,
         )}
       >
-        {value}
-      </p>
-      <p className="text-xs font-bold tracking-wide text-brand-navy/70 uppercase dark:text-white/70">
-        {label}
-      </p>
-    </div>
+        <Icon className="size-5" aria-hidden />
+      </div>
+      <div className="w-full min-w-0">
+        <p className="font-heading text-3xl leading-none font-black tabular-nums lining-nums text-brand-navy dark:text-white">
+          {value}
+        </p>
+        <p className="mt-1 text-xs leading-tight font-bold tracking-wide text-balance break-words text-brand-navy/75 uppercase dark:text-white/75">
+          {label}
+        </p>
+      </div>
+    </li>
   );
 }
 
 export function DashboardStats(stats: DashboardStatsProps) {
   const tiles = [
     {
-      label: "Published",
+      label: "Projects shared",
       value: stats.publishedProjects,
-      icon: CheckCircle2,
-      fill: "bg-brand-green/25",
-      emphasize: true,
-    },
-    {
-      label: "Drafts",
-      value: stats.draftProjects,
-      icon: FileEdit,
-      fill: "bg-brand-grey/25",
+      icon: Rocket,
+      fill: "bg-brand-sky/20",
+      iconFill: "bg-brand-sky",
     },
     {
       label: "Featured",
       value: stats.featuredProjects,
       icon: Sparkles,
-      fill: "bg-brand-yellow/35",
+      fill: "bg-brand-yellow/30",
+      iconFill: "bg-brand-yellow",
     },
     {
-      label: "Unpublished",
-      value: stats.rejectedProjects,
-      icon: XCircle,
-      fill: "bg-destructive/20",
-    },
-    {
-      label: "Likes received",
+      label: "Likes",
       value: stats.totalLikesReceived,
       icon: Heart,
-      fill: "bg-brand-coral/25",
+      fill: "bg-brand-coral/20",
+      iconFill: "bg-brand-coral",
     },
     {
-      label: "Favorites received",
+      label: "Stars",
       value: stats.totalStarsReceived,
       icon: Star,
-      fill: "bg-brand-yellow/35",
+      fill: "bg-brand-yellow/20",
+      iconFill: "bg-brand-yellow",
     },
     {
-      label: "Submissions",
+      label: "Builds tried",
       value: stats.submissionsCount,
-      icon: Upload,
-      fill: "bg-brand-sky/25",
+      icon: Hammer,
+      fill: "bg-brand-green/20",
+      iconFill: "bg-brand-green",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <ul aria-label="Your stats" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {tiles.map((tile) => (
         <StatTile key={tile.label} {...tile} />
       ))}
-    </div>
+    </ul>
   );
 }

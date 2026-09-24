@@ -2,19 +2,7 @@ import { notFound } from "next/navigation";
 import { getProjectBySlug } from "@/actions/projects";
 import { getContentDoc } from "@/db/content";
 import { MarkdownViewer } from "@/components/markdown-viewer";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  robotics: "Robotics",
-  electronics: "Electronics",
-  iot: "IoT",
-  coding_software: "Coding & Software",
-  ai_ml: "AI / ML",
-  drones: "Drones",
-  threed_printing: "3D Printing",
-  sensors_automation: "Sensors & Automation",
-  competitions: "Competitions",
-  other: "Other",
-};
+import { CATEGORY_LABELS } from "@/lib/categories";
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
   month: "long",

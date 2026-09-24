@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, ilike, or } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -248,9 +248,10 @@ export async function getFeaturedProjects(options?: {
   query?: string;
   category?: string;
   page?: number;
+  pageSize?: number;
 }) {
   const page = options?.page ?? 1;
-  const pageSize = 12;
+  const pageSize = options?.pageSize ?? 12;
 
   const conditions = [eq(projects.status, "published"), eq(projects.isFeatured, true)];
   if (options?.category) {
@@ -398,6 +399,7 @@ export async function getMyProjects(userId: string) {
       summary: projects.summary,
       category: projects.category,
       status: projects.status,
+      isFeatured: projects.isFeatured,
       likeCount: projects.likeCount,
       starCount: projects.starCount,
       rejectionReason: projects.rejectionReason,
@@ -461,4 +463,28 @@ export async function getMyStarredProjects(userId: string) {
     ...row,
     coverImageUrl: coverImageId ? `/api/media/${coverImageId}` : null,
   }));
+}
+
+// Public headline numbers for the landing page. Aggregate counts only --
+// nothing here identifies a user or exposes unpublished work.
+export async function getCommunityCounts() {
+  const [[projectCounts], [userCounts]] = await Promise.all([
+    db
+      .select({
+        published: sql<number>`count(*) filter (where ${projects.status} = 'published')`.mapWith(Number),
+        featured: sql<number>`count(*) filter (where ${projects.status} = 'published' and ${projects.isFeatured})`.mapWith(Number),
+      })
+      .from(projects),
+    // "Young makers" on the landing page -- mentors and admins don't count.
+    db
+      .select({ makers: sql<number>`count(*)`.mapWith(Number) })
+      .from(users)
+      .where(eq(users.role, "student")),
+  ]);
+
+  return {
+    publishedProjects: projectCounts?.published ?? 0,
+    featuredProjects: projectCounts?.featured ?? 0,
+    makers: userCounts?.makers ?? 0,
+  };
 }

@@ -32,9 +32,9 @@ mongodb://roboticgen:roboticgen@localhost:27017
 | File | Contents |
 |---|---|
 | `init/001_extensions.sql` | `pgcrypto`, `citext`, `pg_trgm` |
-| `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category` enums |
-| `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns |
-| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items` |
+| `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category`, `point_reason` enums |
+| `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns, builder points fns |
+| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items`, `point_events` |
 | `init/005_views.sql` | `user_dashboard_stats`, `pending_review_queue`, `user_liked_projects`, `user_starred_projects` |
 | `migrations/*.sql` | Schema changes applied after `init/` already ran once (see "Changing the schema" below) |
 | `frontend/src/db/schema.ts` | Drizzle model of the same schema (hand-maintained, see below) |
@@ -107,6 +107,19 @@ mongodb://roboticgen:roboticgen@localhost:27017
   `other`) is closed and only ever changes via a migration
   (`ALTER TYPE project_category ADD VALUE ...`), never through an admin
   UI — there's no `categories` table to manage.
+- **Builder points** are an append-only ledger (`point_events`) plus a
+  denormalized total (`users.points`), both written only by triggers
+  (`award_*_points`, `adjust_user_points` in `003_functions.sql`), same
+  never-drift reasoning as `like_count`/`star_count`. Rules: +5 to a
+  learner the first time they submit a build of someone else's project,
+  +15 to the author the first time a project is featured, +3 to the author
+  per distinct starrer (self-stars earn nothing). Publishing and likes earn
+  nothing. Values live in one place, `points_for()`. Points are never taken
+  back: partial unique indexes (`uq_point_events_*`) make each action pay
+  at most once, so un-star/re-star or un-feature/re-feature can't farm
+  points, and `project_id` is `ON DELETE SET NULL` so deleting a project
+  keeps what was earned. Levels are derived from the total in the app
+  (`frontend/src/components/builder-level.tsx`), not stored.
 - **`user_dashboard_stats`**: per-user project counts by status plus
   totals received (likes, stars, submissions) — for the small dashboard.
 - **`pending_review_queue`**: the mentor/admin approval queue, oldest

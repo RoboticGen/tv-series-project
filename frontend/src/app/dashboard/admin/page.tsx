@@ -11,11 +11,11 @@ export default async function AdminPage() {
     allUsers.filter(predicate).length;
 
   const tiles = [
-    { label: "Total users", value: allUsers.length, icon: Users, fill: "bg-brand-sky/25", emphasize: true },
-    { label: "Students", value: count((u) => u.role === "student"), icon: GraduationCap, fill: "bg-brand-green/25" },
-    { label: "Mentors", value: count((u) => u.role === "mentor"), icon: ClipboardCheck, fill: "bg-brand-yellow/35" },
-    { label: "Admins", value: count((u) => u.role === "admin"), icon: ShieldCheck, fill: "bg-brand-coral/25" },
-    { label: "Disabled", value: count((u) => u.isDisabled), icon: Ban, fill: "bg-destructive/20" },
+    { label: "Total users", value: allUsers.length, icon: Users, fill: "bg-brand-sky/20", iconFill: "bg-brand-sky" },
+    { label: "Students", value: count((u) => u.role === "student"), icon: GraduationCap, fill: "bg-brand-green/20", iconFill: "bg-brand-green" },
+    { label: "Mentors", value: count((u) => u.role === "mentor"), icon: ClipboardCheck, fill: "bg-brand-yellow/30", iconFill: "bg-brand-yellow" },
+    { label: "Admins", value: count((u) => u.role === "admin"), icon: ShieldCheck, fill: "bg-brand-coral/20", iconFill: "bg-brand-coral" },
+    { label: "Disabled", value: count((u) => u.isDisabled), icon: Ban, fill: "bg-destructive/20", iconFill: "bg-destructive" },
   ];
 
   return (
@@ -33,7 +33,7 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {tiles.map((tile) => (
           <StatTile key={tile.label} {...tile} />
         ))}

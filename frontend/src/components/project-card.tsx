@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, Star, ImageOff } from "lucide-react";
+import { Heart, Star, ImageOff, Sparkles } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -9,19 +9,8 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-export const CATEGORY_LABELS: Record<string, string> = {
-  robotics: "Robotics",
-  electronics: "Electronics",
-  iot: "IoT",
-  coding_software: "Coding & Software",
-  ai_ml: "AI / ML",
-  drones: "Drones",
-  threed_printing: "3D Printing",
-  sensors_automation: "Sensors & Automation",
-  competitions: "Competitions",
-  other: "Other",
-};
+import { cn } from "@/lib/utils";
+import { CATEGORY_LABELS } from "@/lib/categories";
 
 interface ProjectCardProps {
   slug: string;
@@ -70,12 +59,17 @@ export function ProjectCard({
 }: ProjectCardProps) {
   return (
     <Link href={href ?? `/projects/${slug}`} className="block h-full">
-      <Card className="h-full pt-0 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_#fff]">
+      <Card
+        className={cn(
+          "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_#fff]",
+          isFeatured && "bg-brand-yellow/10 dark:bg-brand-yellow/5",
+        )}
+      >
         <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-brand-navy bg-muted dark:border-white">
           {coverImageUrl ? (
             <Image
               src={coverImageUrl}
-              alt={title}
+              alt=""
               fill
               sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
               className="object-cover"
@@ -83,18 +77,21 @@ export function ProjectCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-              <ImageOff className="size-6" />
+              <ImageOff className="size-6" aria-hidden />
             </div>
           )}
+          {isFeatured ? (
+            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]">
+              <Sparkles className="size-3.5" aria-hidden />
+              Featured
+            </span>
+          ) : null}
         </div>
         <CardHeader>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="w-fit">
               {CATEGORY_LABELS[category] ?? category}
             </Badge>
-            {isFeatured ? (
-              <Badge className="w-fit bg-brand-yellow text-brand-navy">Featured</Badge>
-            ) : null}
             {statusBadge ? (
               <Badge variant="outline" className="w-fit capitalize">
                 {statusBadge}
@@ -110,11 +107,13 @@ export function ProjectCard({
           <span className="text-sm text-muted-foreground">by {authorName}</span>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Heart className="size-4 text-brand-coral" />
+              <Heart className="size-4 text-brand-coral" aria-hidden />
+              <span className="sr-only">Likes:</span>
               {likeCount}
             </span>
             <span className="flex items-center gap-1">
-              <Star className="size-4 text-brand-yellow" />
+              <Star className="size-4 text-brand-yellow" aria-hidden />
+              <span className="sr-only">Stars:</span>
               {starCount}
             </span>
           </div>

@@ -4,7 +4,7 @@ import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import type { ModerationFeaturedFilter, ModerationSort } from "@/actions/review";
-import { CATEGORY_LABELS } from "@/components/project-card";
+import { CATEGORY_LABELS } from "@/lib/categories";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {

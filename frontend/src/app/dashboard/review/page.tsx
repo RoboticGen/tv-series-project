@@ -5,7 +5,8 @@ import {
   type ModerationFeaturedFilter,
   type ModerationSort,
 } from "@/actions/review";
-import { CATEGORY_LABELS, ProjectCard } from "@/components/project-card";
+import { ProjectCard } from "@/components/project-card";
+import { CATEGORY_LABELS } from "@/lib/categories";
 import { FeatureProjectButton } from "@/components/feature-project-button";
 import { ReviewQueueFilters } from "@/components/review-queue-filters";
 
