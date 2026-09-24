@@ -1,9 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { publishedProjectsFeed, projects, users } from "@/db/schema";
+import { projects, users } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 
 async function requireReviewer() {
@@ -15,19 +15,88 @@ async function requireReviewer() {
   return session;
 }
 
-// Post-hoc moderation list, not a pre-publish queue -- every row here is
-// already publicly visible.
-export async function listPublishedProjectsForModeration() {
-  await requireReviewer();
-  const rows = await db
-    .select()
-    .from(publishedProjectsFeed)
-    .orderBy(publishedProjectsFeed.publishedAt);
+export type ModerationFeaturedFilter = "all" | "featured" | "not_featured";
+export type ModerationSort = "newest" | "oldest" | "top_rated" | "most_liked" | "most_favorited";
 
-  return rows.map(({ coverImageId, ...row }) => ({
-    ...row,
-    coverImageUrl: coverImageId ? `/api/media/${coverImageId}` : null,
-  }));
+const MODERATION_SORTS: Record<ModerationSort, SQL[]> = {
+  newest: [desc(projects.publishedAt)],
+  oldest: [asc(projects.publishedAt)],
+  // Likes and favorites are the only rating signal there is -- weight
+  // them equally, newest first on a tie.
+  top_rated: [desc(sql`${projects.likeCount} + ${projects.starCount}`), desc(projects.publishedAt)],
+  most_liked: [desc(projects.likeCount), desc(projects.publishedAt)],
+  most_favorited: [desc(projects.starCount), desc(projects.publishedAt)],
+};
+
+// Post-hoc moderation list, not a pre-publish queue -- every row here is
+// already publicly visible. Queries projects directly rather than the
+// published_projects_feed view, which has no like/star counts to rank by.
+export async function listPublishedProjectsForModeration(options?: {
+  query?: string;
+  category?: string;
+  featured?: ModerationFeaturedFilter;
+  sort?: ModerationSort;
+}) {
+  await requireReviewer();
+
+  const baseConditions = [eq(projects.status, "published")];
+  if (options?.category && (projects.category.enumValues as string[]).includes(options.category)) {
+    baseConditions.push(
+      eq(projects.category, options.category as (typeof projects.category.enumValues)[number]),
+    );
+  }
+  if (options?.query) {
+    const term = `%${options.query}%`;
+    baseConditions.push(
+      or(ilike(projects.title, term), ilike(projects.summary, term), ilike(users.displayName, term))!,
+    );
+  }
+
+  const conditions = [...baseConditions];
+  if (options?.featured === "featured") conditions.push(eq(projects.isFeatured, true));
+  if (options?.featured === "not_featured") conditions.push(eq(projects.isFeatured, false));
+
+  const [rows, [counts]] = await Promise.all([
+    db
+      .select({
+        id: projects.id,
+        title: projects.title,
+        slug: projects.slug,
+        summary: projects.summary,
+        category: projects.category,
+        authorName: users.displayName,
+        likeCount: projects.likeCount,
+        starCount: projects.starCount,
+        isFeatured: projects.isFeatured,
+        coverImageId: projects.coverImageId,
+      })
+      .from(projects)
+      .innerJoin(users, eq(projects.authorId, users.id))
+      .where(and(...conditions))
+      .orderBy(...MODERATION_SORTS[options?.sort ?? "newest"] ?? MODERATION_SORTS.newest),
+    // Tab counts ignore the featured filter itself, so every tab shows how
+    // many it would match under the current search/category.
+    db
+      .select({
+        all: sql<number>`count(*)::int`,
+        featured: sql<number>`count(*) filter (where ${projects.isFeatured})::int`,
+      })
+      .from(projects)
+      .innerJoin(users, eq(projects.authorId, users.id))
+      .where(and(...baseConditions)),
+  ]);
+
+  return {
+    projects: rows.map(({ coverImageId, ...row }) => ({
+      ...row,
+      coverImageUrl: coverImageId ? `/api/media/${coverImageId}` : null,
+    })),
+    counts: {
+      all: counts.all,
+      featured: counts.featured,
+      not_featured: counts.all - counts.featured,
+    },
+  };
 }
 
 export async function getPublishedProjectForModeration(slug: string) {

@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, Compass, ClipboardCheck, Menu, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Compass, ClipboardCheck, ShieldCheck, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,12 +21,21 @@ const REVIEWER_NAV_ITEMS = [
   { href: "/dashboard/review", label: "Review queue", icon: ClipboardCheck },
 ];
 
+const ADMIN_NAV_ITEMS = [
+  { href: "/dashboard/admin", label: "Admin", icon: ShieldCheck },
+];
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isReviewer =
     session?.user?.role === "mentor" || session?.user?.role === "admin";
-  const navItems = isReviewer ? [...NAV_ITEMS, ...REVIEWER_NAV_ITEMS] : NAV_ITEMS;
+  const isAdmin = session?.user?.role === "admin";
+  const navItems = [
+    ...NAV_ITEMS,
+    ...(isReviewer ? REVIEWER_NAV_ITEMS : []),
+    ...(isAdmin ? ADMIN_NAV_ITEMS : []),
+  ];
 
   return (
     <div className="flex h-full flex-col">
