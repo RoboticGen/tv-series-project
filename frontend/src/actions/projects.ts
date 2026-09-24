@@ -293,6 +293,7 @@ export async function getFeaturedProjects(options?: {
 export async function getPublishedProjects(options?: {
   query?: string;
   category?: string;
+  featured?: boolean;
   page?: number;
 }) {
   const page = options?.page ?? 1;
@@ -306,6 +307,7 @@ export async function getPublishedProjects(options?: {
     const term = `%${options.query}%`;
     conditions.push(or(ilike(projects.title, term), ilike(projects.summary, term))!);
   }
+  if (options?.featured) conditions.push(eq(projects.isFeatured, true));
 
   const rows = await db
     .select({

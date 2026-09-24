@@ -14,6 +14,8 @@ CREATE TABLE users (
   -- on login if it changes.
   avatar_url     TEXT,
   role           user_role NOT NULL DEFAULT 'student',
+  -- Set by an admin; a disabled user can't sign in (enforced in the app).
+  is_disabled    BOOLEAN NOT NULL DEFAULT false,
   bio            TEXT,
   -- Maintained by triggers on follows -- see adjust_follow_counts in
   -- 003_functions.sql. Do not write from app code.

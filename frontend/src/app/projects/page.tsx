@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Search, SearchX, X } from "lucide-react";
+import { Search, SearchX, Sparkles, X } from "lucide-react";
 import { getPublishedProjects } from "@/actions/projects";
 import { ProjectCard, ProjectCardSkeleton } from "@/components/project-card";
 import { Input } from "@/components/ui/input";
@@ -20,11 +20,28 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-async function BrowseGrid({ query, category }: { query?: string; category?: string }) {
-  const projects = await getPublishedProjects({ query, category });
+function browseHref(params: { q?: string; category?: string; featured?: boolean }) {
+  const search = new URLSearchParams();
+  if (params.q) search.set("q", params.q);
+  if (params.category) search.set("category", params.category);
+  if (params.featured) search.set("featured", "1");
+  const qs = search.toString();
+  return qs ? `/projects?${qs}` : "/projects";
+}
+
+async function BrowseGrid({
+  query,
+  category,
+  featured,
+}: {
+  query?: string;
+  category?: string;
+  featured?: boolean;
+}) {
+  const projects = await getPublishedProjects({ query, category, featured });
 
   if (projects.length === 0) {
-    const hasFilters = Boolean(query || category);
+    const hasFilters = Boolean(query || category || featured);
     return (
       <div className="flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-white">
         <div className="flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]">
@@ -74,9 +91,10 @@ async function BrowseGrid({ query, category }: { query?: string; category?: stri
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; featured?: string }>;
 }) {
-  const { q, category } = await searchParams;
+  const { q, category, featured: featuredParam } = await searchParams;
+  const featured = featuredParam === "1";
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
@@ -91,6 +109,7 @@ export default async function ProjectsPage({
 
       <form className="mt-6 flex items-center gap-2" action="/projects">
         {category ? <input type="hidden" name="category" value={category} /> : null}
+        {featured ? <input type="hidden" name="featured" value="1" /> : null}
         <div className="relative flex-1 max-w-md">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -103,7 +122,7 @@ export default async function ProjectsPage({
         </div>
         {q ? (
           <Link
-            href={category ? `/projects?category=${category}` : "/projects"}
+            href={browseHref({ category, featured })}
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             Clear
@@ -113,7 +132,20 @@ export default async function ProjectsPage({
 
       <nav aria-label="Filter by category" className="mt-4 flex flex-wrap gap-2 text-sm">
         <Link
-          href={q ? `/projects?q=${encodeURIComponent(q)}` : "/projects"}
+          href={browseHref({ q, category, featured: !featured })}
+          aria-pressed={featured}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-sm border-2 px-3 py-1 font-bold transition-all",
+            featured
+              ? "border-brand-navy bg-brand-yellow text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]"
+              : "border-brand-navy text-foreground hover:bg-brand-yellow/30 dark:border-white",
+          )}
+        >
+          <Sparkles className="size-3.5" />
+          Featured only
+        </Link>
+        <Link
+          href={browseHref({ q, featured })}
           aria-current={!category ? "page" : undefined}
           className={cn(
             "rounded-sm border-2 px-3 py-1 font-bold transition-all",
@@ -127,7 +159,7 @@ export default async function ProjectsPage({
         {projectCategory.enumValues.map((value) => (
           <Link
             key={value}
-            href={`/projects?category=${value}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+            href={browseHref({ q, category: value, featured })}
             aria-current={category === value ? "page" : undefined}
             className={cn(
               "rounded-sm border-2 px-3 py-1 font-bold transition-all",
@@ -142,8 +174,8 @@ export default async function ProjectsPage({
       </nav>
 
       <div className="mt-8">
-        <Suspense fallback={<GridSkeleton />} key={`${category ?? "all"}-${q ?? ""}`}>
-          <BrowseGrid query={q} category={category} />
+        <Suspense fallback={<GridSkeleton />} key={`${category ?? "all"}-${q ?? ""}-${featured}`}>
+          <BrowseGrid query={q} category={category} featured={featured} />
         </Suspense>
       </div>
     </div>

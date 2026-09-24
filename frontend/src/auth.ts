@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { isDefaultAdmin } from "@/lib/admin";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -31,13 +32,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Reject unverified Google emails -- these can be spoofed by the
       // account holder themselves and must not be trusted for identity.
       if (!profile?.email_verified) return false;
-      return true;
+      // Accounts an admin disabled can't sign back in.
+      const [existing] = await db
+        .select({ isDisabled: users.isDisabled })
+        .from(users)
+        .where(eq(users.googleId, account.providerAccountId));
+      return !existing?.isDisabled;
     },
     async jwt({ token, account, profile }) {
       // Only runs on initial sign-in, when `account`/`profile` are present.
       // Every subsequent request reuses the already-encrypted token.
       if (account && profile?.email && account.providerAccountId) {
         const googleId = account.providerAccountId;
+        const adminRole = isDefaultAdmin(profile.email) ? { role: "admin" as const } : {};
         const [dbUser] = await db
           .insert(users)
           .values({
@@ -46,6 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             displayName: (profile.name as string | undefined) ?? profile.email,
             avatarUrl: (profile.picture as string | undefined) ?? null,
             lastLoginAt: new Date(),
+            ...adminRole,
           })
           .onConflictDoUpdate({
             target: users.googleId,
@@ -54,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               displayName: (profile.name as string | undefined) ?? profile.email,
               avatarUrl: (profile.picture as string | undefined) ?? null,
               lastLoginAt: new Date(),
+              ...adminRole,
             },
           })
           .returning({ id: users.id, role: users.role });
@@ -62,12 +71,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = dbUser.role;
       } else if (token.id) {
         // Keep the role in the token fresh (e.g. after a mentor/admin
-        // promotion) without hitting Google again.
+        // promotion) without hitting Google again. Returning null drops
+        // the session, so a user an admin deleted or disabled is signed
+        // out on their next request instead of when the JWT expires.
         const [dbUser] = await db
-          .select({ role: users.role })
+          .select({ role: users.role, isDisabled: users.isDisabled })
           .from(users)
           .where(eq(users.id, token.id as string));
-        if (dbUser) token.role = dbUser.role;
+        if (!dbUser || dbUser.isDisabled) return null;
+        token.role = dbUser.role;
       }
       return token;
     },
