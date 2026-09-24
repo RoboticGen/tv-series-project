@@ -25,19 +25,7 @@ import { MarkdownEditor } from "@/components/markdown-editor";
 import { CoverImageUpload } from "@/components/cover-image-upload";
 import { updateProject, publishProject } from "@/actions/projects";
 import { projectCategory } from "@/db/schema";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  robotics: "Robotics",
-  electronics: "Electronics",
-  iot: "IoT",
-  coding_software: "Coding & Software",
-  ai_ml: "AI / ML",
-  drones: "Drones",
-  threed_printing: "3D Printing",
-  sensors_automation: "Sensors & Automation",
-  competitions: "Competitions",
-  other: "Other",
-};
+import { CATEGORY_LABELS } from "@/lib/categories";
 
 interface ProjectFormProps {
   projectId: string;

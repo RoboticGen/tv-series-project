@@ -31,3 +31,7 @@ CREATE TYPE project_category AS ENUM (
   'competitions',
   'other'
 );
+
+-- Why a point_events row was written -- see award_*_points in
+-- 003_functions.sql and points_for for each reason's value.
+CREATE TYPE point_reason AS ENUM ('submission_created', 'project_featured', 'star_received');

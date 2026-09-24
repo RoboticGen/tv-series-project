@@ -59,6 +59,12 @@ export const projectCategory = pgEnum("project_category", [
   "other",
 ]);
 
+export const pointReason = pgEnum("point_reason", [
+  "submission_created",
+  "project_featured",
+  "star_received",
+]);
+
 // ---------------------------------------------------------------------
 // users
 // ---------------------------------------------------------------------
@@ -77,6 +83,8 @@ export const users = pgTable("users", {
   // Denormalized, kept in sync by DB triggers on follows -- do not write from app code.
   followerCount: bigint("follower_count", { mode: "number" }).notNull().default(0),
   followingCount: bigint("following_count", { mode: "number" }).notNull().default(0),
+  // Denormalized total of point_events, kept in sync by DB triggers -- do not write from app code.
+  points: bigint("points", { mode: "number" }).notNull().default(0),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -367,6 +375,29 @@ export const followsRelations = relations(follows, ({ one }) => ({
     relationName: "followeeUser",
   }),
 }));
+
+// ---------------------------------------------------------------------
+// point_events
+// Append-only builder points ledger, written only by the award_*_points
+// triggers in database/init/003_functions.sql -- never insert from app code.
+//
+// NOT REPRESENTED: the partial unique indexes (uq_point_events_*) that
+// stop one action paying twice.
+// ---------------------------------------------------------------------
+
+export const pointEvents = pgTable("point_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  reason: pointReason("reason").notNull(),
+  points: integer("points").notNull(),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
+  actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
 
 // ---------------------------------------------------------------------
 // collections

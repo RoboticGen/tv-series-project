@@ -19,6 +19,9 @@ CREATE TABLE users (
   -- 003_functions.sql. Do not write from app code.
   follower_count   BIGINT NOT NULL DEFAULT 0,
   following_count  BIGINT NOT NULL DEFAULT 0,
+  -- Maintained by triggers on point_events -- see adjust_user_points in
+  -- 003_functions.sql. Do not write from app code.
+  points         BIGINT NOT NULL DEFAULT 0,
   last_login_at  TIMESTAMPTZ,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -327,3 +330,51 @@ CREATE INDEX idx_follows_followee ON follows (followee_id);
 CREATE TRIGGER trg_follows_count
   AFTER INSERT OR DELETE ON follows
   FOR EACH ROW EXECUTE FUNCTION adjust_follow_counts();
+
+
+-- =====================================================================
+-- point_events
+-- Builder points ledger: one row per award, written only by the
+-- award_*_points triggers below. users.points is its running total.
+-- =====================================================================
+CREATE TABLE point_events (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- Who earned the points.
+  user_id     UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  reason      point_reason NOT NULL,
+  points      INTEGER NOT NULL,
+  -- SET NULL, not CASCADE: deleting a project must not take back points
+  -- already earned from it.
+  project_id  UUID REFERENCES projects (id) ON DELETE SET NULL,
+  -- Who caused the event, when that's someone else (the starrer).
+  actor_id    UUID REFERENCES users (id) ON DELETE SET NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_point_events_user ON point_events (user_id, created_at DESC);
+
+-- One award per action, ever -- what makes un-star/re-star (etc.) unable
+-- to farm points.
+CREATE UNIQUE INDEX uq_point_events_submission
+  ON point_events (user_id, project_id) WHERE reason = 'submission_created';
+CREATE UNIQUE INDEX uq_point_events_featured
+  ON point_events (project_id) WHERE reason = 'project_featured';
+CREATE UNIQUE INDEX uq_point_events_star
+  ON point_events (project_id, actor_id) WHERE reason = 'star_received';
+
+CREATE TRIGGER trg_point_events_total
+  AFTER INSERT OR DELETE ON point_events
+  FOR EACH ROW EXECUTE FUNCTION adjust_user_points();
+
+CREATE TRIGGER trg_submissions_points
+  AFTER INSERT ON submissions
+  FOR EACH ROW EXECUTE FUNCTION award_submission_points();
+
+CREATE TRIGGER trg_projects_featured_points
+  AFTER UPDATE OF is_featured ON projects
+  FOR EACH ROW WHEN (NEW.is_featured AND NOT OLD.is_featured)
+  EXECUTE FUNCTION award_featured_points();
+
+CREATE TRIGGER trg_project_stars_points
+  AFTER INSERT ON project_stars
+  FOR EACH ROW EXECUTE FUNCTION award_star_points();

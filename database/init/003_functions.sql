@@ -141,3 +141,72 @@ BEGIN
   RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Builder points. point_events is an append-only ledger and users.points
+-- its denormalized total; points are awarded by these triggers (never app
+-- code) and never taken back -- the partial unique indexes on point_events
+-- stop the same action paying twice.
+
+-- Single source of truth for how many points each action is worth.
+-- Mirrored for display only in frontend/src/components/builder-level.tsx.
+CREATE OR REPLACE FUNCTION points_for(reason point_reason)
+RETURNS INTEGER AS $$
+  SELECT CASE reason
+    WHEN 'submission_created' THEN 5
+    WHEN 'project_featured'   THEN 15
+    WHEN 'star_received'      THEN 3
+  END;
+$$ LANGUAGE sql IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION adjust_user_points()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE users SET points = points + NEW.points WHERE id = NEW.user_id;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE users SET points = points - OLD.points WHERE id = OLD.user_id;
+    RETURN OLD;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- +5 to the builder, once per (builder, project). Building your own
+-- project earns nothing -- authors can submit to it at any time.
+CREATE OR REPLACE FUNCTION award_submission_points()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO point_events (user_id, reason, points, project_id)
+  SELECT NEW.user_id, 'submission_created', points_for('submission_created'), p.id
+  FROM projects p
+  WHERE p.id = NEW.project_id AND p.author_id <> NEW.user_id
+  ON CONFLICT (user_id, project_id) WHERE reason = 'submission_created' DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- +15 to the author the first time a project is featured.
+CREATE OR REPLACE FUNCTION award_featured_points()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO point_events (user_id, reason, points, project_id)
+  VALUES (NEW.author_id, 'project_featured', points_for('project_featured'), NEW.id)
+  ON CONFLICT (project_id) WHERE reason = 'project_featured' DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- +3 to the author per star, once per (starrer, project). Self-stars earn
+-- nothing.
+CREATE OR REPLACE FUNCTION award_star_points()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO point_events (user_id, reason, points, project_id, actor_id)
+  SELECT p.author_id, 'star_received', points_for('star_received'), p.id, NEW.user_id
+  FROM projects p
+  WHERE p.id = NEW.project_id AND p.author_id <> NEW.user_id
+  ON CONFLICT (project_id, actor_id) WHERE reason = 'star_received' DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;

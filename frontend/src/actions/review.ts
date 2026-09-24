@@ -65,11 +65,16 @@ export async function getPublishedProjectForModeration(slug: string) {
 }
 
 export async function toggleFeatured(projectId: string) {
-  await requireReviewer();
+  const session = await requireReviewer();
 
   const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
   if (!project || project.status !== "published") {
     throw new Error("Only published projects can be featured");
+  }
+  // Featuring pays the author points (award_featured_points), so a reviewer
+  // can't feature their own project -- same rule as self-stars/self-builds.
+  if (project.authorId === session.user.id) {
+    throw new Error("You can't feature your own project");
   }
 
   await db
@@ -102,6 +107,9 @@ export async function unpublishProject(projectId: string, reason: string) {
     .update(projects)
     .set({
       status: "rejected",
+      // A taken-down project is no longer featured anywhere -- clearing the
+      // flag keeps the dashboard stats, badges and sort honest.
+      isFeatured: false,
       reviewedById: session.user.id,
       reviewedAt: new Date(),
       rejectionReason: trimmedReason,

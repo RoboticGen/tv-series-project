@@ -43,7 +43,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <NewProjectButton className="w-full justify-start" onNavigate={onNavigate} />
       </div>
 
-      <nav className="mt-4 flex flex-col gap-1.5 px-3">
+      <nav aria-label="Main" className="mt-4 flex flex-col gap-1.5 px-3">
         {navItems.map((item) => {
           const isActive =
             item.href === "/dashboard"
@@ -54,6 +54,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               key={item.href}
               href={item.href}
               onClick={onNavigate}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center gap-2.5 rounded-md border-2 px-3 py-2 text-sm font-bold transition-all",
                 isActive
@@ -61,7 +62,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   : "border-transparent text-muted-foreground hover:border-brand-navy hover:bg-muted hover:text-foreground dark:hover:border-white",
               )}
             >
-              <item.icon className="size-4" />
+              <item.icon className="size-4" aria-hidden />
               {item.label}
             </Link>
           );
@@ -92,6 +93,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               className="hover:bg-brand-coral/20"
               onClick={() => signOut()}
               title="Sign out"
+              aria-label="Sign out"
             >
               <LogOut className="size-4" />
             </Button>
@@ -105,6 +107,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 export function DashboardSidebar() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
+  React.useEffect(() => {
+    if (!mobileOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMobileOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
+
   return (
     <>
       <header className="flex items-center justify-between border-b-2 border-brand-navy bg-card px-4 py-3 md:hidden dark:border-white">
@@ -116,7 +127,13 @@ export function DashboardSidebar() {
             RoboticGen Projects
           </span>
         </div>
-        <Button size="icon-sm" variant="outline" onClick={() => setMobileOpen(true)}>
+        <Button
+          size="icon-sm"
+          variant="outline"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
+          aria-expanded={mobileOpen}
+        >
           <Menu className="size-4" />
         </Button>
       </header>
@@ -133,6 +150,7 @@ export function DashboardSidebar() {
               variant="ghost"
               className="absolute top-4 right-3"
               onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
             >
               <X className="size-4" />
             </Button>
