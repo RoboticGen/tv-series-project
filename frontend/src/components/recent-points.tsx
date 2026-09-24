@@ -62,14 +62,9 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
           No points yet. Try a featured build to earn your first ones!
         </p>
       ) : (
-        // Fixed max height (about 3 rows) so a growing list scrolls instead of
-        // stretching the progress row and the level card beside it.
-        // Focusable so keyboard users can scroll it too.
-        <ul
-          tabIndex={0}
-          aria-label="Recent points"
-          className="mt-3 flex max-h-44 flex-col gap-2 overflow-y-auto overscroll-contain pr-1 outline-none focus-visible:ring-4 focus-visible:ring-ring/60"
-        >
+        // Only the latest 3 (getMyPoints' default), so the card stays the
+        // same height as the level card beside it without scrolling.
+        <ul aria-label="Recent points" className="mt-3 flex flex-col gap-2">
           {events.map((event) => {
             const { icon: Icon, fill, describe } = REASONS[event.reason];
             return (

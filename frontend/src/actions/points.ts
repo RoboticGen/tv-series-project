@@ -33,7 +33,7 @@ export async function getPointValues(): Promise<PointValues> {
 
 // Reads the signed-in user's own points only -- takes no userId, so this
 // server action can't be called to read someone else's.
-export async function getMyPoints(recentLimit = 5) {
+export async function getMyPoints(recentLimit = 3) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Not signed in");
   const userId = session.user.id;

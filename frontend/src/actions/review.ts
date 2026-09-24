@@ -134,17 +134,14 @@ export async function getPublishedProjectForModeration(slug: string) {
 }
 
 export async function toggleFeatured(projectId: string) {
-  const session = await requireReviewer();
+  await requireReviewer();
 
   const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
   if (!project || project.status !== "published") {
     throw new Error("Only published projects can be featured");
   }
-  // Featuring pays the author points (award_featured_points), so a reviewer
-  // can't feature their own project -- same rule as self-stars/self-builds.
-  if (project.authorId === session.user.id) {
-    throw new Error("You can't feature your own project");
-  }
+  // Reviewers may feature their own projects too -- which means featuring
+  // your own project still pays you the one-time award_featured_points.
 
   await db
     .update(projects)
