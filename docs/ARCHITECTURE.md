@@ -29,7 +29,7 @@ An Instructables-style platform for RoboticGen learners:
 | Auth | Auth.js v5 (NextAuth beta), Google OAuth only, JWT sessions |
 | Relational DB | PostgreSQL 16, via Drizzle ORM (`postgres-js` driver) |
 | Document DB | MongoDB 7 (official `mongodb` driver) |
-| File storage | Local disk (no S3/cloud storage) |
+| File storage | Private S3 bucket |
 | Validation | Zod |
 | UI | Tailwind CSS v4, a shadcn-style primitive kit in `components/ui/`, `@uiw/react-md-editor` for Markdown |
 | Local infra | Docker Compose (`database/docker-compose.yml`) runs Postgres + Mongo |
@@ -54,7 +54,7 @@ flowchart LR
     end
     UI -->|server actions: auth, metadata, likes, review| PG[(PostgreSQL via Drizzle)]
     UI -->|server actions: read/write Markdown body| MDB[(MongoDB content_docs)]
-    UI -->|upload via action, read via API route| DISK[(Local disk / STORAGE_ROOT)]
+    UI -->|upload via action, read via API route| DISK[(S3 bucket / S3_BUCKET)]
     PG -. content_doc_id .-> MDB
     PG -. media_assets.file_path .-> DISK
 ```
@@ -170,9 +170,9 @@ sensors_automation, competitions, other).
   `updateContentDoc`/`deleteContentDoc`), referenced from Postgres by
   `projects.content_doc_id` / `submissions.content_doc_id`. Fully wired
   up (this was previously a gap — it's implemented now).
-- **Images** are saved to local disk under `STORAGE_ROOT/<ownerType>/
-  <ownerId>/<uuid>.<ext>` (`src/lib/storage.ts`), deliberately **outside**
-  `public/`. A `media_assets` row records the relative path.
+- **Images** are saved to a private S3 bucket under the key
+  `<ownerType>/<ownerId>/<uuid>.<ext>` (`src/lib/storage.ts`). The bucket
+  is never public-read. A `media_assets` row records the object key.
 - The **only** way an uploaded image is ever served is
   `GET /api/media/[id]` (`src/app/api/media/[id]/route.ts`), which:
   1. looks up the `media_assets` row,
@@ -278,11 +278,13 @@ chars) so the student always gets actionable feedback.
 |---|---|
 | `DATABASE_URL` | Postgres connection string |
 | `MONGODB_URI` / `MONGODB_DB` | Mongo connection |
-| `STORAGE_ROOT` | local disk root for uploaded images, kept outside `public/` |
+| `S3_BUCKET` / `S3_REGION` | private S3 bucket for uploaded images |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | S3 credentials (or use an IAM role) |
+| `S3_ENDPOINT` | optional S3-compatible endpoint (e.g. local MinIO) |
 | `CLIENT_ID` / `CLIENT_SECRET` | Google OAuth credentials |
 | `AUTH_SECRET` | Auth.js JWT signing secret |
 
-No email, analytics, or cloud-storage vars exist — those integrations
+No email or analytics vars exist — those integrations
 aren't part of the system.
 
 ## 10. Known gaps / open decisions
@@ -299,6 +301,6 @@ Carried over from `features.md`, still unresolved as of this doc:
 4. **Avatar source**: still Google's photo, DiceBear was never wired in
    (§7.6) — decide DiceBear-always vs. DiceBear-as-fallback if desired.
 5. **No test suite** — no Jest/Vitest/Playwright configured yet.
-6. **Image storage is local disk only** — no S3/cloud storage, which
-   matters if this ever needs to run across multiple app instances or
-   survive redeploys without a persistent volume.
+6. **Image bytes are proxied through the app** — `/api/media/[id]`
+   streams from S3 so it can enforce visibility; published images could
+   later move to a CDN or pre-signed URLs if bandwidth becomes an issue.

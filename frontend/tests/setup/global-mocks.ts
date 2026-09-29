@@ -59,10 +59,10 @@ vi.mock("@/db/content", () => ({
   deleteContentDoc: vi.fn(async () => undefined),
 }));
 
-// Uploaded files live on disk in production; stub the filesystem side so
-// action tests don't touch the real disk.
+// Uploaded files live in S3 in production; stub the storage side so
+// action tests don't need a bucket or network access.
 vi.mock("@/lib/storage", () => ({
   saveUploadedFile: vi.fn(async () => "project/mock-owner/mock-file.png"),
   deleteUploadedFile: vi.fn(async () => undefined),
-  resolveMediaPath: vi.fn((p: string) => `/tmp/mock-storage/${p}`),
+  getUploadedFile: vi.fn(async () => null),
 }));
