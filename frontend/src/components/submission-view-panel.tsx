@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { MarkdownViewer } from "@/components/markdown-viewer";
+import { StepsViewer } from "@/components/steps-viewer";
+import type { Step } from "@/lib/steps";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,7 @@ interface SubmissionViewPanelProps {
     authorName: string;
     authorAvatarUrl: string | null;
   };
-  body: string;
+  steps: Step[];
   variant?: "page" | "modal";
   /** Pass when the viewer is this submission's own author, to show its visibility. */
   isPrivate?: boolean;
@@ -21,7 +22,7 @@ interface SubmissionViewPanelProps {
 
 export function SubmissionViewPanel({
   submission,
-  body,
+  steps,
   variant = "page",
   isPrivate,
 }: SubmissionViewPanelProps) {
@@ -66,7 +67,7 @@ export function SubmissionViewPanel({
         Submitted {submission.createdAt.toLocaleDateString()}
       </h1>
       <div className="mt-8 border-t pt-8">
-        <MarkdownViewer body={body} />
+        <StepsViewer steps={steps} />
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ export default async function ProjectDetailModal({
   const isAuthor = viewerId === project.authorId;
   if (project.status !== "published" && !isAuthor) notFound();
 
-  const [body, submissions, comments] = await Promise.all([
+  const [steps, submissions, comments] = await Promise.all([
     getContentDoc(project.contentDocId),
     getPublicSubmissionsForProject(project.id),
     listComments(project.id),
@@ -34,7 +34,7 @@ export default async function ProjectDetailModal({
     <SlidePanel>
       <ProjectDetailPanel
         project={project}
-        body={body ?? ""}
+        steps={steps ?? []}
         viewerId={viewerId}
         viewerCanModerate={viewerCanModerate}
         variant="modal"

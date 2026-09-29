@@ -21,11 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MarkdownEditor } from "@/components/markdown-editor";
+import { StepsEditor } from "@/components/steps-editor";
 import { CoverImageUpload } from "@/components/cover-image-upload";
 import { updateProject, publishProject } from "@/actions/projects";
 import { projectCategory } from "@/db/schema";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import type { Step } from "@/lib/steps";
 
 interface ProjectFormProps {
   projectId: string;
@@ -33,7 +34,7 @@ interface ProjectFormProps {
   initialSummary: string;
   initialCategory: string;
   initialCoverImageUrl: string | null;
-  initialBody: string;
+  initialSteps: Step[];
   status: string;
   rejectionReason: string | null;
   inModal?: boolean;
@@ -45,7 +46,7 @@ export function ProjectForm({
   initialSummary,
   initialCategory,
   initialCoverImageUrl,
-  initialBody,
+  initialSteps,
   status,
   rejectionReason,
   inModal = false,
@@ -54,7 +55,7 @@ export function ProjectForm({
   const [title, setTitle] = React.useState(initialTitle);
   const [summary, setSummary] = React.useState(initialSummary);
   const [category, setCategory] = React.useState(initialCategory);
-  const [body, setBody] = React.useState(initialBody);
+  const [steps, setSteps] = React.useState(initialSteps);
   const [isSaving, setIsSaving] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -69,7 +70,7 @@ export function ProjectForm({
         title,
         summary,
         category,
-        body,
+        steps,
       });
       if (inModal) {
         router.replace(`/projects/${slug}/edit`);
@@ -167,19 +168,18 @@ export function ProjectForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Write-up</CardTitle>
+          <CardTitle>Steps</CardTitle>
           <CardDescription>
-            The step-by-step build guide, in Markdown. Drag, paste, or use the
-            toolbar to add images.
+            Break the build into steps. Each step gets a title, photos, and
+            instructions in Markdown.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <MarkdownEditor
-            value={body}
-            onChange={setBody}
+          <StepsEditor
+            steps={steps}
+            onChange={setSteps}
             ownerType="project"
             ownerId={projectId}
-            placeholder="Write the step-by-step build guide here…"
           />
         </CardContent>
       </Card>

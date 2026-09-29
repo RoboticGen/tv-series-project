@@ -4,6 +4,7 @@ import { ProjectForm } from "@/components/project-form";
 import { DeleteProjectButton } from "@/components/delete-project-button";
 import { ProjectModeSwitch } from "@/components/project-mode-switch";
 import { Badge } from "@/components/ui/badge";
+import type { Step } from "@/lib/steps";
 import { cn } from "@/lib/utils";
 
 const STATUS_VARIANT: Record<string, "secondary" | "outline"> = {
@@ -24,13 +25,13 @@ interface ProjectEditorPanelProps {
     status: string;
     rejectionReason: string | null;
   };
-  body: string;
+  steps: Step[];
   variant?: "page" | "modal";
 }
 
 export function ProjectEditorPanel({
   project,
-  body,
+  steps,
   variant = "page",
 }: ProjectEditorPanelProps) {
   const isModal = variant === "modal";
@@ -90,7 +91,7 @@ export function ProjectEditorPanel({
           initialSummary={project.summary}
           initialCategory={project.category}
           initialCoverImageUrl={project.coverImageUrl}
-          initialBody={body}
+          initialSteps={steps}
           status={project.status}
           rejectionReason={project.rejectionReason}
           inModal={isModal}

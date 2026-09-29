@@ -10,6 +10,7 @@ import { createContentDoc, updateContentDoc, deleteContentDoc } from "@/db/conte
 import { slugify, randomSlugSuffix } from "@/lib/slug";
 import { deleteUploadedFile } from "@/lib/storage";
 import { updateProjectSchema } from "@/lib/validation";
+import { newStep, type Step } from "@/lib/steps";
 
 async function requireSession() {
   const session = await auth();
@@ -30,7 +31,7 @@ export async function createDraftProjectRecord() {
   const session = await requireSession();
 
   const slug = await generateUniqueSlug("untitled-project");
-  const contentDocId = await createContentDoc("project", "pending", "");
+  const contentDocId = await createContentDoc("project", "pending", [newStep()]);
 
   const [project] = await db
     .insert(projects)
@@ -57,7 +58,7 @@ export async function createDraftProject() {
 
 export async function updateProject(
   projectId: string,
-  input: { title: string; summary: string; category: string; body: string },
+  input: { title: string; summary: string; category: string; steps: Step[] },
 ) {
   const session = await requireSession();
   const parsed = updateProjectSchema.parse(input);
@@ -84,7 +85,7 @@ export async function updateProject(
       slug,
     })
     .where(eq(projects.id, projectId));
-  await updateContentDoc(project.contentDocId, parsed.body);
+  await updateContentDoc(project.contentDocId, parsed.steps);
 
   revalidatePath(`/projects/${slug}`);
   revalidatePath(`/projects/${slug}/edit`);
@@ -110,7 +111,7 @@ export async function setProjectCoverImage(projectId: string, mediaAssetId: stri
     .set({ coverImageId: mediaAssetId })
     .where(eq(projects.id, projectId));
 
-  // Replacing/removing a cover doesn't remove it from the write-up body if
+  // Replacing/removing a cover doesn't remove it from the write-up steps if
   // it happens to also be embedded there -- only clean up the file if
   // nothing else in media_assets still needs it as a distinct asset row.
   if (previousCoverImageId && previousCoverImageId !== mediaAssetId) {

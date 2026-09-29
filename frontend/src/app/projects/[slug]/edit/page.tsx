@@ -17,7 +17,7 @@ export default async function EditProjectPage({
   if (!project) notFound();
   if (project.authorId !== session.user.id) notFound();
 
-  const body = (await getContentDoc(project.contentDocId)) ?? "";
+  const steps = (await getContentDoc(project.contentDocId)) ?? [];
 
-  return <ProjectEditorPanel project={project} body={body} variant="page" />;
+  return <ProjectEditorPanel project={project} steps={steps} variant="page" />;
 }

@@ -16,7 +16,7 @@ export default async function SubmissionDetailPage({
   const submission = await getSubmissionById(id, session.user.id);
   if (!submission) notFound();
 
-  const body = (await getContentDoc(submission.contentDocId)) ?? "";
+  const steps = (await getContentDoc(submission.contentDocId)) ?? [];
 
   return (
     <SubmissionViewPanel
@@ -27,7 +27,7 @@ export default async function SubmissionDetailPage({
         authorName: session.user.name ?? "You",
         authorAvatarUrl: session.user.image ?? null,
       }}
-      body={body}
+      steps={steps}
       isPrivate={submission.isPrivate}
       variant="page"
     />

@@ -40,7 +40,7 @@ describe("updateProject ownership", () => {
         title: "Hijacked Title",
         summary: "a".repeat(15),
         category: "robotics",
-        body: "a".repeat(25),
+        steps: [{ id: "s1", title: "", images: [], body: "a".repeat(25) }],
       }),
     ).rejects.toThrow("Not authorized to edit this project");
   });
@@ -55,7 +55,7 @@ describe("updateProject ownership", () => {
       title: "New Title",
       summary: "a".repeat(15),
       category: "robotics",
-      body: "a".repeat(25),
+      steps: [{ id: "s1", title: "", images: [], body: "a".repeat(25) }],
     });
 
     const [reloaded] = await db.select().from(schema.projects).where(eq(schema.projects.id, project.id));

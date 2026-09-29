@@ -44,7 +44,7 @@ architectural decision of the whole project:
 | Store | Owns | Why |
 |---|---|---|
 | **PostgreSQL** | users, roles, project/submission metadata, workflow state, likes, stars, denormalized counters | relational integrity, transactions, fast filtered/paginated reads |
-| **MongoDB** | the Markdown *body* of every project and submission | free-form prose, no fixed shape, never queried relationally |
+| **MongoDB** | the step-by-step write-up (title, images, Markdown per step) of every project and submission | free-form prose, no fixed shape, never queried relationally |
 | **Local disk** | uploaded images | `media_assets` (Postgres) stores the path, not the bytes |
 
 ```mermaid
@@ -165,11 +165,16 @@ sensors_automation, competitions, other).
 
 ## 6. Markdown & images
 
-- **Markdown body** lives in Mongo's single `content_docs` collection
-  (`src/db/content.ts`: `createContentDoc`/`getContentDoc`/
-  `updateContentDoc`/`deleteContentDoc`), referenced from Postgres by
-  `projects.content_doc_id` / `submissions.content_doc_id`. Fully wired
-  up (this was previously a gap — it's implemented now).
+- **Write-ups are Instructables-style steps** — an ordered `steps` array
+  of `{ id, title, images[], body }` (Markdown body, gallery of
+  `/api/media/<id>` URLs; type + validation in `src/lib/steps.ts`). They
+  live in Mongo's single `content_docs` collection (`src/db/content.ts`:
+  `createContentDoc`/`getContentDoc`/`updateContentDoc`/
+  `deleteContentDoc`), referenced from Postgres by
+  `projects.content_doc_id` / `submissions.content_doc_id`. Older docs
+  with a single Markdown `body` string are read as one untitled step and
+  rewritten as `steps` on the next save. Edited with
+  `components/steps-editor.tsx`, rendered with `components/steps-viewer.tsx`.
 - **Images** are saved to a private S3 bucket under the key
   `<ownerType>/<ownerId>/<uuid>.<ext>` (`src/lib/storage.ts`). The bucket
   is never public-read. A `media_assets` row records the object key.

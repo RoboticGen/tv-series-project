@@ -36,7 +36,7 @@ export default async function ProjectDetailPage({
   const isAuthor = viewerId === project.authorId;
   if (project.status !== "published" && !isAuthor) notFound();
 
-  const [body, submissions, comments] = await Promise.all([
+  const [steps, submissions, comments] = await Promise.all([
     getContentDoc(project.contentDocId),
     getPublicSubmissionsForProject(project.id),
     listComments(project.id),
@@ -47,7 +47,7 @@ export default async function ProjectDetailPage({
   return (
     <ProjectDetailPanel
       project={project}
-      body={body ?? ""}
+      steps={steps ?? []}
       viewerId={viewerId}
       viewerCanModerate={viewerCanModerate}
       variant="page"

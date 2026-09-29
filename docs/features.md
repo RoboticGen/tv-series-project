@@ -298,16 +298,17 @@ never because of a grant to a third party.
 
 ## 5. Markdown storage + a viewer/writer
 
-Every project's and submission's body is Markdown, stored in **MongoDB**
+Every project's and submission's write-up is a list of Instructables-style
+steps (title, image gallery, Markdown body per step), stored in **MongoDB**
 — `projects.content_doc_id` / `submissions.content_doc_id` in Postgres
 hold that document's Mongo `_id`. There is deliberately no foreign key
 between the two databases; Postgres owns workflow/metadata, Mongo owns
 prose, and the app is what ties the two IDs together.
 
-Images referenced from that Markdown are **not** in Mongo or Postgres —
-they're files on local disk, tracked by `media_assets` (`owner_type` +
-`owner_id` pointing at a project or submission, `file_path` relative to a
-single configured storage root).
+Images referenced from those steps are **not** in Mongo or Postgres —
+they're objects in a private S3 bucket, tracked by `media_assets`
+(`owner_type` + `owner_id` pointing at a project or submission,
+`file_path` holding the S3 object key).
 
 **Still open, and not yet started:**
 - No MongoDB client/connection exists in the codebase yet (Postgres via

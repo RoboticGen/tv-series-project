@@ -4,7 +4,8 @@ import * as React from "react";
 import { unstable_rethrow } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { MarkdownEditor } from "@/components/markdown-editor";
+import { StepsEditor } from "@/components/steps-editor";
+import { newStep } from "@/lib/steps";
 import { createSubmission } from "@/actions/submissions";
 
 interface SubmissionFormProps {
@@ -13,7 +14,7 @@ interface SubmissionFormProps {
 }
 
 export function SubmissionForm({ projectId, isAuthor }: SubmissionFormProps) {
-  const [body, setBody] = React.useState("");
+  const [steps, setSteps] = React.useState(() => [newStep()]);
   const [isPublic, setIsPublic] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -23,7 +24,7 @@ export function SubmissionForm({ projectId, isAuthor }: SubmissionFormProps) {
     setIsSubmitting(true);
     try {
       await createSubmission(projectId, {
-        body,
+        steps,
         isPrivate: isAuthor ? !isPublic : true,
       });
     } catch (err) {
@@ -38,12 +39,11 @@ export function SubmissionForm({ projectId, isAuthor }: SubmissionFormProps) {
 
   return (
     <div className="space-y-6">
-      <MarkdownEditor
-        value={body}
-        onChange={setBody}
+      <StepsEditor
+        steps={steps}
+        onChange={setSteps}
         ownerType="submission"
         ownerId={null}
-        placeholder="Write about how your build went…"
       />
       {isAuthor ? (
         <label className="flex items-center gap-3 rounded-xl border bg-card/50 p-3 text-sm">

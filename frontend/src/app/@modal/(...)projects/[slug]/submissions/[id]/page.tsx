@@ -24,7 +24,7 @@ export default async function SubmissionViewModal({
   const isAuthor = viewerId === project.authorId;
   if (project.status !== "published" && !isAuthor) notFound();
 
-  const [projectBody, submissionBody, submissions] = await Promise.all([
+  const [projectSteps, submissionSteps, submissions] = await Promise.all([
     getContentDoc(project.contentDocId),
     getContentDoc(submission.contentDocId),
     getPublicSubmissionsForProject(project.id),
@@ -35,13 +35,13 @@ export default async function SubmissionViewModal({
       back={
         <ProjectDetailPanel
           project={project}
-          body={projectBody ?? ""}
+          steps={projectSteps ?? []}
           viewerId={viewerId}
           variant="modal"
           submissions={submissions}
         />
       }
-      front={<SubmissionViewPanel submission={submission} body={submissionBody ?? ""} variant="modal" />}
+      front={<SubmissionViewPanel submission={submission} steps={submissionSteps ?? []} variant="modal" />}
     />
   );
 }

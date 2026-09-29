@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, Download, Eye, Hammer } from "lucide-react";
-import { MarkdownViewer } from "@/components/markdown-viewer";
+import { StepsViewer } from "@/components/steps-viewer";
+import type { Step } from "@/lib/steps";
 import { LikeButton } from "@/components/like-button";
 import { StarButton } from "@/components/star-button";
 import { AddToCollectionButton } from "@/components/add-to-collection-button";
@@ -41,7 +42,7 @@ interface ProjectDetailPanelProps {
     viewerHasLiked: boolean;
     viewerHasStarred: boolean;
   };
-  body: string;
+  steps: Step[];
   viewerId?: string;
   viewerCanModerate?: boolean;
   variant?: "page" | "modal";
@@ -71,7 +72,7 @@ interface ProjectDetailPanelProps {
 
 export function ProjectDetailPanel({
   project,
-  body,
+  steps,
   viewerId,
   viewerCanModerate = false,
   variant = "page",
@@ -215,7 +216,7 @@ export function ProjectDetailPanel({
       </header>
 
       <div className="mt-10 border-t pt-8">
-        <MarkdownViewer body={body} />
+        <StepsViewer steps={steps} />
       </div>
 
       {submissions.length > 0 ? (

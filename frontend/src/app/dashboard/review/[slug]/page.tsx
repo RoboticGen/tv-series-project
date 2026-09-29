@@ -2,7 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPublishedProjectForModeration } from "@/actions/review";
 import { getContentDoc } from "@/db/content";
-import { MarkdownViewer } from "@/components/markdown-viewer";
+import { StepsViewer } from "@/components/steps-viewer";
 import { FeatureProjectButton } from "@/components/feature-project-button";
 import { UnpublishProjectButton } from "@/components/unpublish-project-button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,7 @@ export default async function ModerateProjectPage({
   const project = await getPublishedProjectForModeration(slug);
   if (!project) notFound();
 
-  const body = (await getContentDoc(project.contentDocId)) ?? "";
+  const steps = (await getContentDoc(project.contentDocId)) ?? [];
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
@@ -62,7 +62,7 @@ export default async function ModerateProjectPage({
       </div>
 
       <div className="mt-10 border-t pt-8">
-        <MarkdownViewer body={body} />
+        <StepsViewer steps={steps} />
       </div>
     </div>
   );
