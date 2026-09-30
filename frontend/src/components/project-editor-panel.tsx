@@ -26,7 +26,10 @@ interface ProjectEditorPanelProps {
     rejectionReason: string | null;
   };
   steps: Step[];
-  variant?: "page" | "modal";
+  // "modal": intercepted (...) route, closes via router.back().
+  // "panel": same slide-panel look, but loaded directly by URL -- there's
+  // no in-app history to go back to, so children navigate like "page".
+  variant?: "page" | "modal" | "panel";
 }
 
 export function ProjectEditorPanel({
@@ -34,7 +37,8 @@ export function ProjectEditorPanel({
   steps,
   variant = "page",
 }: ProjectEditorPanelProps) {
-  const isModal = variant === "modal";
+  const isModal = variant !== "page";
+  const isIntercepted = variant === "modal";
 
   return (
     <div
@@ -79,7 +83,7 @@ export function ProjectEditorPanel({
           <DeleteProjectButton
             projectId={project.id}
             title={project.title}
-            inModal={isModal}
+            inModal={isIntercepted}
           />
         </div>
       </div>
@@ -94,7 +98,7 @@ export function ProjectEditorPanel({
           initialSteps={steps}
           status={project.status}
           rejectionReason={project.rejectionReason}
-          inModal={isModal}
+          inModal={isIntercepted}
         />
       </div>
     </div>

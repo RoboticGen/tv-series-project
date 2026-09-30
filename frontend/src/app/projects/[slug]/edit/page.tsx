@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { getProjectBySlug } from "@/actions/projects";
 import { getContentDoc } from "@/db/content";
 import { ProjectEditorPanel } from "@/components/project-editor-panel";
+import { SlidePanel } from "@/components/slide-panel";
+import DashboardPage from "@/app/dashboard/page";
 
 export default async function EditProjectPage({
   params,
@@ -19,5 +21,15 @@ export default async function EditProjectPage({
 
   const steps = (await getContentDoc(project.contentDocId)) ?? [];
 
-  return <ProjectEditorPanel project={project} steps={steps} variant="page" />;
+  // Reached only on a hard load (typed URL / refresh); client navigations
+  // are intercepted by @modal. Render the same slide panel over the
+  // dashboard so both paths look alike.
+  return (
+    <>
+      <DashboardPage />
+      <SlidePanel closeHref="/dashboard">
+        <ProjectEditorPanel project={project} steps={steps} variant="panel" />
+      </SlidePanel>
+    </>
+  );
 }

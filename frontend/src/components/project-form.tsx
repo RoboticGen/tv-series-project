@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { StepsEditor } from "@/components/steps-editor";
 import { CoverImageUpload } from "@/components/cover-image-upload";
-import { updateProject, publishProject } from "@/actions/projects";
+import { updateProject, publishProject, revertProjectToDraft } from "@/actions/projects";
 import { projectCategory } from "@/db/schema";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import type { Step } from "@/lib/steps";
@@ -58,9 +58,21 @@ export function ProjectForm({
   const [steps, setSteps] = React.useState(initialSteps);
   const [isSaving, setIsSaving] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
+  const [isUnpublishing, setIsUnpublishing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const canPublish = status === "draft" || status === "rejected";
+  const canUnpublish = status === "published";
+  const isBusy = isSaving || isPublishing || isUnpublishing;
+
+  // Last-saved values, to hide Save when nothing has changed. Kept in state
+  // (not derived from the initial* props) because useState ignores new
+  // props after router.refresh().
+  const [saved, setSaved] = React.useState(() =>
+    JSON.stringify({ title: initialTitle, summary: initialSummary, category: initialCategory, steps: initialSteps }),
+  );
+  const current = JSON.stringify({ title, summary, category, steps });
+  const isDirty = current !== saved;
 
   async function handleSave() {
     setError(null);
@@ -72,6 +84,7 @@ export function ProjectForm({
         category,
         steps,
       });
+      setSaved(current);
       if (inModal) {
         router.replace(`/projects/${slug}/edit`);
       } else {
@@ -89,13 +102,29 @@ export function ProjectForm({
     setError(null);
     setIsPublishing(true);
     try {
-      await handleSave();
+      if (isDirty) await handleSave();
       await publishProject(projectId);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to publish");
     } finally {
       setIsPublishing(false);
+    }
+  }
+
+  async function handleUnpublish() {
+    if (!window.confirm("Unpublish this project? It will be hidden from others and go back to being a draft.")) {
+      return;
+    }
+    setError(null);
+    setIsUnpublishing(true);
+    try {
+      await revertProjectToDraft(projectId);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to unpublish");
+    } finally {
+      setIsUnpublishing(false);
     }
   }
 
@@ -185,12 +214,21 @@ export function ProjectForm({
       </Card>
 
       <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border bg-card/95 p-4 shadow-lg backdrop-blur">
-        <Button onClick={handleSave} disabled={isSaving || isPublishing} variant="outline">
-          {isSaving ? "Saving…" : "Save draft"}
-        </Button>
+        {isDirty || isSaving ? (
+          <Button onClick={handleSave} disabled={isBusy} variant="outline">
+            {isSaving ? "Saving…" : canUnpublish ? "Save changes" : "Save draft"}
+          </Button>
+        ) : (
+          <p className="text-sm text-muted-foreground">All changes saved</p>
+        )}
         {canPublish ? (
-          <Button onClick={handlePublish} disabled={isSaving || isPublishing}>
+          <Button onClick={handlePublish} disabled={isBusy}>
             {isPublishing ? "Publishing…" : "Publish"}
+          </Button>
+        ) : null}
+        {canUnpublish ? (
+          <Button onClick={handleUnpublish} disabled={isBusy} variant="outline">
+            {isUnpublishing ? "Unpublishing…" : "Unpublish"}
           </Button>
         ) : null}
         {error ? <p className="text-sm text-destructive">{error}</p> : null}

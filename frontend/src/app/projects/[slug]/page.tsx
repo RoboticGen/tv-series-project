@@ -6,6 +6,8 @@ import { getPublicSubmissionsForProject } from "@/actions/submissions";
 import { listComments } from "@/actions/comments";
 import { getContentDoc } from "@/db/content";
 import { ProjectDetailPanel } from "@/components/project-detail-panel";
+import { SlidePanel } from "@/components/slide-panel";
+import ProjectsPage from "@/app/projects/page";
 
 export async function generateMetadata({
   params,
@@ -44,15 +46,23 @@ export default async function ProjectDetailPage({
 
   const viewerCanModerate = session?.user?.role === "mentor" || session?.user?.role === "admin";
 
+  // Reached only on a hard load (typed URL / refresh / shared link); client
+  // navigations are intercepted by @modal. Render the same slide panel over
+  // the browse page so both paths look alike.
   return (
-    <ProjectDetailPanel
-      project={project}
-      steps={steps ?? []}
-      viewerId={viewerId}
-      viewerCanModerate={viewerCanModerate}
-      variant="page"
-      submissions={submissions}
-      comments={comments}
-    />
+    <>
+      <ProjectsPage searchParams={Promise.resolve({})} />
+      <SlidePanel closeHref="/projects">
+        <ProjectDetailPanel
+          project={project}
+          steps={steps ?? []}
+          viewerId={viewerId}
+          viewerCanModerate={viewerCanModerate}
+          variant="modal"
+          submissions={submissions}
+          comments={comments}
+        />
+      </SlidePanel>
+    </>
   );
 }

@@ -1,12 +1,20 @@
 "use server";
 
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, not, or, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { mediaAssets, projectLikes, projects, projectStars, users } from "@/db/schema";
+import {
+  mediaAssets,
+  projectLikes,
+  projects,
+  projectStars,
+  submissions,
+  users,
+} from "@/db/schema";
 import { createContentDoc, updateContentDoc, deleteContentDoc } from "@/db/content";
+import { untouchedDraft } from "@/db/untouched-draft";
 import { slugify, randomSlugSuffix } from "@/lib/slug";
 import { deleteUploadedFile } from "@/lib/storage";
 import { updateProjectSchema } from "@/lib/validation";
@@ -29,6 +37,24 @@ async function generateUniqueSlug(title: string) {
 
 export async function createDraftProjectRecord() {
   const session = await requireSession();
+
+  // Reuse the author's empty draft if they already have one, and drop any
+  // extras left over from before this check existed.
+  const [reused, ...extras] = await db
+    .select({ id: projects.id, slug: projects.slug, contentDocId: projects.contentDocId })
+    .from(projects)
+    .where(and(eq(projects.authorId, session.user.id), untouchedDraft))
+    .orderBy(desc(projects.createdAt));
+  if (extras.length > 0) {
+    await Promise.all(extras.map((p) => deleteContentDoc(p.contentDocId)));
+    await db.delete(projects).where(
+      inArray(
+        projects.id,
+        extras.map((p) => p.id),
+      ),
+    );
+  }
+  if (reused) return { id: reused.id, slug: reused.slug };
 
   const slug = await generateUniqueSlug("untitled-project");
   const contentDocId = await createContentDoc("project", "pending", [newStep()]);
@@ -166,6 +192,38 @@ export async function publishProject(projectId: string) {
   revalidatePath("/projects");
 }
 
+// Author reverting their own live project to a draft. Distinct from
+// review.ts unpublishProject (moderation takedown -> 'rejected' + reason).
+export async function revertProjectToDraft(projectId: string) {
+  const session = await requireSession();
+
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, projectId));
+  if (!project || project.authorId !== session.user.id) {
+    throw new Error("Not authorized to unpublish this project");
+  }
+  if (project.status !== "published") {
+    throw new Error("Only published projects can be unpublished");
+  }
+
+  await db
+    .update(projects)
+    .set({
+      status: "draft",
+      // A draft is no longer featured anywhere -- same as a takedown.
+      isFeatured: false,
+      publishedAt: null,
+    })
+    .where(eq(projects.id, projectId));
+
+  revalidatePath(`/projects/${project.slug}`);
+  revalidatePath(`/projects/${project.slug}/edit`);
+  revalidatePath("/dashboard");
+  revalidatePath("/projects");
+}
+
 export async function deleteProject(projectId: string) {
   const session = await requireSession();
 
@@ -177,16 +235,32 @@ export async function deleteProject(projectId: string) {
     throw new Error("Not authorized to delete this project");
   }
 
+  const doomedSubmissions = await db
+    .select({ id: submissions.id, contentDocId: submissions.contentDocId })
+    .from(submissions)
+    .where(eq(submissions.projectId, projectId));
+  const submissionIds = doomedSubmissions.map((s) => s.id);
+
   const assets = await db
     .select({ filePath: mediaAssets.filePath })
     .from(mediaAssets)
-    .where(and(eq(mediaAssets.ownerType, "project"), eq(mediaAssets.ownerId, projectId)));
+    .where(
+      or(
+        and(eq(mediaAssets.ownerType, "project"), eq(mediaAssets.ownerId, projectId)),
+        submissionIds.length > 0
+          ? and(eq(mediaAssets.ownerType, "submission"), inArray(mediaAssets.ownerId, submissionIds))
+          : undefined,
+      ),
+    );
 
   // Postgres cascade deletes the project row's likes/stars/submissions/
-  // media_assets rows; the files on disk and the Mongo body aren't
-  // Postgres's problem, clean those up ourselves first.
+  // media_assets rows; the S3 objects and Mongo bodies (the project's and
+  // its submissions') aren't Postgres's problem, clean those up ourselves
+  // first.
   await Promise.all(assets.map((a) => deleteUploadedFile(a.filePath)));
-  await deleteContentDoc(project.contentDocId);
+  await Promise.all(
+    [project, ...doomedSubmissions].map((row) => deleteContentDoc(row.contentDocId)),
+  );
   await db.delete(projects).where(eq(projects.id, projectId));
 
   revalidatePath("/dashboard");
@@ -408,7 +482,7 @@ export async function getMyProjects(userId: string) {
       coverImageId: projects.coverImageId,
     })
     .from(projects)
-    .where(eq(projects.authorId, userId))
+    .where(and(eq(projects.authorId, userId), not(untouchedDraft)))
     .orderBy(desc(projects.createdAt));
 
   return rows.map(({ coverImageId, ...row }) => ({

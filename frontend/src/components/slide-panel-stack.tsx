@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLockPageScroll } from "@/lib/use-lock-page-scroll";
 import { cn } from "@/lib/utils";
 
 interface SlidePanelStackProps {
@@ -37,6 +38,7 @@ export function SlidePanelStack({
   const router = useRouter();
   const frontRef = React.useRef<HTMLElement>(null);
   const [frontWidth, setFrontWidth] = React.useState<number | null>(null);
+  useLockPageScroll();
 
   function close() {
     router.back();
@@ -82,7 +84,7 @@ export function SlidePanelStack({
       <div className="absolute inset-y-0 right-0 flex max-w-full">
         <aside
           className={cn(
-            "hidden min-h-0 w-screen flex-col overflow-y-auto border-r bg-background shadow-2xl brightness-95 xl:flex",
+            "hidden min-h-0 w-screen flex-col overflow-y-auto overscroll-contain border-r bg-background shadow-2xl brightness-95 xl:flex",
             backWidthClassName,
           )}
         >
@@ -92,7 +94,7 @@ export function SlidePanelStack({
           ref={frontRef}
           style={frontWidth ? { width: frontWidth, maxWidth: "none" } : undefined}
           className={cn(
-            "relative flex min-h-0 w-screen flex-col overflow-y-auto bg-background shadow-2xl",
+            "relative flex min-h-0 w-screen flex-col overflow-y-auto overscroll-contain bg-background shadow-2xl",
             frontWidthClassName,
           )}
         >
