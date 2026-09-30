@@ -13,7 +13,7 @@ export default async function PublicSubmissionPage({
   const submission = await getPublicSubmission(id);
   if (!submission || submission.projectSlug !== slug) notFound();
 
-  const body = (await getContentDoc(submission.contentDocId)) ?? "";
+  const steps = (await getContentDoc(submission.contentDocId)) ?? [];
 
-  return <SubmissionViewPanel submission={submission} body={body} variant="page" />;
+  return <SubmissionViewPanel submission={submission} steps={steps} variant="page" />;
 }

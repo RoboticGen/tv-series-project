@@ -8,6 +8,7 @@ import { db } from "@/db";
 import { projects, submissions, users } from "@/db/schema";
 import { createContentDoc } from "@/db/content";
 import { createSubmissionSchema } from "@/lib/validation";
+import type { Step } from "@/lib/steps";
 
 async function requireSession() {
   const session = await auth();
@@ -17,7 +18,7 @@ async function requireSession() {
 
 export async function createSubmission(
   projectId: string,
-  input: { body: string; isPrivate?: boolean },
+  input: { steps: Step[]; isPrivate?: boolean },
 ) {
   const session = await requireSession();
   const parsed = createSubmissionSchema.parse(input);
@@ -48,7 +49,7 @@ export async function createSubmission(
   const contentDocId = await createContentDoc(
     "submission",
     session.user.id,
-    parsed.body,
+    parsed.steps,
   );
 
   const [submission] = await db

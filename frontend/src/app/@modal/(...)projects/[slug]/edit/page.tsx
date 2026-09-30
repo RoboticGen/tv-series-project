@@ -18,11 +18,11 @@ export default async function EditProjectModal({
   if (!project) notFound();
   if (project.authorId !== session.user.id) notFound();
 
-  const body = (await getContentDoc(project.contentDocId)) ?? "";
+  const steps = (await getContentDoc(project.contentDocId)) ?? [];
 
   return (
     <SlidePanel>
-      <ProjectEditorPanel project={project} body={body} variant="modal" />
+      <ProjectEditorPanel project={project} steps={steps} variant="modal" />
     </SlidePanel>
   );
 }

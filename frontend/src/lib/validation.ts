@@ -1,17 +1,18 @@
 import { z } from "zod";
 import { projectCategory } from "@/db/schema";
+import { stepsSchema } from "@/lib/steps";
 
 export const createProjectSchema = z.object({
   title: z.string().trim().min(3).max(120),
   summary: z.string().trim().min(10).max(500),
   category: z.enum(projectCategory.enumValues),
-  body: z.string().trim().min(20),
+  steps: stepsSchema,
 });
 
 export const updateProjectSchema = createProjectSchema;
 
 export const createSubmissionSchema = z.object({
-  body: z.string().trim().min(20),
+  steps: stepsSchema,
   isPrivate: z.boolean().optional(),
 });
 

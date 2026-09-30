@@ -4,6 +4,7 @@ import { ProjectForm } from "@/components/project-form";
 import { DeleteProjectButton } from "@/components/delete-project-button";
 import { ProjectModeSwitch } from "@/components/project-mode-switch";
 import { Badge } from "@/components/ui/badge";
+import type { Step } from "@/lib/steps";
 import { cn } from "@/lib/utils";
 
 const STATUS_VARIANT: Record<string, "secondary" | "outline"> = {
@@ -24,16 +25,20 @@ interface ProjectEditorPanelProps {
     status: string;
     rejectionReason: string | null;
   };
-  body: string;
-  variant?: "page" | "modal";
+  steps: Step[];
+  // "modal": intercepted (...) route, closes via router.back().
+  // "panel": same slide-panel look, but loaded directly by URL -- there's
+  // no in-app history to go back to, so children navigate like "page".
+  variant?: "page" | "modal" | "panel";
 }
 
 export function ProjectEditorPanel({
   project,
-  body,
+  steps,
   variant = "page",
 }: ProjectEditorPanelProps) {
-  const isModal = variant === "modal";
+  const isModal = variant !== "page";
+  const isIntercepted = variant === "modal";
 
   return (
     <div
@@ -78,7 +83,7 @@ export function ProjectEditorPanel({
           <DeleteProjectButton
             projectId={project.id}
             title={project.title}
-            inModal={isModal}
+            inModal={isIntercepted}
           />
         </div>
       </div>
@@ -90,10 +95,10 @@ export function ProjectEditorPanel({
           initialSummary={project.summary}
           initialCategory={project.category}
           initialCoverImageUrl={project.coverImageUrl}
-          initialBody={body}
+          initialSteps={steps}
           status={project.status}
           rejectionReason={project.rejectionReason}
-          inModal={isModal}
+          inModal={isIntercepted}
         />
       </div>
     </div>

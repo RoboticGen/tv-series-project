@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { dbHolder, sessionHolder, type UserRole } from "../setup/global-mocks";
 import { createTestDb, insertProject, insertUser, type TestDbHandle } from "../setup/pglite-db";
 import {
+  createDraftProjectRecord,
   deleteProject,
+  getMyProjects,
   publishProject,
+  revertProjectToDraft,
   toggleLike,
   toggleStar,
   updateProject,
@@ -40,7 +43,7 @@ describe("updateProject ownership", () => {
         title: "Hijacked Title",
         summary: "a".repeat(15),
         category: "robotics",
-        body: "a".repeat(25),
+        steps: [{ id: "s1", title: "", images: [], body: "a".repeat(25) }],
       }),
     ).rejects.toThrow("Not authorized to edit this project");
   });
@@ -55,7 +58,7 @@ describe("updateProject ownership", () => {
       title: "New Title",
       summary: "a".repeat(15),
       category: "robotics",
-      body: "a".repeat(25),
+      steps: [{ id: "s1", title: "", images: [], body: "a".repeat(25) }],
     });
 
     const [reloaded] = await db.select().from(schema.projects).where(eq(schema.projects.id, project.id));
@@ -122,6 +125,123 @@ describe("publishProject", () => {
     await expect(publishProject(project.id)).rejects.toThrow(
       "Only draft or unpublished projects can be published",
     );
+  });
+});
+
+describe("revertProjectToDraft", () => {
+  it("refuses a non-owner", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    const stranger = await insertUser(db);
+    const project = await insertProject(db, owner.id, {
+      status: "published",
+      publishedAt: new Date(),
+    });
+    signInAs(stranger);
+
+    await expect(revertProjectToDraft(project.id)).rejects.toThrow(
+      "Not authorized to unpublish this project",
+    );
+  });
+
+  it("reverts a published project to draft and clears featured/publishedAt", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    const project = await insertProject(db, owner.id, {
+      status: "published",
+      publishedAt: new Date(),
+      isFeatured: true,
+    });
+    signInAs(owner);
+
+    await revertProjectToDraft(project.id);
+
+    const [reloaded] = await db.select().from(schema.projects).where(eq(schema.projects.id, project.id));
+    expect(reloaded.status).toBe("draft");
+    expect(reloaded.publishedAt).toBeNull();
+    expect(reloaded.isFeatured).toBe(false);
+  });
+
+  it("refuses to unpublish a project that isn't published", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    const project = await insertProject(db, owner.id, { status: "draft" });
+    signInAs(owner);
+
+    await expect(revertProjectToDraft(project.id)).rejects.toThrow(
+      "Only published projects can be unpublished",
+    );
+  });
+});
+
+describe("empty drafts", () => {
+  it("reuses an untouched draft instead of creating another", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    signInAs(owner);
+
+    const first = await createDraftProjectRecord();
+    const second = await createDraftProjectRecord();
+
+    expect(second.id).toBe(first.id);
+    const rows = await db.select().from(schema.projects).where(eq(schema.projects.authorId, owner.id));
+    expect(rows).toHaveLength(1);
+  });
+
+  it("deletes extra untouched drafts left over from before", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    await insertProject(db, owner.id);
+    await insertProject(db, owner.id);
+    signInAs(owner);
+
+    await createDraftProjectRecord();
+
+    const rows = await db.select().from(schema.projects).where(eq(schema.projects.authorId, owner.id));
+    expect(rows).toHaveLength(1);
+  });
+
+  it("creates a new draft once the previous one has been saved", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    signInAs(owner);
+
+    const first = await createDraftProjectRecord();
+    await db
+      .update(schema.projects)
+      .set({ updatedAt: sql`now() + interval '1 second'` })
+      .where(eq(schema.projects.id, first.id));
+    const second = await createDraftProjectRecord();
+
+    expect(second.id).not.toBe(first.id);
+  });
+
+  it("keeps a draft that has an uploaded image", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    signInAs(owner);
+
+    const first = await createDraftProjectRecord();
+    await db
+      .insert(schema.mediaAssets)
+      .values({ ownerType: "project", ownerId: first.id, filePath: "project/x/y.png" });
+    const second = await createDraftProjectRecord();
+
+    expect(second.id).not.toBe(first.id);
+  });
+
+  it("hides untouched drafts from getMyProjects", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    await insertProject(db, owner.id, { status: "draft" });
+    const published = await insertProject(db, owner.id, {
+      status: "published",
+      publishedAt: new Date(),
+    });
+
+    const mine = await getMyProjects(owner.id);
+
+    expect(mine.map((p) => p.id)).toEqual([published.id]);
   });
 });
 
