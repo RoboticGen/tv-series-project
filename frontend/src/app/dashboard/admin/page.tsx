@@ -20,11 +20,11 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">
-      <div className="border-b-[3px] border-brand-navy pb-6 dark:border-white">
-        <span className="inline-block rounded-sm border-2 border-brand-navy bg-brand-navy px-2 py-0.5 text-xs font-black tracking-wide text-white uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white dark:bg-white dark:text-brand-navy dark:shadow-[2px_2px_0_0_#fff]">
+      <div className="border-b-[3px] border-brand-navy pb-6 dark:border-edge">
+        <span className="inline-block rounded-sm border-2 border-brand-navy bg-brand-navy px-2 py-0.5 text-xs font-black tracking-wide text-white uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge dark:bg-foreground dark:text-brand-navy dark:shadow-[2px_2px_0_0_var(--edge)]">
           Admin
         </span>
-        <h1 className="mt-2 text-balance font-heading text-3xl font-black tracking-tight text-brand-navy dark:text-white">
+        <h1 className="mt-2 text-balance font-heading text-3xl font-black tracking-tight text-brand-navy dark:text-foreground">
           User management
         </h1>
         <p className="mt-1 text-pretty text-sm text-muted-foreground">

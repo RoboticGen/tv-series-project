@@ -63,7 +63,7 @@ export function SubmissionViewPanel({
         </Avatar>
         <span className="text-sm font-medium text-foreground">{submission.authorName}</span>
       </div>
-      <h1 className="mt-3 font-heading text-2xl font-bold text-brand-navy dark:text-white">
+      <h1 className="mt-3 font-heading text-2xl font-bold text-brand-navy dark:text-foreground">
         Submitted {submission.createdAt.toLocaleDateString()}
       </h1>
       <div className="mt-8 border-t pt-8">

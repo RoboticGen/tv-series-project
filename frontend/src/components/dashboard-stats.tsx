@@ -26,23 +26,23 @@ export function StatTile({
   return (
     <li
       className={cn(
-        "flex flex-col items-start gap-3 rounded-xl border-2 border-brand-navy p-4 shadow-[4px_4px_0_0_var(--brand-navy)] motion-safe:transition-transform hover:-translate-y-1 dark:border-white dark:shadow-[4px_4px_0_0_#fff]",
+        "flex flex-col items-start gap-3 rounded-xl border-2 border-brand-navy p-4 shadow-[4px_4px_0_0_var(--brand-navy)] motion-safe:transition-transform hover:-translate-y-1 dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]",
         fill,
       )}
     >
       <div
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy dark:border-white",
+          "flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy dark:border-edge",
           iconFill,
         )}
       >
         <Icon className="size-5" aria-hidden />
       </div>
       <div className="w-full min-w-0">
-        <p className="font-heading text-3xl leading-none font-black tabular-nums lining-nums text-brand-navy dark:text-white">
+        <p className="font-heading text-3xl leading-none font-black tabular-nums lining-nums text-brand-navy dark:text-foreground">
           {value}
         </p>
-        <p className="mt-1 text-xs leading-tight font-bold tracking-wide text-balance break-words text-brand-navy/75 uppercase dark:text-white/75">
+        <p className="mt-1 text-xs leading-tight font-bold tracking-wide text-balance break-words text-brand-navy/75 uppercase dark:text-foreground/75">
           {label}
         </p>
       </div>

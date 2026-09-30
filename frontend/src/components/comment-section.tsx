@@ -131,7 +131,7 @@ export function CommentSection({
 
   return (
     <div className="mt-10 border-t pt-8">
-      <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-white">
+      <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-foreground">
         Comments ({totalCount})
       </h2>
 

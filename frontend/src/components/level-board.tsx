@@ -63,7 +63,7 @@ function Ladder({ from, to }: { from: number; to: number }) {
           y1={a.y + py * side}
           x2={b.x + px * side}
           y2={b.y + py * side}
-          className="stroke-brand-navy dark:stroke-white"
+          className="stroke-brand-navy dark:stroke-edge"
           strokeWidth={9}
         />
       ))}
@@ -74,7 +74,7 @@ function Ladder({ from, to }: { from: number; to: number }) {
           y1={a.y + dy * t - py}
           x2={a.x + dx * t + px}
           y2={a.y + dy * t + py}
-          className="stroke-brand-navy dark:stroke-white"
+          className="stroke-brand-navy dark:stroke-edge"
           strokeWidth={6}
         />
       ))}
@@ -113,14 +113,14 @@ function Wire({ from, to, color, sway }: { from: number; to: number; color: stri
 
   return (
     <g strokeLinecap="round" fill="none">
-      <path d={d} className="stroke-brand-navy dark:stroke-white" strokeWidth={16} />
+      <path d={d} className="stroke-brand-navy dark:stroke-edge" strokeWidth={16} />
       <path d={d} stroke={color} strokeWidth={10} />
       <path d={d} stroke="white" strokeOpacity={0.45} strokeWidth={2.5} strokeDasharray="2 14" />
 
       {/* Plug on the "head" end */}
       <g transform={`translate(${head.x} ${head.y}) rotate(${plugAngle})`}>
-        <line x1={14} y1={-6} x2={30} y2={-6} className="stroke-brand-navy dark:stroke-white" strokeWidth={4} />
-        <line x1={14} y1={6} x2={30} y2={6} className="stroke-brand-navy dark:stroke-white" strokeWidth={4} />
+        <line x1={14} y1={-6} x2={30} y2={-6} className="stroke-brand-navy dark:stroke-edge" strokeWidth={4} />
+        <line x1={14} y1={6} x2={30} y2={6} className="stroke-brand-navy dark:stroke-edge" strokeWidth={4} />
         <rect
           x={-14}
           y={-14}
@@ -128,7 +128,7 @@ function Wire({ from, to, color, sway }: { from: number; to: number; color: stri
           height={28}
           rx={6}
           fill={color}
-          className="stroke-brand-navy dark:stroke-white"
+          className="stroke-brand-navy dark:stroke-edge"
           strokeWidth={4}
         />
       </g>
@@ -166,7 +166,7 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
 
       <div
         aria-hidden
-        className="relative aspect-[6/5] w-full overflow-hidden rounded-2xl border-4 border-brand-navy bg-card shadow-[6px_6px_0_0_var(--brand-navy)] dark:border-white"
+        className="relative aspect-[6/5] w-full overflow-hidden rounded-2xl border-4 border-brand-navy bg-card shadow-[6px_6px_0_0_var(--brand-navy)] dark:border-edge"
       >
         {/* Layer 1: numbered squares */}
         <div className="absolute inset-0 grid grid-cols-6 grid-rows-5">
@@ -179,11 +179,11 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
                 key={n}
                 style={{ gridRow: ROWS - row, gridColumn: col + 1 }}
                 className={cn(
-                  "relative border border-brand-navy/25 dark:border-white/20",
+                  "relative border border-brand-navy/25 dark:border-edge/20",
                   level ? cn(level.fill, "opacity-90") : (row + col) % 2 === 0 ? "bg-brand-sky/15" : "bg-card",
                 )}
               >
-                <span className="absolute top-0.5 left-1 font-sans text-[0.6rem] font-black text-brand-navy/60 tabular-nums sm:top-1 sm:left-1.5 sm:text-xs dark:text-white/60">
+                <span className="absolute top-0.5 left-1 font-sans text-[0.6rem] font-black text-brand-navy/60 tabular-nums sm:top-1 sm:left-1.5 sm:text-xs dark:text-foreground/60">
                   {n}
                 </span>
               </div>
@@ -229,13 +229,13 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
         </div>
 
         {/* Start robot and finish flag */}
-        <Bot className="absolute bottom-[2%] left-[19%] size-6 text-brand-navy motion-safe:animate-bounce sm:size-9 dark:text-white" />
+        <Bot className="absolute bottom-[2%] left-[19%] size-6 text-brand-navy motion-safe:animate-bounce sm:size-9 dark:text-foreground" />
         <Flag className="absolute top-[1%] right-[1%] size-5 fill-brand-coral text-brand-navy sm:size-8" />
       </div>
 
       {/* Legend */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border-2 border-brand-navy bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:text-white">
+        <div className="rounded-xl border-2 border-brand-navy bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:text-foreground">
           <p className="flex items-center gap-2 font-heading font-black">
             <svg viewBox="0 0 24 24" className="size-6" aria-hidden>
               <path d="M7 2v20M17 2v20M7 6h10M7 12h10M7 18h10" stroke="currentColor" strokeWidth={2.5} fill="none" strokeLinecap="round" />
@@ -248,7 +248,7 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
             ))}
           </ul>
         </div>
-        <div className="rounded-xl border-2 border-brand-navy bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:text-white">
+        <div className="rounded-xl border-2 border-brand-navy bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:text-foreground">
           <p className="flex items-center gap-2 font-heading font-black">
             <Cable className="size-6" aria-hidden />
             Tangled wires are bugs

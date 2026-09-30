@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { NewProjectButton } from "@/components/new-project-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -40,12 +41,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex size-8 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-sm font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[2px_2px_0_0_#fff]">
+        <div className="flex size-8 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-sm font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[2px_2px_0_0_var(--edge)]">
           R
         </div>
-        <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-white">
+        <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-foreground">
           RoboticGen Projects
         </span>
+        {/* The mobile drawer's close button sits in this corner instead;
+            the mobile top bar has its own toggle. */}
+        <ThemeToggle className="ml-auto hidden md:inline-flex" />
       </div>
 
       <div className="px-3">
@@ -67,8 +71,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               className={cn(
                 "flex items-center gap-2.5 rounded-md border-2 px-3 py-2 text-sm font-bold transition-all",
                 isActive
-                  ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]"
-                  : "border-transparent text-muted-foreground hover:border-brand-navy hover:bg-muted hover:text-foreground dark:hover:border-white",
+                  ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]"
+                  : "border-transparent text-muted-foreground hover:border-brand-navy hover:bg-muted hover:text-foreground dark:hover:border-edge",
               )}
             >
               <item.icon className="size-4" aria-hidden />
@@ -79,9 +83,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="mt-auto p-3">
-        <Separator className="mb-3 border-2 border-brand-navy dark:border-white" />
+        <Separator className="mb-3 border-2 border-brand-navy dark:border-edge" />
         {session?.user ? (
-          <div className="flex items-center gap-2.5 rounded-md border-2 border-brand-navy p-2 dark:border-white">
+          <div className="flex items-center gap-2.5 rounded-md border-2 border-brand-navy p-2 dark:border-edge">
             <Avatar size="sm">
               <AvatarImage src={session.user.image ?? undefined} alt={session.user.name ?? "You"} />
               <AvatarFallback>
@@ -127,24 +131,27 @@ export function DashboardSidebar() {
 
   return (
     <>
-      <header className="flex items-center justify-between border-b-2 border-brand-navy bg-card px-4 py-3 md:hidden dark:border-white">
+      <header className="flex items-center justify-between border-b-2 border-brand-navy bg-card px-4 py-3 md:hidden dark:border-edge">
         <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-xs font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[2px_2px_0_0_#fff]">
+          <div className="flex size-7 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-xs font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[2px_2px_0_0_var(--edge)]">
             R
           </div>
-          <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-white">
+          <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-foreground">
             RoboticGen Projects
           </span>
         </div>
-        <Button
-          size="icon-sm"
-          variant="outline"
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
-          aria-expanded={mobileOpen}
-        >
-          <Menu className="size-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button
+            size="icon-sm"
+            variant="outline"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+          >
+            <Menu className="size-4" />
+          </Button>
+        </div>
       </header>
 
       {mobileOpen ? (
@@ -153,7 +160,7 @@ export function DashboardSidebar() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative flex h-full w-72 flex-col border-r-2 border-brand-navy bg-card dark:border-white">
+          <aside className="relative flex h-full w-72 flex-col border-r-2 border-brand-navy bg-card dark:border-edge">
             <Button
               size="icon-sm"
               variant="ghost"
@@ -168,7 +175,7 @@ export function DashboardSidebar() {
         </div>
       ) : null}
 
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 border-r-2 border-brand-navy bg-card md:flex md:flex-col dark:border-white">
+      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 border-r-2 border-brand-navy bg-card md:flex md:flex-col dark:border-edge">
         <SidebarContent />
       </aside>
     </>

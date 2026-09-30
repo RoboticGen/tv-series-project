@@ -220,14 +220,14 @@ export function UserManagementTable({
       </div>
 
       {visible.length === 0 ? (
-        <div className="mt-6 flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-white">
-          <div className="flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]">
+        <div className="mt-6 flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-edge">
+          <div className="flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]">
             <Users className="size-5" />
           </div>
           <p className="font-bold text-foreground">No users match</p>
         </div>
       ) : (
-        <ul className="mt-6 divide-y-2 divide-brand-navy overflow-hidden rounded-lg border-2 border-brand-navy bg-card shadow-[4px_4px_0_0_var(--brand-navy)] dark:divide-white dark:border-white dark:shadow-[4px_4px_0_0_#fff]">
+        <ul className="mt-6 divide-y-2 divide-brand-navy overflow-hidden rounded-lg border-2 border-brand-navy bg-card shadow-[4px_4px_0_0_var(--brand-navy)] dark:divide-edge dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]">
           {visible.map((user) => (
             <UserRow key={user.id} user={user} isSelf={user.id === currentUserId} />
           ))}

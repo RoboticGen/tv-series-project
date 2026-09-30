@@ -9,7 +9,7 @@ export function StepsViewer({ steps }: { steps: Step[] }) {
     <div className="space-y-10">
       {steps.map((step, index) => (
         <section key={step.id} className="break-inside-avoid-page">
-          <h2 className="font-heading text-xl font-bold text-brand-navy dark:text-white">
+          <h2 className="font-heading text-xl font-bold text-brand-navy dark:text-foreground">
             <span className="text-brand-teal">Step {index + 1}</span>
             {step.title ? `: ${step.title}` : null}
           </h2>

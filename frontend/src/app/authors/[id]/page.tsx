@@ -46,7 +46,7 @@ export default async function AuthorProfilePage({
           </Avatar>
 
           <div className="min-w-0 flex-1">
-            <h1 className="font-heading text-balance text-2xl font-bold text-brand-navy dark:text-white">
+            <h1 className="font-heading text-balance text-2xl font-bold text-brand-navy dark:text-foreground">
               {author.displayName}
             </h1>
             {author.bio ? (
@@ -56,14 +56,14 @@ export default async function AuthorProfilePage({
             ) : null}
             <div className="mt-4 flex items-center gap-5 text-sm">
               <span>
-                <strong className="font-heading text-base text-brand-navy dark:text-white">
+                <strong className="font-heading text-base text-brand-navy dark:text-foreground">
                   {followStatus.followerCount}
                 </strong>{" "}
                 <span className="text-muted-foreground">followers</span>
               </span>
               <span className="h-4 w-px bg-border" aria-hidden="true" />
               <span>
-                <strong className="font-heading text-base text-brand-navy dark:text-white">
+                <strong className="font-heading text-base text-brand-navy dark:text-foreground">
                   {followStatus.followingCount}
                 </strong>{" "}
                 <span className="text-muted-foreground">following</span>
@@ -82,7 +82,7 @@ export default async function AuthorProfilePage({
       </header>
 
       <section className="mt-10">
-        <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-white">
+        <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-foreground">
           Published projects
         </h2>
         {projects.length === 0 ? (

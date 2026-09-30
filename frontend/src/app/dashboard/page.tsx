@@ -42,7 +42,7 @@ const GRID = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
 
 function TabCount({ value }: { value: number }) {
   return (
-    <span className="rounded-full bg-brand-navy/10 px-1.5 text-xs tabular-nums dark:bg-white/15">
+    <span className="rounded-full bg-brand-navy/10 px-1.5 text-xs tabular-nums dark:bg-foreground/15">
       {value}
     </span>
   );
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-8 sm:px-6 sm:py-10">
       {/* Hero */}
-      <header className="relative overflow-hidden rounded-2xl border-2 border-brand-navy bg-brand-teal p-6 text-white shadow-[6px_6px_0_0_var(--brand-navy)] sm:p-8 dark:border-white dark:shadow-[6px_6px_0_0_#fff]">
+      <header className="relative overflow-hidden rounded-2xl border-2 border-brand-navy bg-brand-teal p-6 text-white shadow-[6px_6px_0_0_var(--brand-navy)] sm:p-8 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)]">
         {/* Decorative shapes — hidden from assistive tech */}
         <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
           <div className="absolute -top-10 -right-10 size-40 rounded-full border-2 border-brand-navy bg-brand-yellow" />
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
         <BuilderLevel points={points.total} pointValues={pointValues} />
         <div className="flex flex-col gap-4">
           {stats.featuredProjects > 0 ? (
-            <p className="flex items-center gap-3 rounded-xl border-2 border-brand-navy bg-brand-yellow p-4 font-bold text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[4px_4px_0_0_#fff]">
+            <p className="flex items-center gap-3 rounded-xl border-2 border-brand-navy bg-brand-yellow p-4 font-bold text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]">
               <Sparkles className="size-6 shrink-0" aria-hidden />
               <span>
                 Woohoo! {stats.featuredProjects === 1 ? "One of your projects is" : `${stats.featuredProjects} of your projects are`}{" "}
@@ -136,13 +136,13 @@ export default async function DashboardPage() {
           {stats.draftProjects > 0 || stats.rejectedProjects > 0 ? (
             <ul className="flex flex-wrap gap-3 text-sm font-bold">
               {stats.draftProjects > 0 ? (
-                <li className="flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-card px-3 py-2 dark:border-white">
+                <li className="flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-card px-3 py-2 dark:border-edge">
                   <PencilLine className="size-4 text-brand-teal" aria-hidden />
                   {stats.draftProjects} {stats.draftProjects === 1 ? "draft" : "drafts"} waiting for you to finish
                 </li>
               ) : null}
               {stats.rejectedProjects > 0 ? (
-                <li className="flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-brand-coral/15 px-3 py-2 dark:border-white">
+                <li className="flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-brand-coral/15 px-3 py-2 dark:border-edge">
                   <Wrench className="size-4 text-brand-coral" aria-hidden />
                   {stats.rejectedProjects} {stats.rejectedProjects === 1 ? "project needs" : "projects need"} a small fix
                 </li>
@@ -161,7 +161,7 @@ export default async function DashboardPage() {
       <section aria-labelledby="my-stuff-heading">
         <h2
           id="my-stuff-heading"
-          className="font-heading text-2xl font-black tracking-tight text-brand-navy sm:text-3xl dark:text-white"
+          className="font-heading text-2xl font-black tracking-tight text-brand-navy sm:text-3xl dark:text-foreground"
         >
           My stuff
         </h2>

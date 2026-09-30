@@ -38,11 +38,11 @@ export default async function ModerationPage({
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">
-      <div className="border-b-[3px] border-brand-navy pb-6 dark:border-white">
-        <span className="inline-block rounded-sm border-2 border-brand-navy bg-brand-navy px-2 py-0.5 text-xs font-black tracking-wide text-white uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white dark:bg-white dark:text-brand-navy dark:shadow-[2px_2px_0_0_#fff]">
+      <div className="border-b-[3px] border-brand-navy pb-6 dark:border-edge">
+        <span className="inline-block rounded-sm border-2 border-brand-navy bg-brand-navy px-2 py-0.5 text-xs font-black tracking-wide text-white uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge dark:bg-foreground dark:text-brand-navy dark:shadow-[2px_2px_0_0_var(--edge)]">
           Mentors &amp; admins
         </span>
-        <h1 className="mt-2 text-balance font-heading text-3xl font-black tracking-tight text-brand-navy dark:text-white">
+        <h1 className="mt-2 text-balance font-heading text-3xl font-black tracking-tight text-brand-navy dark:text-foreground">
           Review queue
         </h1>
         <p className="mt-1 text-pretty text-sm text-muted-foreground">
@@ -63,8 +63,8 @@ export default async function ModerationPage({
 
       <div className="mt-8">
         {projects.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-white">
-            <div className="flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]">
+          <div className="flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-edge">
+            <div className="flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]">
               {hasFilters ? <SearchX className="size-5" /> : <CheckCircle2 className="size-5" />}
             </div>
             <div>
