@@ -4,18 +4,30 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLockPageScroll } from "@/lib/use-lock-page-scroll";
 
 // Current max-w-4xl default -- also the drag-to-resize minimum, so
 // resizing only ever makes the panel wider than it already is by default.
 const DEFAULT_WIDTH_PX = 896;
 
-export function SlidePanel({ children }: { children: React.ReactNode }) {
+// closeHref: set when the panel is rendered by the real page (URL typed or
+// reloaded) rather than an intercepted route -- router.back() would then
+// leave the app, so close navigates to the page shown behind it instead.
+export function SlidePanel({
+  children,
+  closeHref,
+}: {
+  children: React.ReactNode;
+  closeHref?: string;
+}) {
   const router = useRouter();
   const asideRef = React.useRef<HTMLElement>(null);
   const [width, setWidth] = React.useState<number | null>(null);
+  useLockPageScroll();
 
   function close() {
-    router.back();
+    if (closeHref) router.push(closeHref);
+    else router.back();
   }
 
   React.useEffect(() => {
@@ -77,7 +89,7 @@ export function SlidePanel({ children }: { children: React.ReactNode }) {
         >
           <X className="size-4" />
         </Button>
-        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
       </aside>
     </div>
   );

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { uploadMediaAsset } from "@/actions/media";
+import type { Step } from "@/lib/steps";
 import { ALLOWED_IMAGE_MIME_TYPES, MAX_IMAGE_BYTES } from "@/lib/validation";
 
 type OwnerType = "project" | "submission";
@@ -62,5 +63,22 @@ export function usePendingImages() {
     [],
   );
 
-  return { add, uploadReferenced };
+  // Same, across a steps write-up: each step's gallery and Markdown body.
+  const uploadReferencedInSteps = React.useCallback(
+    async (steps: Step[], ownerType: OwnerType, ownerId: string) => {
+      const result: Step[] = [];
+      for (const step of steps) {
+        const images: string[] = [];
+        for (const url of step.images) {
+          images.push(await uploadReferenced(url, ownerType, ownerId));
+        }
+        const body = await uploadReferenced(step.body, ownerType, ownerId);
+        result.push({ ...step, images, body });
+      }
+      return result;
+    },
+    [uploadReferenced],
+  );
+
+  return { add, uploadReferenced, uploadReferencedInSteps };
 }

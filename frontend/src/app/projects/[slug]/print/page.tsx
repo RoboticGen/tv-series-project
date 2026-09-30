@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getProjectBySlug } from "@/actions/projects";
 import { getContentDoc } from "@/db/content";
-import { MarkdownViewer } from "@/components/markdown-viewer";
+import { StepsViewer } from "@/components/steps-viewer";
 import { CATEGORY_LABELS } from "@/lib/categories";
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
@@ -23,7 +23,7 @@ export default async function ProjectPrintPage({
   const project = await getProjectBySlug(slug);
   if (!project || project.status !== "published") notFound();
 
-  const body = await getContentDoc(project.contentDocId);
+  const steps = await getContentDoc(project.contentDocId);
 
   return (
     <div
@@ -69,7 +69,7 @@ export default async function ProjectPrintPage({
 
       <div style={{ borderTop: "1px solid rgba(147, 149, 152, 0.4)", paddingTop: 24 }}>
         <div data-color-mode="light">
-          <MarkdownViewer body={body ?? ""} />
+          <StepsViewer steps={steps ?? []} />
         </div>
       </div>
     </div>

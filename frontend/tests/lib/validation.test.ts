@@ -7,20 +7,25 @@ import {
   createProjectSchema,
   createSubmissionSchema,
 } from "@/lib/validation";
+import { isPlainWriteUp, stepsFromLegacyBody, stepsSchema, type Step } from "@/lib/steps";
+
+function step(overrides: Partial<Step> = {}): Step {
+  return { id: "s1", title: "", images: [], body: "", ...overrides };
+}
 
 describe("createProjectSchema", () => {
   const valid = {
     title: "My Robot Project",
     summary: "A summary that is definitely long enough.",
     category: "robotics",
-    body: "A write-up body that is long enough to pass validation.",
+    steps: [step({ body: "A write-up body that is long enough to pass validation." })],
   };
 
   it("accepts a valid payload", () => {
     expect(createProjectSchema.parse(valid)).toMatchObject(valid);
   });
 
-  it("trims title/summary/body", () => {
+  it("trims title/summary", () => {
     const parsed = createProjectSchema.parse({
       ...valid,
       title: "  Padded Title  ",
@@ -49,8 +54,10 @@ describe("createProjectSchema", () => {
     expect(() => createProjectSchema.parse({ ...valid, summary: "a".repeat(501) })).toThrow();
   });
 
-  it("rejects a body shorter than 20 characters", () => {
-    expect(() => createProjectSchema.parse({ ...valid, body: "short body" })).toThrow();
+  it("rejects steps with fewer than 20 characters of text", () => {
+    expect(() =>
+      createProjectSchema.parse({ ...valid, steps: [step({ body: "short body" })] }),
+    ).toThrow();
   });
 
   it("rejects a category outside the fixed enum", () => {
@@ -65,20 +72,61 @@ describe("createProjectSchema", () => {
 });
 
 describe("createSubmissionSchema", () => {
-  it("accepts a body >= 20 chars with isPrivate omitted", () => {
-    const parsed = createSubmissionSchema.parse({ body: "a".repeat(20) });
-    expect(parsed.body).toHaveLength(20);
+  it("accepts steps with >= 20 chars with isPrivate omitted", () => {
+    const parsed = createSubmissionSchema.parse({ steps: [step({ body: "a".repeat(20) })] });
+    expect(parsed.steps[0].body).toHaveLength(20);
     expect(parsed.isPrivate).toBeUndefined();
   });
 
-  it("rejects a body under 20 chars", () => {
-    expect(() => createSubmissionSchema.parse({ body: "too short" })).toThrow();
+  it("rejects steps under 20 chars", () => {
+    expect(() => createSubmissionSchema.parse({ steps: [step({ body: "too short" })] })).toThrow();
   });
 
   it("accepts an explicit isPrivate boolean", () => {
-    expect(createSubmissionSchema.parse({ body: "a".repeat(20), isPrivate: false }).isPrivate).toBe(
-      false,
-    );
+    expect(
+      createSubmissionSchema.parse({ steps: [step({ body: "a".repeat(20) })], isPrivate: false })
+        .isPrivate,
+    ).toBe(false);
+  });
+});
+
+describe("stepsSchema", () => {
+  it("rejects an empty list", () => {
+    expect(() => stepsSchema.parse([])).toThrow();
+  });
+
+  it("counts text across all step titles and bodies", () => {
+    const steps = [step({ id: "a", title: "Gather parts" }), step({ id: "b", body: "Wire it up" })];
+    expect(() => stepsSchema.parse(steps)).not.toThrow();
+  });
+
+  it("trims step titles and bodies", () => {
+    const [parsed] = stepsSchema.parse([step({ title: "  Title  ", body: "  " + "a".repeat(20) })]);
+    expect(parsed.title).toBe("Title");
+    expect(parsed.body).toBe("a".repeat(20));
+  });
+
+  it("accepts media-route image URLs", () => {
+    const images = ["/api/media/123e4567-e89b-12d3-a456-426614174000"];
+    expect(() => stepsSchema.parse([step({ body: "a".repeat(20), images })])).not.toThrow();
+  });
+
+  it("rejects external image URLs", () => {
+    const images = ["https://example.com/cat.png"];
+    expect(() => stepsSchema.parse([step({ body: "a".repeat(20), images })])).toThrow();
+  });
+});
+
+describe("legacy Markdown bodies", () => {
+  it("become a single plain step", () => {
+    const steps = stepsFromLegacyBody("# Old write-up");
+    expect(steps).toEqual([step({ id: "step-legacy", body: "# Old write-up" })]);
+    expect(isPlainWriteUp(steps)).toBe(true);
+  });
+
+  it("titled or multi-step write-ups are not plain", () => {
+    expect(isPlainWriteUp([step({ title: "Intro" })])).toBe(false);
+    expect(isPlainWriteUp([step({ id: "a" }), step({ id: "b" })])).toBe(false);
   });
 });
 

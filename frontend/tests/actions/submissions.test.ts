@@ -33,7 +33,7 @@ afterEach(async () => {
 describe("createSubmission authorization", () => {
   it("throws when not signed in", async () => {
     await expect(
-      createSubmission("00000000-0000-0000-0000-000000000000", { body: "a".repeat(20) }),
+      createSubmission("00000000-0000-0000-0000-000000000000", { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }] }),
     ).rejects.toThrow("Not signed in");
   });
 
@@ -43,7 +43,7 @@ describe("createSubmission authorization", () => {
     signInAs(user);
 
     await expect(
-      createSubmission("00000000-0000-0000-0000-000000000000", { body: "a".repeat(20) }),
+      createSubmission("00000000-0000-0000-0000-000000000000", { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }] }),
     ).rejects.toThrow("Project not found");
   });
 
@@ -58,7 +58,7 @@ describe("createSubmission authorization", () => {
     });
     signInAs(stranger);
 
-    await expect(createSubmission(project.id, { body: "a".repeat(20) })).rejects.toThrow(
+    await expect(createSubmission(project.id, { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }] })).rejects.toThrow(
       "This project isn't featured yet",
     );
   });
@@ -70,7 +70,7 @@ describe("createSubmission authorization", () => {
     const project = await insertProject(db, author.id, { status: "draft" });
     signInAs(stranger);
 
-    await expect(createSubmission(project.id, { body: "a".repeat(20) })).rejects.toThrow(
+    await expect(createSubmission(project.id, { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }] })).rejects.toThrow(
       "This project isn't featured yet",
     );
   });
@@ -87,7 +87,7 @@ describe("createSubmission authorization", () => {
     signInAs(builder);
 
     await expectRedirectTo(
-      createSubmission(project.id, { body: "a".repeat(20) }),
+      createSubmission(project.id, { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }] }),
       "/dashboard/submissions/",
     );
   });
@@ -99,7 +99,7 @@ describe("createSubmission authorization", () => {
     signInAs(author);
 
     await expectRedirectTo(
-      createSubmission(project.id, { body: "a".repeat(20) }),
+      createSubmission(project.id, { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }] }),
       "/dashboard/submissions/",
     );
   });
@@ -118,7 +118,7 @@ describe("createSubmission privacy rule", () => {
     signInAs(builder);
 
     await expect(
-      createSubmission(project.id, { body: "a".repeat(20), isPrivate: false }),
+      createSubmission(project.id, { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }], isPrivate: false }),
     ).rejects.toThrow(); // redirect() throws on success
 
     const [submission] = await db
@@ -135,7 +135,7 @@ describe("createSubmission privacy rule", () => {
     signInAs(author);
 
     await expect(
-      createSubmission(project.id, { body: "a".repeat(20), isPrivate: false }),
+      createSubmission(project.id, { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }], isPrivate: false }),
     ).rejects.toThrow();
 
     const [submission] = await db
@@ -151,7 +151,7 @@ describe("createSubmission privacy rule", () => {
     const project = await insertProject(db, author.id, { status: "draft" });
     signInAs(author);
 
-    await expect(createSubmission(project.id, { body: "a".repeat(20) })).rejects.toThrow();
+    await expect(createSubmission(project.id, { steps: [{ id: "s1", title: "", images: [], body: "a".repeat(20) }] })).rejects.toThrow();
 
     const [submission] = await db
       .select()

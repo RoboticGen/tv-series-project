@@ -1,15 +1,24 @@
 "use server";
 
-import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, not, or, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { mediaAssets, projectLikes, projects, projectStars, submissions, users } from "@/db/schema";
+import {
+  mediaAssets,
+  projectLikes,
+  projects,
+  projectStars,
+  submissions,
+  users,
+} from "@/db/schema";
 import { createContentDoc, updateContentDoc, deleteContentDoc } from "@/db/content";
+import { untouchedDraft } from "@/db/untouched-draft";
 import { slugify, randomSlugSuffix } from "@/lib/slug";
 import { deleteUploadedFile } from "@/lib/storage";
 import { updateProjectSchema } from "@/lib/validation";
+import { newStep, type Step } from "@/lib/steps";
 
 async function requireSession() {
   const session = await auth();
@@ -29,8 +38,26 @@ async function generateUniqueSlug(title: string) {
 export async function createDraftProjectRecord() {
   const session = await requireSession();
 
+  // Reuse the author's empty draft if they already have one, and drop any
+  // extras left over from before this check existed.
+  const [reused, ...extras] = await db
+    .select({ id: projects.id, slug: projects.slug, contentDocId: projects.contentDocId })
+    .from(projects)
+    .where(and(eq(projects.authorId, session.user.id), untouchedDraft))
+    .orderBy(desc(projects.createdAt));
+  if (extras.length > 0) {
+    await Promise.all(extras.map((p) => deleteContentDoc(p.contentDocId)));
+    await db.delete(projects).where(
+      inArray(
+        projects.id,
+        extras.map((p) => p.id),
+      ),
+    );
+  }
+  if (reused) return { id: reused.id, slug: reused.slug };
+
   const slug = await generateUniqueSlug("untitled-project");
-  const contentDocId = await createContentDoc("project", "pending", "");
+  const contentDocId = await createContentDoc("project", "pending", [newStep()]);
 
   const [project] = await db
     .insert(projects)
@@ -57,7 +84,7 @@ export async function createDraftProject() {
 
 export async function updateProject(
   projectId: string,
-  input: { title: string; summary: string; category: string; body: string },
+  input: { title: string; summary: string; category: string; steps: Step[] },
 ) {
   const session = await requireSession();
   const parsed = updateProjectSchema.parse(input);
@@ -84,7 +111,7 @@ export async function updateProject(
       slug,
     })
     .where(eq(projects.id, projectId));
-  await updateContentDoc(project.contentDocId, parsed.body);
+  await updateContentDoc(project.contentDocId, parsed.steps);
 
   revalidatePath(`/projects/${slug}`);
   revalidatePath(`/projects/${slug}/edit`);
@@ -110,7 +137,7 @@ export async function setProjectCoverImage(projectId: string, mediaAssetId: stri
     .set({ coverImageId: mediaAssetId })
     .where(eq(projects.id, projectId));
 
-  // Replacing/removing a cover doesn't remove it from the write-up body if
+  // Replacing/removing a cover doesn't remove it from the write-up steps if
   // it happens to also be embedded there -- only clean up the file if
   // nothing else in media_assets still needs it as a distinct asset row.
   if (previousCoverImageId && previousCoverImageId !== mediaAssetId) {
@@ -156,6 +183,38 @@ export async function publishProject(projectId: string) {
       rejectionReason: null,
       reviewedById: null,
       reviewedAt: null,
+    })
+    .where(eq(projects.id, projectId));
+
+  revalidatePath(`/projects/${project.slug}`);
+  revalidatePath(`/projects/${project.slug}/edit`);
+  revalidatePath("/dashboard");
+  revalidatePath("/projects");
+}
+
+// Author reverting their own live project to a draft. Distinct from
+// review.ts unpublishProject (moderation takedown -> 'rejected' + reason).
+export async function revertProjectToDraft(projectId: string) {
+  const session = await requireSession();
+
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, projectId));
+  if (!project || project.authorId !== session.user.id) {
+    throw new Error("Not authorized to unpublish this project");
+  }
+  if (project.status !== "published") {
+    throw new Error("Only published projects can be unpublished");
+  }
+
+  await db
+    .update(projects)
+    .set({
+      status: "draft",
+      // A draft is no longer featured anywhere -- same as a takedown.
+      isFeatured: false,
+      publishedAt: null,
     })
     .where(eq(projects.id, projectId));
 
@@ -425,7 +484,7 @@ export async function getMyProjects(userId: string) {
       coverImageId: projects.coverImageId,
     })
     .from(projects)
-    .where(eq(projects.authorId, userId))
+    .where(and(eq(projects.authorId, userId), not(untouchedDraft)))
     .orderBy(desc(projects.createdAt));
 
   return rows.map(({ coverImageId, ...row }) => ({
