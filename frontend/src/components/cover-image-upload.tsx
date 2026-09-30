@@ -4,46 +4,35 @@ import * as React from "react";
 import Image from "next/image";
 import { ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { uploadMediaAsset } from "@/actions/media";
-import { setProjectCoverImage } from "@/actions/projects";
+import { assertUploadableImage } from "@/lib/pending-images";
 
+// Controlled by ProjectForm: picking or removing a cover only changes the
+// local preview -- the upload to S3 and the project update happen when the
+// form is saved.
 interface CoverImageUploadProps {
-  projectId: string;
-  initialUrl: string | null;
+  url: string | null;
+  onSelect: (file: File) => void;
+  onRemove: () => void;
+  disabled?: boolean;
 }
 
-export function CoverImageUpload({ projectId, initialUrl }: CoverImageUploadProps) {
-  const [url, setUrl] = React.useState(initialUrl);
-  const [isUploading, setIsUploading] = React.useState(false);
+export function CoverImageUpload({ url, onSelect, onRemove, disabled = false }: CoverImageUploadProps) {
   const [error, setError] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  async function handleFile(file: File) {
+  function handleFile(file: File) {
     setError(null);
-    setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.set("file", file);
-      formData.set("ownerType", "project");
-      formData.set("ownerId", projectId);
-      const asset = await uploadMediaAsset(formData);
-      await setProjectCoverImage(projectId, asset.id);
-      setUrl(asset.url);
+      assertUploadableImage(file);
+      onSelect(file);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload cover image");
-    } finally {
-      setIsUploading(false);
+      setError(err instanceof Error ? err.message : "Couldn't use that image");
     }
   }
 
-  async function handleRemove() {
+  function handleRemove() {
     setError(null);
-    try {
-      await setProjectCoverImage(projectId, null);
-      setUrl(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove cover image");
-    }
+    onRemove();
   }
 
   return (
@@ -64,16 +53,16 @@ export function CoverImageUpload({ projectId, initialUrl }: CoverImageUploadProp
               size="sm"
               variant="secondary"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
+              disabled={disabled}
             >
-              {isUploading ? "Uploading…" : "Replace"}
+              Replace
             </Button>
             <Button
               type="button"
               size="icon-sm"
               variant="secondary"
               onClick={handleRemove}
-              disabled={isUploading}
+              disabled={disabled}
             >
               <X className="size-4" />
             </Button>
@@ -83,11 +72,11 @@ export function CoverImageUpload({ projectId, initialUrl }: CoverImageUploadProp
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
+          disabled={disabled}
           className="flex h-48 w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors hover:border-brand-teal hover:text-brand-teal disabled:opacity-50"
         >
           <ImagePlus className="size-6" />
-          {isUploading ? "Uploading…" : "Add a cover image"}
+          Add a cover image
         </button>
       )}
       <input
@@ -97,7 +86,7 @@ export function CoverImageUpload({ projectId, initialUrl }: CoverImageUploadProp
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) void handleFile(file);
+          if (file) handleFile(file);
           event.target.value = "";
         }}
       />

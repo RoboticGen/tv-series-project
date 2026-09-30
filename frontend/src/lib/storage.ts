@@ -83,12 +83,17 @@ export async function getUploadedFile(
   }
 }
 
+// Best-effort: callers run this after the owning rows are already gone,
+// so a failure here must not fail the request. S3 treats deleting a
+// missing key as success, so anything that does throw (bad credentials,
+// missing s3:DeleteObject permission, network) is worth logging -- it
+// means an orphaned object is left in the bucket.
 export async function deleteUploadedFile(key: string): Promise<void> {
   try {
     await getClient().send(
       new DeleteObjectCommand({ Bucket: getBucket(), Key: key }),
     );
-  } catch {
-    // Best-effort -- the object may already be gone, that's fine.
+  } catch (err) {
+    console.error(`Failed to delete S3 object "${key}"`, err);
   }
 }

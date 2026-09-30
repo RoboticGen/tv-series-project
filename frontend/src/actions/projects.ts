@@ -1,11 +1,11 @@
 "use server";
 
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { mediaAssets, projectLikes, projects, projectStars, users } from "@/db/schema";
+import { mediaAssets, projectLikes, projects, projectStars, submissions, users } from "@/db/schema";
 import { createContentDoc, updateContentDoc, deleteContentDoc } from "@/db/content";
 import { slugify, randomSlugSuffix } from "@/lib/slug";
 import { deleteUploadedFile } from "@/lib/storage";
@@ -176,17 +176,35 @@ export async function deleteProject(projectId: string) {
     throw new Error("Not authorized to delete this project");
   }
 
+  // Postgres cascades the project row's likes/stars/submissions and the
+  // media_assets rows of both the project and those submissions; the S3
+  // objects and Mongo bodies behind them aren't Postgres's problem --
+  // collect them first, same as deleteUser does.
+  const projectSubmissions = await db
+    .select({ id: submissions.id, contentDocId: submissions.contentDocId })
+    .from(submissions)
+    .where(eq(submissions.projectId, projectId));
+  const submissionIds = projectSubmissions.map((s) => s.id);
+
   const assets = await db
     .select({ filePath: mediaAssets.filePath })
     .from(mediaAssets)
-    .where(and(eq(mediaAssets.ownerType, "project"), eq(mediaAssets.ownerId, projectId)));
+    .where(
+      or(
+        and(eq(mediaAssets.ownerType, "project"), eq(mediaAssets.ownerId, projectId)),
+        submissionIds.length > 0
+          ? and(eq(mediaAssets.ownerType, "submission"), inArray(mediaAssets.ownerId, submissionIds))
+          : undefined,
+      ),
+    );
 
-  // Postgres cascade deletes the project row's likes/stars/submissions/
-  // media_assets rows; the files on disk and the Mongo body aren't
-  // Postgres's problem, clean those up ourselves first.
-  await Promise.all(assets.map((a) => deleteUploadedFile(a.filePath)));
-  await deleteContentDoc(project.contentDocId);
+  // Delete the rows first: if that fails nothing is lost, whereas files
+  // deleted ahead of a failed row delete would leave broken images behind.
   await db.delete(projects).where(eq(projects.id, projectId));
+  await Promise.all(assets.map((a) => deleteUploadedFile(a.filePath)));
+  await Promise.all(
+    [project, ...projectSubmissions].map((row) => deleteContentDoc(row.contentDocId)),
+  );
 
   revalidatePath("/dashboard");
 }

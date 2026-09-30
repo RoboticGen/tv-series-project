@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/select";
 import { MarkdownEditor } from "@/components/markdown-editor";
 import { CoverImageUpload } from "@/components/cover-image-upload";
-import { updateProject, publishProject } from "@/actions/projects";
+import { updateProject, publishProject, setProjectCoverImage } from "@/actions/projects";
+import { uploadImage, usePendingImages } from "@/lib/pending-images";
 import { projectCategory } from "@/db/schema";
 import { CATEGORY_LABELS } from "@/lib/categories";
 
@@ -55,21 +56,51 @@ export function ProjectForm({
   const [summary, setSummary] = React.useState(initialSummary);
   const [category, setCategory] = React.useState(initialCategory);
   const [body, setBody] = React.useState(initialBody);
+  const pendingImages = usePendingImages();
+  // `file` is set while a newly picked cover is only a local preview;
+  // `changed` marks a pick or removal that hasn't been saved yet.
+  const [cover, setCover] = React.useState<{
+    url: string | null;
+    file: File | null;
+    changed: boolean;
+  }>({ url: initialCoverImageUrl, file: null, changed: false });
   const [isSaving, setIsSaving] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const canPublish = status === "draft" || status === "rejected";
 
-  async function handleSave() {
+  function replaceCover(next: { url: string | null; file: File | null }) {
+    if (cover.file && cover.url) URL.revokeObjectURL(cover.url);
+    setCover({ ...next, changed: true });
+  }
+
+  async function saveCover() {
+    if (!cover.changed) return;
+    if (cover.file) {
+      const asset = await uploadImage(cover.file, "project", projectId);
+      await setProjectCoverImage(projectId, asset.id);
+      if (cover.url) URL.revokeObjectURL(cover.url);
+      setCover({ url: asset.url, file: null, changed: false });
+    } else {
+      await setProjectCoverImage(projectId, null);
+      setCover({ url: null, file: null, changed: false });
+    }
+  }
+
+  // Returns whether the save succeeded, so publishing never goes ahead
+  // on top of a failed save.
+  async function handleSave(): Promise<boolean> {
     setError(null);
     setIsSaving(true);
     try {
+      const savedBody = await pendingImages.uploadReferenced(body, "project", projectId);
+      await saveCover();
       const { slug } = await updateProject(projectId, {
         title,
         summary,
         category,
-        body,
+        body: savedBody,
       });
       if (inModal) {
         router.replace(`/projects/${slug}/edit`);
@@ -77,8 +108,10 @@ export function ProjectForm({
         router.push(`/projects/${slug}/edit`);
       }
       router.refresh();
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -88,7 +121,7 @@ export function ProjectForm({
     setError(null);
     setIsPublishing(true);
     try {
-      await handleSave();
+      if (!(await handleSave())) return;
       await publishProject(projectId);
       router.refresh();
     } catch (err) {
@@ -120,7 +153,12 @@ export function ProjectForm({
         <CardContent className="space-y-5">
           <div className="space-y-2">
             <Label>Cover image</Label>
-            <CoverImageUpload projectId={projectId} initialUrl={initialCoverImageUrl} />
+            <CoverImageUpload
+              url={cover.url}
+              onSelect={(file) => replaceCover({ url: URL.createObjectURL(file), file })}
+              onRemove={() => replaceCover({ url: null, file: null })}
+              disabled={isSaving || isPublishing}
+            />
           </div>
 
           <div className="space-y-2">
@@ -170,15 +208,14 @@ export function ProjectForm({
           <CardTitle>Write-up</CardTitle>
           <CardDescription>
             The step-by-step build guide, in Markdown. Drag, paste, or use the
-            toolbar to add images.
+            toolbar to add images — they upload when you save.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <MarkdownEditor
             value={body}
             onChange={setBody}
-            ownerType="project"
-            ownerId={projectId}
+            onImageAdd={pendingImages.add}
             placeholder="Write the step-by-step build guide here…"
           />
         </CardContent>

@@ -41,8 +41,6 @@ export function SubmissionForm({ projectId, isAuthor }: SubmissionFormProps) {
       <MarkdownEditor
         value={body}
         onChange={setBody}
-        ownerType="submission"
-        ownerId={null}
         placeholder="Write about how your build went…"
       />
       {isAuthor ? (
