@@ -1,9 +1,8 @@
-import { createReadStream } from "node:fs";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { mediaAssets, projects, submissions } from "@/db/schema";
-import { resolveMediaPath } from "@/lib/storage";
+import { getUploadedFile } from "@/lib/storage";
 
 const CONTENT_TYPE_BY_EXTENSION: Record<string, string> = {
   png: "image/png",
@@ -53,18 +52,8 @@ export async function GET(
   const extension = asset.filePath.split(".").pop()?.toLowerCase() ?? "";
   const contentType = CONTENT_TYPE_BY_EXTENSION[extension] ?? "application/octet-stream";
 
-  const absolutePath = resolveMediaPath(asset.filePath);
-  const stream = createReadStream(absolutePath);
-  const body = new ReadableStream({
-    start(controller) {
-      stream.on("data", (chunk) => controller.enqueue(chunk));
-      stream.on("end", () => controller.close());
-      stream.on("error", (err) => controller.error(err));
-    },
-    cancel() {
-      stream.destroy();
-    },
-  });
+  const body = await getUploadedFile(asset.filePath);
+  if (!body) return new Response(null, { status: 404 });
 
   return new Response(body, {
     headers: {

@@ -52,9 +52,9 @@ mongodb://roboticgen:roboticgen@localhost:27017
   helpers in `frontend/src/db/content.ts`. There is no schema migration
   for this -- it's a single `content_docs` collection, no fixed shape
   enforced by Mongo itself.
-- **Images live on local disk**, referenced by `media_assets.file_path`
-  (relative to `STORAGE_ROOT`, an env var read by
-  `frontend/src/lib/storage.ts` -- kept outside `frontend/public/` so
+- **Images live in a private S3 bucket**, referenced by
+  `media_assets.file_path` (the object key in `S3_BUCKET`, read by
+  `frontend/src/lib/storage.ts` -- the bucket is never public, so
   every read goes through the ownership-checked
   `frontend/src/app/api/media/[id]/route.ts` instead of static hosting). `media_assets` is polymorphic
   (`owner_type` + `owner_id`) so projects and submissions share one

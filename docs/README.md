@@ -25,7 +25,7 @@ flowchart LR
 | Auth | Auth.js v5 · Google OAuth · JWT sessions |
 | Relational DB | PostgreSQL 16 (Docker) |
 | Document DB | MongoDB 7 (Docker) |
-| Image storage | Local disk via `STORAGE_ROOT` env var |
+| Image storage | Private S3 bucket via `S3_BUCKET` env var |
 
 ---
 
@@ -97,9 +97,14 @@ CLIENT_SECRET=your-google-client-secret
 AUTH_SECRET=your-auth-secret
 
 # ── Image storage ─────────────────────────────────────────────────────────────
-# Absolute path to a directory where uploaded images will be stored.
-# Must be outside frontend/public/ (reads are served through the API, not statically).
-STORAGE_ROOT=/tmp/roboticgen-uploads
+# Private S3 bucket for uploaded images (reads are served through the API,
+# never directly from the bucket). Set S3_ENDPOINT only for S3-compatible
+# servers such as local MinIO.
+S3_BUCKET=your-bucket
+S3_REGION=ap-south-1
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+S3_ENDPOINT=
 ```
 
 ### Getting Google OAuth credentials
