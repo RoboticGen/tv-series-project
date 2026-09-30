@@ -39,12 +39,7 @@ export function SubmissionForm({ projectId, isAuthor }: SubmissionFormProps) {
 
   return (
     <div className="space-y-6">
-      <StepsEditor
-        steps={steps}
-        onChange={setSteps}
-        ownerType="submission"
-        ownerId={null}
-      />
+      <StepsEditor steps={steps} onChange={setSteps} />
       {isAuthor ? (
         <label className="flex items-center gap-3 rounded-xl border bg-card/50 p-3 text-sm">
           <Switch checked={isPublic} onCheckedChange={setIsPublic} />

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq, sql } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { dbHolder, sessionHolder, type UserRole } from "../setup/global-mocks";
@@ -13,6 +13,8 @@ import {
   toggleStar,
   updateProject,
 } from "@/actions/projects";
+import { deleteContentDoc } from "@/db/content";
+import { deleteUploadedFile } from "@/lib/storage";
 
 let handle: TestDbHandle;
 
@@ -270,6 +272,42 @@ describe("deleteProject ownership", () => {
 
     const remaining = await db.select().from(schema.projects).where(eq(schema.projects.id, project.id));
     expect(remaining).toHaveLength(0);
+  });
+
+  it("removes the S3 images and Mongo docs of the project and its submissions", async () => {
+    const { db } = handle;
+    const owner = await insertUser(db);
+    const builder = await insertUser(db);
+    const project = await insertProject(db, owner.id, { contentDocId: "project-doc" });
+    const [submission] = await db
+      .insert(schema.submissions)
+      .values({ projectId: project.id, userId: builder.id, contentDocId: "submission-doc" })
+      .returning();
+    await db.insert(schema.mediaAssets).values([
+      { ownerType: "project", ownerId: project.id, filePath: `project/${project.id}/a.png` },
+      { ownerType: "submission", ownerId: submission.id, filePath: `submission/${submission.id}/b.png` },
+    ]);
+    const unrelated = await insertProject(db, owner.id);
+    await db.insert(schema.mediaAssets).values({
+      ownerType: "project",
+      ownerId: unrelated.id,
+      filePath: `project/${unrelated.id}/keep.png`,
+    });
+    vi.mocked(deleteUploadedFile).mockClear();
+    vi.mocked(deleteContentDoc).mockClear();
+    signInAs(owner);
+
+    await deleteProject(project.id);
+
+    expect(vi.mocked(deleteUploadedFile).mock.calls.map(([key]) => key).sort()).toEqual(
+      [`project/${project.id}/a.png`, `submission/${submission.id}/b.png`].sort(),
+    );
+    expect(vi.mocked(deleteContentDoc).mock.calls.map(([id]) => id).sort()).toEqual([
+      "project-doc",
+      "submission-doc",
+    ]);
+    const remainingAssets = await db.select().from(schema.mediaAssets);
+    expect(remainingAssets.map((a) => a.ownerId)).toEqual([unrelated.id]);
   });
 });
 

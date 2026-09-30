@@ -38,7 +38,6 @@ import {
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { Clapperboard } from "lucide-react";
-import { uploadMediaAsset } from "@/actions/media";
 import { parseEmbedUrl } from "@/lib/embeds";
 import { EmbedBlock, EmbedFallback } from "@/components/embed-block";
 import "./markdown-editor.css";
@@ -46,8 +45,9 @@ import "./markdown-editor.css";
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
-  ownerType: "project" | "submission";
-  ownerId: string | null;
+  // Called for each image the user adds; returns the URL the editor shows
+  // (a local blob: preview -- see usePendingImages). Omit to disable images.
+  onImageAdd?: (file: File) => string;
   placeholder?: string;
 }
 
@@ -131,24 +131,22 @@ const CODE_BLOCK_LANGUAGES: Record<string, string> = {
 export function MarkdownEditor({
   value,
   onChange,
-  ownerType,
-  ownerId,
+  onImageAdd,
   placeholder,
 }: MarkdownEditorProps) {
-  const canUploadImages = ownerId !== null;
+  const canUploadImages = onImageAdd !== undefined;
   const editorRef = React.useRef<MDXEditorMethods>(null);
 
   const handleImageUpload = React.useCallback(
     async (file: File) => {
-      if (!ownerId) throw new Error("Save once to enable image uploads.");
-      const formData = new FormData();
-      formData.set("file", file);
-      formData.set("ownerType", ownerType);
-      formData.set("ownerId", ownerId);
-      const { url } = await uploadMediaAsset(formData);
-      return url;
+      try {
+        return onImageAdd!(file);
+      } catch (err) {
+        window.alert(err instanceof Error ? err.message : "Couldn't add that image");
+        throw err;
+      }
     },
-    [ownerType, ownerId],
+    [onImageAdd],
   );
 
   return (
@@ -203,8 +201,8 @@ export function MarkdownEditor({
       />
       <div className="border-t px-3 py-2 text-xs text-muted-foreground">
         {canUploadImages
-          ? "Type ** for bold, ## for a heading, or use the toolbar. Drag, paste, or use the image button to add pictures."
-          : "Markdown supported. Save once to enable image uploads."}
+          ? "Type ** for bold, ## for a heading, or use the toolbar. Drag, paste, or use the image button to add pictures — they upload when you save."
+          : "Markdown supported."}
       </div>
     </div>
   );

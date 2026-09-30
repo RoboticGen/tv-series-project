@@ -6,19 +6,18 @@ import { ArrowDown, ArrowUp, ImagePlus, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MarkdownEditor } from "@/components/markdown-editor";
-import { uploadMediaAsset } from "@/actions/media";
 import { MAX_IMAGES_PER_STEP, MAX_STEPS, newStep, type Step } from "@/lib/steps";
 
 interface StepsEditorProps {
   steps: Step[];
   onChange: (steps: Step[]) => void;
-  ownerType: "project" | "submission";
-  // null until the owner row exists (a submission being written for the
-  // first time) -- image uploads need an owner to check access against.
-  ownerId: string | null;
+  // Called for each image added to a step's gallery or body; returns the
+  // local blob: preview URL shown until the form saves (see
+  // usePendingImages). Omit to disable images.
+  onImageAdd?: (file: File) => string;
 }
 
-export function StepsEditor({ steps, onChange, ownerType, ownerId }: StepsEditorProps) {
+export function StepsEditor({ steps, onChange, onImageAdd }: StepsEditorProps) {
   function updateStep(id: string, patch: Partial<Step>) {
     onChange(steps.map((step) => (step.id === id ? { ...step, ...patch } : step)));
   }
@@ -86,19 +85,17 @@ export function StepsEditor({ steps, onChange, ownerType, ownerId }: StepsEditor
           </div>
 
           <div className="space-y-4 p-4">
-            {ownerId ? (
+            {onImageAdd ? (
               <StepImages
                 images={step.images}
                 onChange={(images) => updateStep(step.id, { images })}
-                ownerType={ownerType}
-                ownerId={ownerId}
+                onImageAdd={onImageAdd}
               />
             ) : null}
             <MarkdownEditor
               value={step.body}
               onChange={(body) => updateStep(step.id, { body })}
-              ownerType={ownerType}
-              ownerId={ownerId}
+              onImageAdd={onImageAdd}
               placeholder="Describe what to do in this step…"
             />
           </div>
@@ -122,35 +119,25 @@ export function StepsEditor({ steps, onChange, ownerType, ownerId }: StepsEditor
 interface StepImagesProps {
   images: string[];
   onChange: (images: string[]) => void;
-  ownerType: "project" | "submission";
-  ownerId: string;
+  onImageAdd: (file: File) => string;
 }
 
-function StepImages({ images, onChange, ownerType, ownerId }: StepImagesProps) {
-  const [isUploading, setIsUploading] = React.useState(false);
+function StepImages({ images, onChange, onImageAdd }: StepImagesProps) {
   const [error, setError] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const remaining = MAX_IMAGES_PER_STEP - images.length;
 
-  async function handleFiles(files: File[]) {
+  function handleFiles(files: File[]) {
     setError(null);
-    setIsUploading(true);
-    try {
-      const urls: string[] = [];
-      for (const file of files.slice(0, remaining)) {
-        const formData = new FormData();
-        formData.set("file", file);
-        formData.set("ownerType", ownerType);
-        formData.set("ownerId", ownerId);
-        const { url } = await uploadMediaAsset(formData);
-        urls.push(url);
+    const urls: string[] = [];
+    for (const file of files.slice(0, remaining)) {
+      try {
+        urls.push(onImageAdd(file));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Couldn't add that image");
       }
-      onChange([...images, ...urls]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload image");
-    } finally {
-      setIsUploading(false);
     }
+    if (urls.length > 0) onChange([...images, ...urls]);
   }
 
   return (
@@ -175,11 +162,10 @@ function StepImages({ images, onChange, ownerType, ownerId }: StepImagesProps) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
             className="flex aspect-4/3 flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-xs text-muted-foreground transition-colors hover:border-brand-teal hover:text-brand-teal disabled:opacity-50"
           >
             <ImagePlus className="size-5" />
-            {isUploading ? "Uploading…" : "Add images"}
+            Add images
           </button>
         ) : null}
       </div>
@@ -191,7 +177,7 @@ function StepImages({ images, onChange, ownerType, ownerId }: StepImagesProps) {
         className="hidden"
         onChange={(event) => {
           const files = Array.from(event.target.files ?? []);
-          if (files.length > 0) void handleFiles(files);
+          if (files.length > 0) handleFiles(files);
           event.target.value = "";
         }}
       />

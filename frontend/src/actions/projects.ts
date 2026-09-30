@@ -235,11 +235,15 @@ export async function deleteProject(projectId: string) {
     throw new Error("Not authorized to delete this project");
   }
 
-  const doomedSubmissions = await db
+  // Postgres cascades the project row's likes/stars/submissions and the
+  // media_assets rows of both the project and those submissions; the S3
+  // objects and Mongo bodies behind them aren't Postgres's problem --
+  // collect them first, same as deleteUser does.
+  const projectSubmissions = await db
     .select({ id: submissions.id, contentDocId: submissions.contentDocId })
     .from(submissions)
     .where(eq(submissions.projectId, projectId));
-  const submissionIds = doomedSubmissions.map((s) => s.id);
+  const submissionIds = projectSubmissions.map((s) => s.id);
 
   const assets = await db
     .select({ filePath: mediaAssets.filePath })
@@ -253,15 +257,13 @@ export async function deleteProject(projectId: string) {
       ),
     );
 
-  // Postgres cascade deletes the project row's likes/stars/submissions/
-  // media_assets rows; the S3 objects and Mongo bodies (the project's and
-  // its submissions') aren't Postgres's problem, clean those up ourselves
-  // first.
+  // Delete the rows first: if that fails nothing is lost, whereas files
+  // deleted ahead of a failed row delete would leave broken images behind.
+  await db.delete(projects).where(eq(projects.id, projectId));
   await Promise.all(assets.map((a) => deleteUploadedFile(a.filePath)));
   await Promise.all(
-    [project, ...doomedSubmissions].map((row) => deleteContentDoc(row.contentDocId)),
+    [project, ...projectSubmissions].map((row) => deleteContentDoc(row.contentDocId)),
   );
-  await db.delete(projects).where(eq(projects.id, projectId));
 
   revalidatePath("/dashboard");
 }

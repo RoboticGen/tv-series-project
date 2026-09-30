@@ -23,7 +23,13 @@ import {
 } from "@/components/ui/select";
 import { StepsEditor } from "@/components/steps-editor";
 import { CoverImageUpload } from "@/components/cover-image-upload";
-import { updateProject, publishProject, revertProjectToDraft } from "@/actions/projects";
+import {
+  updateProject,
+  publishProject,
+  revertProjectToDraft,
+  setProjectCoverImage,
+} from "@/actions/projects";
+import { uploadImage, usePendingImages } from "@/lib/pending-images";
 import { projectCategory } from "@/db/schema";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import type { Step } from "@/lib/steps";
@@ -56,6 +62,14 @@ export function ProjectForm({
   const [summary, setSummary] = React.useState(initialSummary);
   const [category, setCategory] = React.useState(initialCategory);
   const [steps, setSteps] = React.useState(initialSteps);
+  const pendingImages = usePendingImages();
+  // `file` is set while a newly picked cover is only a local preview;
+  // `changed` marks a pick or removal that hasn't been saved yet.
+  const [cover, setCover] = React.useState<{
+    url: string | null;
+    file: File | null;
+    changed: boolean;
+  }>({ url: initialCoverImageUrl, file: null, changed: false });
   const [isSaving, setIsSaving] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [isUnpublishing, setIsUnpublishing] = React.useState(false);
@@ -72,27 +86,53 @@ export function ProjectForm({
     JSON.stringify({ title: initialTitle, summary: initialSummary, category: initialCategory, steps: initialSteps }),
   );
   const current = JSON.stringify({ title, summary, category, steps });
-  const isDirty = current !== saved;
+  const isDirty = current !== saved || cover.changed;
 
-  async function handleSave() {
+  function replaceCover(next: { url: string | null; file: File | null }) {
+    if (cover.file && cover.url) URL.revokeObjectURL(cover.url);
+    setCover({ ...next, changed: true });
+  }
+
+  async function saveCover() {
+    if (!cover.changed) return;
+    if (cover.file) {
+      const asset = await uploadImage(cover.file, "project", projectId);
+      await setProjectCoverImage(projectId, asset.id);
+      if (cover.url) URL.revokeObjectURL(cover.url);
+      setCover({ url: asset.url, file: null, changed: false });
+    } else {
+      await setProjectCoverImage(projectId, null);
+      setCover({ url: null, file: null, changed: false });
+    }
+  }
+
+  // Returns whether the save succeeded, so publishing never goes ahead
+  // on top of a failed save.
+  async function handleSave(): Promise<boolean> {
     setError(null);
     setIsSaving(true);
     try {
+      const savedSteps = await pendingImages.uploadReferencedInSteps(steps, "project", projectId);
+      await saveCover();
       const { slug } = await updateProject(projectId, {
         title,
         summary,
         category,
-        steps,
+        steps: savedSteps,
       });
-      setSaved(current);
+      const savedCurrent = JSON.stringify({ title, summary, category, steps: savedSteps });
+      setSteps(savedSteps);
+      setSaved(savedCurrent);
       if (inModal) {
         router.replace(`/projects/${slug}/edit`);
       } else {
         router.push(`/projects/${slug}/edit`);
       }
       router.refresh();
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -102,7 +142,7 @@ export function ProjectForm({
     setError(null);
     setIsPublishing(true);
     try {
-      if (isDirty) await handleSave();
+      if (isDirty && !(await handleSave())) return;
       await publishProject(projectId);
       router.refresh();
     } catch (err) {
@@ -150,7 +190,12 @@ export function ProjectForm({
         <CardContent className="space-y-5">
           <div className="space-y-2">
             <Label>Cover image</Label>
-            <CoverImageUpload projectId={projectId} initialUrl={initialCoverImageUrl} />
+            <CoverImageUpload
+              url={cover.url}
+              onSelect={(file) => replaceCover({ url: URL.createObjectURL(file), file })}
+              onRemove={() => replaceCover({ url: null, file: null })}
+              disabled={isBusy}
+            />
           </div>
 
           <div className="space-y-2">
@@ -200,15 +245,14 @@ export function ProjectForm({
           <CardTitle>Steps</CardTitle>
           <CardDescription>
             Break the build into steps. Each step gets a title, photos, and
-            instructions in Markdown.
+            instructions in Markdown. Images upload when you save.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <StepsEditor
             steps={steps}
             onChange={setSteps}
-            ownerType="project"
-            ownerId={projectId}
+            onImageAdd={pendingImages.add}
           />
         </CardContent>
       </Card>
