@@ -28,7 +28,7 @@ function AccordionItem({
     <AccordionPrimitive.Item
       data-slot="accordion-item"
       className={cn(
-        "overflow-hidden rounded-lg border-2 border-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]",
+        "overflow-hidden rounded-lg border-2 border-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
         className,
       )}
       {...props}
@@ -46,7 +46,7 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "flex flex-1 items-center justify-between gap-4 border-brand-navy bg-primary p-4 text-left text-base font-bold text-primary-foreground transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:border-white data-[state=open]:rounded-b-none data-[state=open]:border-b-2 [&[data-state=open]>svg]:rotate-180",
+          "flex flex-1 items-center justify-between gap-4 border-brand-navy bg-primary p-4 text-left text-base font-bold text-primary-foreground transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:border-edge data-[state=open]:rounded-b-none data-[state=open]:border-b-2 [&[data-state=open]>svg]:rotate-180",
           className,
         )}
         {...props}

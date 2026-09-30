@@ -29,8 +29,8 @@ export function CollectionCard({
 }: CollectionCardProps) {
   return (
     <Link href={`/collections/${slug}`} className="block h-full">
-      <Card className="h-full pt-0 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_#fff]">
-        <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-brand-navy bg-muted dark:border-white">
+      <Card className="h-full pt-0 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_var(--edge)]">
+        <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-brand-navy bg-muted dark:border-edge">
           {coverImageUrls.length === 1 ? (
             <Image
               src={coverImageUrls[0]}

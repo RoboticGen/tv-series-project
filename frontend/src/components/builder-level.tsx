@@ -30,12 +30,12 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
   return (
     <section
       aria-labelledby="builder-level-heading"
-      className="flex flex-col gap-4 rounded-xl border-2 border-brand-navy bg-card p-5 shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[4px_4px_0_0_#fff]"
+      className="flex flex-col gap-4 rounded-xl border-2 border-brand-navy bg-card p-5 shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]"
     >
       <div className="flex items-center gap-3">
         <div
           className={cn(
-            "flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[3px_3px_0_0_#fff]",
+            "flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
             level.fill,
           )}
         >
@@ -48,12 +48,12 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
           >
             Your builder level
           </h2>
-          <p className="font-heading text-2xl font-black text-brand-navy dark:text-white">
+          <p className="font-heading text-2xl font-black text-brand-navy dark:text-foreground">
             {level.name}
           </p>
         </div>
         <p className="ml-auto text-right">
-          <span className="block font-heading text-2xl font-black tabular-nums lining-nums text-brand-navy dark:text-white">
+          <span className="block font-heading text-2xl font-black tabular-nums lining-nums text-brand-navy dark:text-foreground">
             {points}
           </span>
           <span className="text-xs font-bold text-muted-foreground uppercase">points</span>
@@ -91,9 +91,9 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
             >
               <div
                 className={cn(
-                  "flex size-9 items-center justify-center rounded-full border-2 border-brand-navy dark:border-white",
+                  "flex size-9 items-center justify-center rounded-full border-2 border-brand-navy dark:border-edge",
                   reached ? cn(step.fill, "text-brand-navy") : "bg-muted text-muted-foreground",
-                  current && "ring-3 ring-brand-navy ring-offset-2 ring-offset-card dark:ring-white",
+                  current && "ring-3 ring-brand-navy ring-offset-2 ring-offset-card dark:ring-edge",
                 )}
               >
                 <StepIcon className="size-4" aria-hidden />
@@ -114,7 +114,7 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
         })}
       </ol>
 
-      <ul aria-label="How to earn points" className="grid border-t-2 border-dashed border-brand-navy/20 pt-3 dark:border-white/20 grid-cols-2 gap-x-3 gap-y-1 text-xs font-bold text-muted-foreground">
+      <ul aria-label="How to earn points" className="grid border-t-2 border-dashed border-brand-navy/20 pt-3 dark:border-edge/20 grid-cols-2 gap-x-3 gap-y-1 text-xs font-bold text-muted-foreground">
         <li>Try a build: +{pointValues.submission_created}</li>
         <li>Get featured: +{pointValues.project_featured}</li>
         <li>Each star you get: +{pointValues.star_received}</li>

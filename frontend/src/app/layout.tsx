@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Raleway, Inter, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const raleway = Raleway({
@@ -31,7 +32,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${raleway.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}
+      // THEME_INIT_SCRIPT may add `dark` before React hydrates.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <Providers>
           {children}

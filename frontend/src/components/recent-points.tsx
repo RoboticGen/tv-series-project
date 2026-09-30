@@ -47,7 +47,7 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
   return (
     <section
       aria-labelledby="recent-points-heading"
-      className="rounded-xl border-2 border-brand-navy bg-card p-4 shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-white dark:shadow-[4px_4px_0_0_#fff]"
+      className="rounded-xl border-2 border-brand-navy bg-card p-4 shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]"
     >
       <h2
         id="recent-points-heading"
@@ -71,7 +71,7 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
               <li key={event.id} className="flex items-center gap-3 text-sm">
                 <span
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy dark:border-white",
+                    "flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy dark:border-edge",
                     fill,
                   )}
                 >
@@ -95,7 +95,7 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
                     {timeAgo(event.createdAt)}
                   </span>
                 </p>
-                <span className="shrink-0 rounded-full border-2 border-brand-navy bg-brand-green/20 px-2 py-0.5 font-sans font-black tabular-nums text-brand-navy dark:border-white dark:text-white">
+                <span className="shrink-0 rounded-full border-2 border-brand-navy bg-brand-green/20 px-2 py-0.5 font-sans font-black tabular-nums text-brand-navy dark:border-edge dark:text-foreground">
                   +{event.points}
                 </span>
               </li>

@@ -56,7 +56,7 @@ export default async function CollectionDetailPage({
         ) : null}
       </div>
 
-      <h1 className="mt-2 font-heading text-balance text-2xl font-bold text-brand-navy dark:text-white">
+      <h1 className="mt-2 font-heading text-balance text-2xl font-bold text-brand-navy dark:text-foreground">
         {collection.title}
       </h1>
       {collection.description ? (

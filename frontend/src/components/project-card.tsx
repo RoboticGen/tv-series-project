@@ -28,7 +28,7 @@ interface ProjectCardProps {
 
 export function ProjectCardSkeleton() {
   return (
-    <div className="flex h-full flex-col gap-4 overflow-hidden rounded-lg border-2 border-brand-navy bg-card py-4 dark:border-white">
+    <div className="flex h-full flex-col gap-4 overflow-hidden rounded-lg border-2 border-brand-navy bg-card py-4 dark:border-edge">
       <div className="aspect-video w-full animate-pulse bg-muted" />
       <div className="flex flex-col gap-2 px-4">
         <div className="h-5 w-20 animate-pulse rounded-sm bg-muted" />
@@ -36,7 +36,7 @@ export function ProjectCardSkeleton() {
         <div className="h-4 w-full animate-pulse rounded bg-muted" />
         <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
       </div>
-      <div className="mt-auto flex items-center justify-between border-t-2 border-brand-navy bg-muted/50 px-4 pt-4 dark:border-white">
+      <div className="mt-auto flex items-center justify-between border-t-2 border-brand-navy bg-muted/50 px-4 pt-4 dark:border-edge">
         <div className="h-4 w-20 animate-pulse rounded bg-muted" />
         <div className="h-4 w-16 animate-pulse rounded bg-muted" />
       </div>
@@ -61,11 +61,11 @@ export function ProjectCard({
     <Link href={href ?? `/projects/${slug}`} className="block h-full">
       <Card
         className={cn(
-          "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_#fff]",
+          "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_var(--edge)]",
           isFeatured && "bg-brand-yellow/10 dark:bg-brand-yellow/5",
         )}
       >
-        <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-brand-navy bg-muted dark:border-white">
+        <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-brand-navy bg-muted dark:border-edge">
           {coverImageUrl ? (
             <Image
               src={coverImageUrl}

@@ -11,7 +11,7 @@ export default function Error({
 }) {
   return (
     <div className="mx-auto max-w-6xl px-6 py-24 text-center">
-      <h2 className="font-heading text-xl font-bold text-brand-navy dark:text-white">
+      <h2 className="font-heading text-xl font-bold text-brand-navy dark:text-foreground">
         Couldn&apos;t load users
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>

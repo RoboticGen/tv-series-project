@@ -15,13 +15,13 @@ function SpotlightHeader() {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <span className="inline-flex items-center gap-1.5 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-white">
+        <span className="inline-flex items-center gap-1.5 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge">
           <Sparkles className="size-3.5" aria-hidden />
           Featured builds
         </span>
         <h2
           id="featured-heading"
-          className="mt-2 font-heading text-2xl font-black tracking-tight text-balance text-brand-navy sm:text-3xl dark:text-white"
+          className="mt-2 font-heading text-2xl font-black tracking-tight text-balance text-brand-navy sm:text-3xl dark:text-foreground"
         >
           Pick one and build it too!
         </h2>
@@ -45,7 +45,7 @@ export function FeaturedSpotlightSkeleton({ className }: { className?: string })
     <section id="featured" aria-labelledby="featured-heading" aria-busy="true" className={cn("scroll-mt-6", className)}>
       <SpotlightHeader />
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="h-80 animate-pulse rounded-xl border-2 border-brand-navy bg-muted lg:col-span-3 dark:border-white" />
+        <div className="h-80 animate-pulse rounded-xl border-2 border-brand-navy bg-muted lg:col-span-3 dark:border-edge" />
         {Array.from({ length: SPOTLIGHT_SIZE - 1 }, (_, i) => (
           <ProjectCardSkeleton key={i} />
         ))}
@@ -82,9 +82,9 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
       <div className="mt-6 flex flex-col gap-6">
         <Link
           href={`/projects/${lead.slug}`}
-          className="group grid overflow-hidden rounded-xl border-2 border-brand-navy bg-brand-yellow/15 shadow-[6px_6px_0_0_var(--brand-navy)] outline-none motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_0_var(--brand-navy)] focus-visible:ring-4 focus-visible:ring-ring/60 md:grid-cols-2 dark:border-white dark:shadow-[6px_6px_0_0_#fff] dark:hover:shadow-[8px_8px_0_0_#fff]"
+          className="group grid overflow-hidden rounded-xl border-2 border-brand-navy bg-brand-yellow/15 shadow-[6px_6px_0_0_var(--brand-navy)] outline-none motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_0_var(--brand-navy)] focus-visible:ring-4 focus-visible:ring-ring/60 md:grid-cols-2 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)] dark:hover:shadow-[8px_8px_0_0_var(--edge)]"
         >
-          <div className="relative aspect-video border-b-2 border-brand-navy bg-muted md:aspect-auto md:min-h-72 md:border-r-2 md:border-b-0 dark:border-white">
+          <div className="relative aspect-video border-b-2 border-brand-navy bg-muted md:aspect-auto md:min-h-72 md:border-r-2 md:border-b-0 dark:border-edge">
             {lead.coverImageUrl ? (
               <Image
                 src={lead.coverImageUrl}
@@ -107,7 +107,7 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
           </div>
           <div className="flex flex-col gap-3 p-6">
             <Badge variant="secondary">{CATEGORY_LABELS[lead.category] ?? lead.category}</Badge>
-            <h3 className="font-heading text-2xl font-black text-balance text-brand-navy sm:text-3xl dark:text-white">
+            <h3 className="font-heading text-2xl font-black text-balance text-brand-navy sm:text-3xl dark:text-foreground">
               {lead.title}
             </h3>
             <p className="line-clamp-3 font-medium text-pretty text-muted-foreground">
@@ -115,7 +115,7 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
             </p>
             <p className="text-sm font-bold text-foreground">by {lead.authorName}</p>
             <div className="mt-auto flex flex-wrap items-center gap-4 pt-2">
-              <span className="inline-flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] motion-safe:transition-all group-hover:translate-x-[3px] group-hover:translate-y-[3px] group-hover:shadow-none dark:border-white dark:shadow-[3px_3px_0_0_#fff]">
+              <span className="inline-flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] motion-safe:transition-all group-hover:translate-x-[3px] group-hover:translate-y-[3px] group-hover:shadow-none dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]">
                 <Hammer className="size-4" aria-hidden />
                 Let&apos;s build it!
               </span>

@@ -75,7 +75,7 @@ function Section({
   return (
     <section id={id} className="scroll-mt-24 border-b py-12 first:pt-0 last:border-b-0">
       <div className="mb-6">
-        <h2 className="font-heading text-xl font-semibold text-brand-navy dark:text-white">
+        <h2 className="font-heading text-xl font-semibold text-brand-navy dark:text-foreground">
           {title}
         </h2>
         {description ? (
@@ -132,7 +132,7 @@ export default function UiPage() {
             <div className="flex size-8 items-center justify-center rounded-full bg-brand-teal text-sm font-bold text-white">
               R
             </div>
-            <span className="font-heading text-sm font-bold text-brand-navy dark:text-white">
+            <span className="font-heading text-sm font-bold text-brand-navy dark:text-foreground">
               RoboticGen Academy
             </span>
             <Badge variant="secondary" className="ml-2 hidden sm:inline-flex">
@@ -162,7 +162,7 @@ export default function UiPage() {
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-12">
           <p className="text-sm font-medium text-brand-teal">Design system</p>
-          <h1 className="mt-1 font-heading text-3xl font-bold text-brand-navy dark:text-white sm:text-4xl">
+          <h1 className="mt-1 font-heading text-3xl font-bold text-brand-navy dark:text-foreground sm:text-4xl">
             UI components
           </h1>
           <p className="mt-3 max-w-2xl text-muted-foreground">
@@ -200,13 +200,13 @@ export default function UiPage() {
           description="Raleway for headings (the brand's real display face), Inter for body text."
         >
           <div className="space-y-4 rounded-xl border bg-card p-6">
-            <h1 className="font-heading text-4xl font-bold text-brand-navy dark:text-white">
+            <h1 className="font-heading text-4xl font-bold text-brand-navy dark:text-foreground">
               Find Your Child&apos;s Superpower
             </h1>
-            <h2 className="font-heading text-2xl font-semibold text-brand-navy dark:text-white">
+            <h2 className="font-heading text-2xl font-semibold text-brand-navy dark:text-foreground">
               Heading 2 — section title
             </h2>
-            <h3 className="font-heading text-lg font-semibold text-brand-navy dark:text-white">
+            <h3 className="font-heading text-lg font-semibold text-brand-navy dark:text-foreground">
               Heading 3 — card title
             </h3>
             <p className="text-base text-foreground">

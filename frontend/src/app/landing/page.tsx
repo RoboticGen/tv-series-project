@@ -28,6 +28,7 @@ import { getPointValues, type PointValues } from "@/actions/points";
 import { getCommunityCounts } from "@/actions/projects";
 import { FeaturedSpotlight } from "@/components/featured-spotlight";
 import { LandingAuthButton } from "@/components/landing-auth-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LandingHeroCta } from "@/components/landing-hero-cta";
 import { LevelBoard } from "@/components/level-board";
 import { projectCategory } from "@/db/schema";
@@ -109,8 +110,8 @@ const SAFETY_ITEMS = [
   },
 ];
 
-const SHADOW = "shadow-[4px_4px_0_0_var(--brand-navy)] dark:shadow-[4px_4px_0_0_#fff]";
-const BORDER = "border-2 border-brand-navy dark:border-white";
+const SHADOW = "shadow-[4px_4px_0_0_var(--brand-navy)] dark:shadow-[4px_4px_0_0_var(--edge)]";
+const BORDER = "border-2 border-brand-navy dark:border-edge";
 
 function SectionHeading({
   id,
@@ -138,12 +139,12 @@ function SectionHeading({
       </span>
       <h2
         id={id}
-        className="mt-3 font-heading text-3xl font-black tracking-tight text-balance text-brand-navy sm:text-4xl dark:text-white"
+        className="mt-3 font-heading text-3xl font-black tracking-tight text-balance text-brand-navy sm:text-4xl dark:text-foreground"
       >
         {title}
       </h2>
       {desc ? (
-        <p className="mt-3 font-medium text-pretty text-brand-navy/75 dark:text-white/75">{desc}</p>
+        <p className="mt-3 font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">{desc}</p>
       ) : null}
     </div>
   );
@@ -162,7 +163,7 @@ function HeroIllustration({ pointValues }: { pointValues: PointValues }) {
       >
         <Bot className="size-2/5 text-white motion-safe:animate-bounce motion-safe:[animation-duration:3s]" strokeWidth={1.5} />
       </div>
-      <Cog className="absolute top-0 left-2 size-16 text-brand-navy motion-safe:animate-[spin_10s_linear_infinite] dark:text-white" />
+      <Cog className="absolute top-0 left-2 size-16 text-brand-navy motion-safe:animate-[spin_10s_linear_infinite] dark:text-foreground" />
       <Zap className="absolute right-4 bottom-10 size-12 fill-brand-yellow text-brand-navy" />
 
       <span
@@ -216,7 +217,7 @@ export default async function LandingPage() {
       </a>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b-2 border-brand-navy bg-background/95 backdrop-blur dark:border-white">
+      <header className="sticky top-0 z-50 border-b-2 border-brand-navy bg-background/95 backdrop-blur dark:border-edge">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Link href="/landing" className="flex items-center gap-2">
             <span
@@ -227,7 +228,7 @@ export default async function LandingPage() {
             >
               R
             </span>
-            <span className="font-heading font-black tracking-tight text-brand-navy dark:text-white">
+            <span className="font-heading font-black tracking-tight text-brand-navy dark:text-foreground">
               RoboticGen Projects
             </span>
           </Link>
@@ -236,13 +237,16 @@ export default async function LandingPage() {
               <a
                 key={link.id}
                 href={`#${link.id}`}
-                className="rounded-md border-2 border-transparent px-3 py-1.5 text-sm font-bold text-brand-navy transition-colors hover:border-brand-navy hover:bg-brand-yellow dark:text-white dark:hover:border-white dark:hover:text-brand-navy"
+                className="rounded-md border-2 border-transparent px-3 py-1.5 text-sm font-bold text-brand-navy transition-colors hover:border-brand-navy hover:bg-brand-yellow dark:text-foreground dark:hover:border-edge dark:hover:text-brand-navy"
               >
                 {link.label}
               </a>
             ))}
           </nav>
-          <LandingAuthButton />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LandingAuthButton />
+          </div>
         </div>
       </header>
 
@@ -250,11 +254,11 @@ export default async function LandingPage() {
         {/* Hero */}
         <section
           aria-labelledby="hero-heading"
-          className="relative overflow-hidden border-b-2 border-brand-navy bg-brand-sky/15 dark:border-white"
+          className="relative overflow-hidden border-b-2 border-brand-navy bg-brand-sky/15 dark:border-edge"
         >
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[radial-gradient(var(--brand-navy)_1px,transparent_1px)] [background-size:22px_22px] opacity-10 dark:bg-[radial-gradient(#fff_1px,transparent_1px)]"
+            className="absolute inset-0 -z-10 bg-[radial-gradient(var(--brand-navy)_1px,transparent_1px)] [background-size:22px_22px] opacity-10 dark:bg-[radial-gradient(var(--edge)_1px,transparent_1px)]"
           />
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
@@ -269,7 +273,7 @@ export default async function LandingPage() {
               </span>
               <h1
                 id="hero-heading"
-                className="mt-4 font-heading text-4xl leading-[1.05] font-black tracking-tight text-balance text-brand-navy sm:text-6xl dark:text-white"
+                className="mt-4 font-heading text-4xl leading-[1.05] font-black tracking-tight text-balance text-brand-navy sm:text-6xl dark:text-foreground"
               >
                 Build cool stuff.{" "}
                 <span className="relative inline-block">
@@ -281,7 +285,7 @@ export default async function LandingPage() {
                 </span>{" "}
                 <span className="text-brand-teal">Level up!</span>
               </h1>
-              <p className="mt-5 max-w-lg text-lg font-medium text-pretty text-brand-navy/75 dark:text-white/75">
+              <p className="mt-5 max-w-lg text-lg font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">
                 Robots, drones, gadgets and code. Try projects made by other kids, show off your
                 own inventions and earn points on your way to Robot Master.
               </p>
@@ -323,7 +327,7 @@ export default async function LandingPage() {
         <section
           id="how-it-works"
           aria-labelledby="how-heading"
-          className="scroll-mt-20 border-b-2 border-brand-navy py-16 sm:py-20 dark:border-white"
+          className="scroll-mt-20 border-b-2 border-brand-navy py-16 sm:py-20 dark:border-edge"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <SectionHeading
@@ -345,7 +349,7 @@ export default async function LandingPage() {
                   <span
                     aria-hidden
                     className={cn(
-                      "absolute -top-5 left-5 flex size-10 items-center justify-center rounded-full bg-brand-navy font-heading text-lg font-black text-white dark:bg-white dark:text-brand-navy",
+                      "absolute -top-5 left-5 flex size-10 items-center justify-center rounded-full bg-brand-navy font-heading text-lg font-black text-white dark:bg-foreground dark:text-brand-navy",
                       BORDER,
                     )}
                   >
@@ -360,10 +364,10 @@ export default async function LandingPage() {
                   >
                     <step.icon className="size-6" aria-hidden />
                   </span>
-                  <h3 className="font-heading text-xl font-black text-brand-navy dark:text-white">
+                  <h3 className="font-heading text-xl font-black text-brand-navy dark:text-foreground">
                     {step.title}
                   </h3>
-                  <p className="text-sm font-medium text-pretty text-brand-navy/75 dark:text-white/75">{step.body}</p>
+                  <p className="text-sm font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">{step.body}</p>
                 </li>
               ))}
             </ol>
@@ -371,7 +375,7 @@ export default async function LandingPage() {
         </section>
 
         {/* Featured projects -- same spotlight kids see on their dashboard */}
-        <div className="border-b-2 border-brand-navy bg-brand-yellow/10 py-16 sm:py-20 dark:border-white">
+        <div className="border-b-2 border-brand-navy bg-brand-yellow/10 py-16 sm:py-20 dark:border-edge">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <FeaturedSpotlight className="scroll-mt-24" />
           </div>
@@ -381,7 +385,7 @@ export default async function LandingPage() {
         <section
           id="categories"
           aria-labelledby="categories-heading"
-          className="scroll-mt-20 border-b-2 border-brand-navy py-16 sm:py-20 dark:border-white"
+          className="scroll-mt-20 border-b-2 border-brand-navy py-16 sm:py-20 dark:border-edge"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <SectionHeading
@@ -413,7 +417,7 @@ export default async function LandingPage() {
                       >
                         <Icon className="size-7" aria-hidden />
                       </span>
-                      <span className="font-heading text-sm font-black text-brand-navy dark:text-white">
+                      <span className="font-heading text-sm font-black text-brand-navy dark:text-foreground">
                         {CATEGORY_LABELS[value]}
                       </span>
                     </Link>
@@ -428,7 +432,7 @@ export default async function LandingPage() {
         <section
           id="levels"
           aria-labelledby="levels-heading"
-          className="scroll-mt-20 border-b-2 border-brand-navy bg-brand-teal py-16 text-white sm:py-20 dark:border-white"
+          className="scroll-mt-20 border-b-2 border-brand-navy bg-brand-teal py-16 text-white sm:py-20 dark:border-edge"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
@@ -460,7 +464,7 @@ export default async function LandingPage() {
         {/* For parents & teachers */}
         <section
           aria-labelledby="safety-heading"
-          className="border-b-2 border-brand-navy py-16 sm:py-20 dark:border-white"
+          className="border-b-2 border-brand-navy py-16 sm:py-20 dark:border-edge"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <SectionHeading
@@ -477,16 +481,16 @@ export default async function LandingPage() {
                 >
                   <span
                     className={cn(
-                      "flex size-11 items-center justify-center rounded-lg bg-brand-sky/30 text-brand-navy dark:text-white",
+                      "flex size-11 items-center justify-center rounded-lg bg-brand-sky/30 text-brand-navy dark:text-foreground",
                       BORDER,
                     )}
                   >
                     <item.icon className="size-5" aria-hidden />
                   </span>
-                  <h3 className="font-heading text-lg font-black text-brand-navy dark:text-white">
+                  <h3 className="font-heading text-lg font-black text-brand-navy dark:text-foreground">
                     {item.title}
                   </h3>
-                  <p className="text-sm font-medium text-pretty text-brand-navy/75 dark:text-white/75">{item.body}</p>
+                  <p className="text-sm font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">{item.body}</p>
                 </li>
               ))}
             </ul>
@@ -500,7 +504,7 @@ export default async function LandingPage() {
               className={cn(
                 "relative overflow-hidden rounded-2xl bg-brand-yellow p-8 text-center sm:p-12",
                 BORDER,
-                "shadow-[6px_6px_0_0_var(--brand-navy)] dark:shadow-[6px_6px_0_0_#fff]",
+                "shadow-[6px_6px_0_0_var(--brand-navy)] dark:shadow-[6px_6px_0_0_var(--edge)]",
               )}
             >
               <Cog
@@ -533,7 +537,7 @@ export default async function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t-2 border-brand-navy bg-brand-navy py-10 text-white/80 dark:border-white">
+      <footer className="border-t-2 border-brand-navy bg-brand-navy py-10 text-white/80 dark:border-edge">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">
           <div className="flex items-center gap-2">
             <span className="flex size-7 items-center justify-center rounded-md border-2 border-white bg-brand-teal text-xs font-black text-white">

@@ -137,7 +137,7 @@ export function ProjectDetailPanel({
           ) : null}
         </div>
 
-        <h1 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl dark:text-white">
+        <h1 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl dark:text-foreground">
           {project.title}
         </h1>
 
@@ -221,7 +221,7 @@ export function ProjectDetailPanel({
 
       {submissions.length > 0 ? (
         <div className="mt-10 border-t pt-8">
-          <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-white">
+          <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-foreground">
             Community builds
           </h2>
           <ul className="mt-4 space-y-2">
