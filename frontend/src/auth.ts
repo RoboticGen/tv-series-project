@@ -1,9 +1,29 @@
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { isDefaultAdmin } from "@/lib/admin";
+import { GOOGLE_ID_TOKEN_PROVIDER } from "@/lib/auth-providers";
+import { verifyGoogleIdToken, type GoogleIdentity } from "@/lib/google-id-token";
+
+async function upsertGoogleUser({ googleId, email, name, picture }: GoogleIdentity) {
+  const adminRole = isDefaultAdmin(email) ? { role: "admin" as const } : {};
+  const fields = {
+    email,
+    displayName: name ?? email,
+    avatarUrl: picture,
+    lastLoginAt: new Date(),
+    ...adminRole,
+  };
+  const [dbUser] = await db
+    .insert(users)
+    .values({ googleId, ...fields })
+    .onConflictDoUpdate({ target: users.googleId, set: fields })
+    .returning({ id: users.id, role: users.role });
+  return dbUser;
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -12,6 +32,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.CLIENT_SECRET,
       // Least-privilege scopes: identity only, nothing else from Google.
       authorization: { params: { scope: "openid email profile" } },
+    }),
+    Credentials({
+      // Google's button and One Tap hand the browser a signed ID token.
+      id: GOOGLE_ID_TOKEN_PROVIDER,
+      name: "Google",
+      credentials: { credential: {} },
+      async authorize(credentials) {
+        if (typeof credentials?.credential !== "string" || !process.env.CLIENT_ID) return null;
+        const identity = await verifyGoogleIdToken(credentials.credential, process.env.CLIENT_ID);
+        if (!identity) return null;
+        // `id` becomes account.providerAccountId, i.e. the Google sub --
+        // the same value the redirect flow uses.
+        return {
+          id: identity.googleId,
+          email: identity.email,
+          name: identity.name,
+          image: identity.picture,
+        };
+      },
     }),
   ],
   session: {
@@ -28,10 +67,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async signIn({ account, profile }) {
-      if (account?.provider !== "google") return false;
-      // Reject unverified Google emails -- these can be spoofed by the
-      // account holder themselves and must not be trusted for identity.
-      if (!profile?.email_verified) return false;
+      if (account?.provider === "google") {
+        // Reject unverified Google emails -- these can be spoofed by the
+        // account holder themselves and must not be trusted for identity.
+        if (!profile?.email_verified) return false;
+      } else if (account?.provider !== GOOGLE_ID_TOKEN_PROVIDER) {
+        // The ID-token flow already checked email_verified in verifyGoogleIdToken.
+        return false;
+      }
       // Accounts an admin disabled can't sign back in.
       const [existing] = await db
         .select({ isDisabled: users.isDisabled })
@@ -39,34 +82,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         .where(eq(users.googleId, account.providerAccountId));
       return !existing?.isDisabled;
     },
-    async jwt({ token, account, profile }) {
-      // Only runs on initial sign-in, when `account`/`profile` are present.
-      // Every subsequent request reuses the already-encrypted token.
-      if (account && profile?.email && account.providerAccountId) {
-        const googleId = account.providerAccountId;
-        const adminRole = isDefaultAdmin(profile.email) ? { role: "admin" as const } : {};
-        const [dbUser] = await db
-          .insert(users)
-          .values({
-            googleId,
-            email: profile.email,
-            displayName: (profile.name as string | undefined) ?? profile.email,
-            avatarUrl: (profile.picture as string | undefined) ?? null,
-            lastLoginAt: new Date(),
-            ...adminRole,
-          })
-          .onConflictDoUpdate({
-            target: users.googleId,
-            set: {
-              email: profile.email,
-              displayName: (profile.name as string | undefined) ?? profile.email,
-              avatarUrl: (profile.picture as string | undefined) ?? null,
-              lastLoginAt: new Date(),
-              ...adminRole,
-            },
-          })
-          .returning({ id: users.id, role: users.role });
-
+    async jwt({ token, account, profile, user }) {
+      // Only runs on initial sign-in, when `account` is present. Every
+      // subsequent request reuses the already-encrypted token. The redirect
+      // flow carries identity in `profile`; the ID-token flow (a
+      // credentials provider) has no profile and carries it in the `user`
+      // that authorize() returned.
+      const fromProfile = account?.provider === "google";
+      const email = fromProfile ? profile?.email : user?.email;
+      if (account?.providerAccountId && email) {
+        const dbUser = await upsertGoogleUser({
+          googleId: account.providerAccountId,
+          email,
+          name: (fromProfile ? profile?.name : user?.name) ?? null,
+          picture: (fromProfile ? (profile?.picture as string | undefined) : user?.image) ?? null,
+        });
         token.id = dbUser.id;
         token.role = dbUser.role;
       } else if (token.id) {

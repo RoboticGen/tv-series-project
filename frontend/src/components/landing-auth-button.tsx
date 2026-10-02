@@ -5,6 +5,7 @@ import { useSession, signIn } from "next-auth/react";
 import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { GoogleOneTap } from "@/components/google-sign-in";
 
 // Header auth control. Signing out lives in the dashboard sidebar, so the
 // signed-in state here is just "go to my workshop".
@@ -40,9 +41,12 @@ export function LandingAuthButton() {
   }
 
   return (
-    <Button size="sm" className="gap-2" onClick={() => signIn("google")}>
-      <LogIn className="size-4" aria-hidden />
-      Sign in
-    </Button>
+    <>
+      <GoogleOneTap />
+      <Button size="sm" className="gap-2" onClick={() => signIn("google")}>
+        <LogIn className="size-4" aria-hidden />
+        Sign in
+      </Button>
+    </>
   );
 }
