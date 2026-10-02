@@ -27,7 +27,7 @@ const REASONS: Record<
 
 const relativeTime = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
-function timeAgo(date: Date) {
+export function timeAgo(date: Date) {
   const seconds = Math.round((date.getTime() - Date.now()) / 1000);
   const units: [Intl.RelativeTimeFormatUnit, number][] = [
     ["year", 31_536_000],

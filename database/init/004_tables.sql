@@ -380,3 +380,46 @@ CREATE TRIGGER trg_projects_featured_points
 CREATE TRIGGER trg_project_stars_points
   AFTER INSERT ON project_stars
   FOR EACH ROW EXECUTE FUNCTION award_star_points();
+
+CREATE TABLE notifications (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  recipient_id  UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  type          notification_type NOT NULL,
+  actor_id      UUID REFERENCES users (id) ON DELETE CASCADE,
+  project_id    UUID REFERENCES projects (id) ON DELETE CASCADE,
+  comment_id    UUID REFERENCES comments (id) ON DELETE CASCADE,
+  points        INTEGER,
+  detail        TEXT,
+  read_at       TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_notifications_recipient ON notifications (recipient_id, created_at DESC);
+CREATE INDEX idx_notifications_unread ON notifications (recipient_id) WHERE read_at IS NULL;
+
+CREATE UNIQUE INDEX uq_notifications_built
+  ON notifications (project_id, actor_id) WHERE type = 'project_built';
+CREATE UNIQUE INDEX uq_notifications_follower
+  ON notifications (recipient_id, actor_id) WHERE type = 'new_follower';
+
+CREATE TRIGGER trg_point_events_notify
+  AFTER INSERT ON point_events
+  FOR EACH ROW WHEN (NEW.reason IN ('star_received', 'project_featured'))
+  EXECUTE FUNCTION notify_point_event();
+
+CREATE TRIGGER trg_submissions_notify
+  AFTER INSERT ON submissions
+  FOR EACH ROW EXECUTE FUNCTION notify_project_built();
+
+CREATE TRIGGER trg_projects_unpublished_notify
+  AFTER UPDATE OF status ON projects
+  FOR EACH ROW WHEN (OLD.status = 'published' AND NEW.status = 'rejected')
+  EXECUTE FUNCTION notify_project_unpublished();
+
+CREATE TRIGGER trg_comments_notify
+  AFTER INSERT ON comments
+  FOR EACH ROW EXECUTE FUNCTION notify_comment();
+
+CREATE TRIGGER trg_follows_notify
+  AFTER INSERT ON follows
+  FOR EACH ROW EXECUTE FUNCTION notify_new_follower();

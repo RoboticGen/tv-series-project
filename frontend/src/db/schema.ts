@@ -65,6 +65,16 @@ export const pointReason = pgEnum("point_reason", [
   "star_received",
 ]);
 
+export const notificationType = pgEnum("notification_type", [
+  "project_starred",
+  "project_featured",
+  "project_built",
+  "project_unpublished",
+  "project_commented",
+  "comment_replied",
+  "new_follower",
+]);
+
 // ---------------------------------------------------------------------
 // users
 // ---------------------------------------------------------------------
@@ -396,6 +406,23 @@ export const pointEvents = pgTable("point_events", {
   points: integer("points").notNull(),
   projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
   actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const notifications = pgTable("notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  recipientId: uuid("recipient_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: notificationType("type").notNull(),
+  actorId: uuid("actor_id").references(() => users.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+  commentId: uuid("comment_id").references(() => comments.id, { onDelete: "cascade" }),
+  points: integer("points"),
+  detail: text("detail"),
+  readAt: timestamp("read_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -32,9 +32,9 @@ mongodb://roboticgen:roboticgen@localhost:27017
 | File | Contents |
 |---|---|
 | `init/001_extensions.sql` | `pgcrypto`, `citext`, `pg_trgm` |
-| `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category`, `point_reason` enums |
-| `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns, builder points fns |
-| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items`, `point_events` |
+| `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category`, `point_reason`, `notification_type` enums |
+| `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns, builder points fns, notification fns |
+| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items`, `point_events`, `notifications` |
 | `init/005_views.sql` | `user_dashboard_stats`, `pending_review_queue`, `user_liked_projects`, `user_starred_projects` |
 | `migrations/*.sql` | Schema changes applied after `init/` already ran once (see "Changing the schema" below) |
 | `frontend/src/db/schema.ts` | Drizzle model of the same schema (hand-maintained, see below) |

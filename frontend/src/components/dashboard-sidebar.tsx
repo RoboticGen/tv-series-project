@@ -4,19 +4,36 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, Compass, ClipboardCheck, ShieldCheck, Menu, X, LogOut } from "lucide-react";
+import { Bell, LayoutDashboard, Compass, ClipboardCheck, ShieldCheck, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { NewProjectButton } from "@/components/new-project-button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NOTIFICATIONS_PATH, useUnreadNotifications } from "@/components/use-unread-notifications";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: NOTIFICATIONS_PATH, label: "Notifications", icon: Bell },
   { href: "/projects", label: "Browse projects", icon: Compass },
 ];
+
+function UnreadBadge({ count, className }: { count: number; className?: string }) {
+  if (count === 0) return null;
+  return (
+    <span
+      className={cn(
+        "rounded-full border-2 border-brand-navy bg-brand-coral px-1.5 text-xs leading-4 font-black tabular-nums text-brand-navy dark:border-edge",
+        className,
+      )}
+    >
+      {count > 99 ? "99+" : count}
+      <span className="sr-only"> unread</span>
+    </span>
+  );
+}
 
 const REVIEWER_NAV_ITEMS = [
   { href: "/dashboard/review", label: "Review queue", icon: ClipboardCheck },
@@ -26,7 +43,7 @@ const ADMIN_NAV_ITEMS = [
   { href: "/dashboard/admin", label: "Admin", icon: ShieldCheck },
 ];
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContent({ unread, onNavigate }: { unread: number; onNavigate?: () => void }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isReviewer =
@@ -77,6 +94,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             >
               <item.icon className="size-4" aria-hidden />
               {item.label}
+              {item.href === NOTIFICATIONS_PATH ? <UnreadBadge count={unread} className="ml-auto" /> : null}
             </Link>
           );
         })}
@@ -119,6 +137,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function DashboardSidebar() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const unread = useUnreadNotifications();
 
   React.useEffect(() => {
     if (!mobileOpen) return;
@@ -142,6 +161,16 @@ export function DashboardSidebar() {
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <Button
+            size="icon-sm"
+            variant="outline"
+            nativeButton={false}
+            className="relative"
+            render={<Link href={NOTIFICATIONS_PATH} aria-label="Notifications" />}
+          >
+            <Bell className="size-4" aria-hidden />
+            <UnreadBadge count={unread} className="absolute -top-2 -right-2" />
+          </Button>
           <Button
             size="icon-sm"
             variant="outline"
@@ -170,13 +199,13 @@ export function DashboardSidebar() {
             >
               <X className="size-4" />
             </Button>
-            <SidebarContent onNavigate={() => setMobileOpen(false)} />
+            <SidebarContent unread={unread} onNavigate={() => setMobileOpen(false)} />
           </aside>
         </div>
       ) : null}
 
       <aside className="sticky top-0 hidden h-svh w-64 shrink-0 border-r-2 border-brand-navy bg-card md:flex md:flex-col dark:border-edge">
-        <SidebarContent />
+        <SidebarContent unread={unread} />
       </aside>
     </>
   );

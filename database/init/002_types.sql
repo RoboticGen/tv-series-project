@@ -35,3 +35,13 @@ CREATE TYPE project_category AS ENUM (
 -- Why a point_events row was written -- see award_*_points in
 -- 003_functions.sql and points_for for each reason's value.
 CREATE TYPE point_reason AS ENUM ('submission_created', 'project_featured', 'star_received');
+
+CREATE TYPE notification_type AS ENUM (
+  'project_starred',
+  'project_featured',
+  'project_built',
+  'project_unpublished',
+  'project_commented',
+  'comment_replied',
+  'new_follower'
+);
