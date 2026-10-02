@@ -12,7 +12,7 @@ export default async function EditProjectModal({
 }) {
   const { slug } = await params;
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
 
   const project = await getProjectBySlug(slug);
   if (!project) notFound();

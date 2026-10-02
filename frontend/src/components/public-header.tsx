@@ -14,14 +14,14 @@ export function PublicHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
           <Link
-            href="/landing"
+            href="/"
             className={cn(buttonVariants({ variant: "neutral", size: "sm" }), "gap-1.5")}
           >
             <ArrowLeft className="size-4" aria-hidden />
             <span className="hidden sm:inline">Back to home</span>
             <span className="sm:hidden">Home</span>
           </Link>
-          <Link href="/landing" className="hidden items-center gap-2 md:flex" aria-label="RoboticGen Projects home">
+          <Link href="/" className="hidden items-center gap-2 md:flex" aria-label="RoboticGen Projects home">
             <span className="flex size-9 items-center justify-center rounded-md border-2 border-brand-navy bg-brand-teal font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge">
               R
             </span>

@@ -15,7 +15,7 @@ export default async function MySubmissionModal({
 }) {
   const { id } = await params;
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
   const viewerId = session.user.id;
 
   const submission = await getSubmissionById(id, viewerId);

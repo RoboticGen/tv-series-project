@@ -14,7 +14,7 @@ export default async function NewSubmissionModal({
 }) {
   const { slug } = await params;
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
   const viewerId = session.user.id;
 
   const project = await getProjectBySlug(slug, viewerId);

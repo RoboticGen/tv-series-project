@@ -150,7 +150,7 @@ export function CommentSection({
         </form>
       ) : (
         <p className="mt-4 text-sm text-muted-foreground">
-          <Link href="/landing" className="font-medium text-foreground hover:underline">
+          <Link href="/" className="font-medium text-foreground hover:underline">
             Sign in
           </Link>{" "}
           to leave a comment.

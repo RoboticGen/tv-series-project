@@ -23,6 +23,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: { canonical: `/projects/${project.slug}` },
     openGraph: { type: "article", title: project.title, description, siteName: "RoboticGen Projects" },
     twitter: { card: "summary_large_image", title: project.title, description },
   };

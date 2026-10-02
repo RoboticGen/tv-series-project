@@ -7,7 +7,7 @@ export default async function ReviewLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
   if (session.user.role !== "mentor" && session.user.role !== "admin") {
     redirect("/dashboard");
   }

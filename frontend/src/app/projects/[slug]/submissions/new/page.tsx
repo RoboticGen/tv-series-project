@@ -10,7 +10,7 @@ export default async function NewSubmissionPage({
 }) {
   const { slug } = await params;
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
 
   const project = await getProjectBySlug(slug, session.user.id);
   if (!project) notFound();

@@ -3,6 +3,7 @@ import { Raleway, Inter, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@wrksz/themes/next";
 import { OfflineBanner } from "@/components/offline-banner";
 import { Providers } from "@/components/providers";
+import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
 const raleway = Raleway({
@@ -21,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(SITE_URL),
   title: "RoboticGen Projects",
   description: "Publish, discover, and build RoboticGen student projects.",
 };

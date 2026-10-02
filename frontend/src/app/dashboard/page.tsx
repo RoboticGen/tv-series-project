@@ -62,7 +62,7 @@ function BrowseButton({ label = "Explore projects" }: { label?: string }) {
 
 export default async function DashboardPage() {
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
 
   const userId = session.user.id;
   const [stats, points, pointValues, myProjects, mySubmissions, starredProjects, myCollections] = await Promise.all([

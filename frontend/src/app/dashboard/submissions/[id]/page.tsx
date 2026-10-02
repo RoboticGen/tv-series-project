@@ -11,7 +11,7 @@ export default async function SubmissionDetailPage({
 }) {
   const { id } = await params;
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
 
   const submission = await getSubmissionById(id, session.user.id);
   if (!submission) notFound();
