@@ -1,4 +1,5 @@
 import { FeaturedSpotlightSkeleton } from "@/components/featured-spotlight";
+import { OfflineLoadingNotice } from "@/components/offline-banner";
 
 export default function Loading() {
   return (
@@ -7,6 +8,7 @@ export default function Loading() {
       aria-label="Loading your dashboard"
       className="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-8 sm:px-6 sm:py-10"
     >
+      <OfflineLoadingNotice className="-mb-6" />
       <div className="h-56 animate-pulse rounded-2xl border-2 border-brand-navy bg-brand-teal/30 dark:border-edge" />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">

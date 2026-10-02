@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
       // multipart overhead.
       bodySizeLimit: "6mb",
     },
+    // Experimental -- removing this just makes useOffline() always false.
+    useOffline: true,
   },
   async headers() {
     if (process.env.NODE_ENV === "production") return [];

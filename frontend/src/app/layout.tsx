@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Raleway, Inter, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@wrksz/themes/next";
+import { OfflineBanner } from "@/components/offline-banner";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
             {children}
             {modal}
           </Providers>
+          <OfflineBanner />
         </ThemeProvider>
       </body>
     </html>
