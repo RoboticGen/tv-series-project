@@ -21,6 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
   title: "RoboticGen Projects",
   description: "Publish, discover, and build RoboticGen student projects.",
 };

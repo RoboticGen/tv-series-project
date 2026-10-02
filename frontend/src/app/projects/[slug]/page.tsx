@@ -17,9 +17,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
   if (!project) return { title: "Project not found" };
+  const title = `${project.title} — RoboticGen Projects`;
+  const description = project.summary || `A RoboticGen project by ${project.authorName}.`;
+  if (project.status !== "published") return { title, description };
   return {
-    title: `${project.title} — RoboticGen Projects`,
-    description: project.summary || `A RoboticGen project by ${project.authorName}.`,
+    title,
+    description,
+    openGraph: { type: "article", title: project.title, description, siteName: "RoboticGen Projects" },
+    twitter: { card: "summary_large_image", title: project.title, description },
   };
 }
 
