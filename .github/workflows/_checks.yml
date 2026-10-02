@@ -1,0 +1,41 @@
+# Shared quality gate: lint, unit tests, production build.
+# Called by ci.yml (before merge) and deploy.yml (after merge).
+name: Checks
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, test, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      HUSKY: 0
+      # Chrome is only needed at runtime (PDF export), not for lint/test/build.
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

@@ -13,7 +13,11 @@ export async function GET(
     return new Response(null, { status: 404 });
   }
 
-  const browser = await puppeteer.launch();
+  // Chrome's sandbox can't start inside Docker (no unprivileged user
+  // namespaces); the Dockerfile sets this and the container is the boundary.
+  const browser = await puppeteer.launch({
+    args: process.env.PUPPETEER_NO_SANDBOX === "1" ? ["--no-sandbox"] : [],
+  });
   let pdfBuffer: Uint8Array;
   try {
     const page = await browser.newPage();

@@ -1,0 +1,33 @@
+# Pre-merge: runs on every PR into main. Make "Lint, test, build" and
+# "Docker build" required status checks in main's branch protection so the
+# merge button stays blocked until both pass.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    uses: ./.github/workflows/_checks.yml
+
+  # Proves the Dockerfile still builds; nothing is pushed.
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

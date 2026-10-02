@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Emits .next/standalone (server.js + only the traced node_modules) so the
+  // Docker image ships without a full npm install -- see Dockerfile.
+  output: "standalone",
   experimental: {
     serverActions: {
       // Images upload one per request through the uploadMediaAsset server

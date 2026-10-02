@@ -1,0 +1,14 @@
+node_modules
+.next
+coverage
+storage
+tests
+.env*
+!.env.example
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+.husky
+.claude
+Dockerfile
+.dockerignore

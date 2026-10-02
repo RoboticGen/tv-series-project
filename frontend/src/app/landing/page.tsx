@@ -36,8 +36,9 @@ import { CATEGORY_LABELS, type ProjectCategory } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 
 // Featured projects and counts change whenever a mentor features a
-// project -- revalidate periodically instead of freezing them at build time.
-export const revalidate = 60;
+// project, so render per request. Also keeps `next build` from querying the
+// database -- CI and the Docker build have none.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "RoboticGen Projects · Build it. Share it. Level up!",

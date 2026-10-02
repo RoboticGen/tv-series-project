@@ -1,0 +1,23 @@
+# Production stack on EC2, in ~/tv-series-frontend/ next to a .env file
+# (see frontend/.env.example). deploy.yml copies this file there on every
+# deploy and runs it with IMAGE_TAG set to the commit SHA.
+#
+# Rollback: cd ~/tv-series-frontend && IMAGE_TAG=<older sha> docker compose up -d
+services:
+  frontend:
+    image: ghcr.io/roboticgen/tv-series-project-frontend:${IMAGE_TAG:-latest}
+    container_name: tv-series-frontend
+    restart: unless-stopped
+    env_file: .env
+    # Only nginx on the host should reach the app.
+    ports:
+      - "127.0.0.1:3000:3000"
+    # Lets the container reach Postgres/Mongo running on the EC2 host:
+    # use host.docker.internal instead of 127.0.0.1 in .env URLs.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
