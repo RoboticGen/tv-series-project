@@ -16,7 +16,7 @@ branding playbook says nothing about motion; these are implementation choices.
 
 ## Tokens
 
-| Token | CSS (`globals.css`) | Motion (`src/lib/motion.ts`) | Use |
+| Token | CSS (`globals.css`) | Motion (`src/shared/constants/motion.ts`) | Use |
 |---|---|---|---|
 | Press | `--duration-press` 120ms | `DURATION.press` | Button presses, icon swaps |
 | Enter | `--duration-enter` 260ms | `DURATION.enter` | Panels, toasts, image zoom |
@@ -26,7 +26,7 @@ branding playbook says nothing about motion; these are implementation choices.
 | Pop | `--ease-pop` `cubic-bezier(0.34, 1.56, 0.64, 1)` | `SPRING_POP` | Badges, stamps, cards popping in |
 
 Use the tokens: `duration-(--duration-press)`, `ease-(--ease-snap)`, or the
-constants from `src/lib/motion.ts`. Don't write raw millisecond or
+constants from `src/shared/constants/motion.ts`. Don't write raw millisecond or
 cubic-bezier values in components.
 
 ## Patterns
@@ -51,12 +51,12 @@ cubic-bezier values in components.
 
 | Piece | File | Use for |
 |---|---|---|
-| `toast()` / `<Toaster />` | `components/toast.tsx` | Small confirmations and "+N points" |
-| `celebrate()` / `<Celebration />` | `components/celebration.tsx` | Level up, publish: stamp plus confetti |
-| `<Reveal>` | `components/reveal.tsx` | Sections sliding up on scroll |
-| `<Stagger>` / `<StaggerItem>` | `components/reveal.tsx` | Grids popping in one by one |
-| `<CountUp>` | `components/reveal.tsx` | Numbers ticking up |
-| `<Marquee>` | `components/ui/marquee.tsx` | Scrolling band (from neobrutalism.dev) |
+| `toast()` / `<Toaster />` | `shared/components/toast.tsx` | Small confirmations and "+N points" |
+| `celebrate()` / `<Celebration />` | `features/gamification/components/celebration.tsx` | Level up, publish: stamp plus confetti |
+| `<Reveal>` | `shared/components/reveal.tsx` | Sections sliding up on scroll |
+| `<Stagger>` / `<StaggerItem>` | `shared/components/reveal.tsx` | Grids popping in one by one |
+| `<CountUp>` | `shared/components/reveal.tsx` | Numbers ticking up |
+| `<Marquee>` | `shared/components/ui/marquee.tsx` | Scrolling band (from neobrutalism.dev) |
 | `animate-float`, `-stamp`, `-wobble`, `-shake` | `globals.css` | CSS-only loops and one-shots |
 | Slide panel view transitions | `globals.css` | `.panel-in`, `.panel-out`, `.backdrop-in`, `.backdrop-out` |
 

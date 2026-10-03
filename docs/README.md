@@ -1,4 +1,4 @@
-# RoboticGen Projects — How to Run
+# Obo Space — How to Run
 
 An Instructables-style platform where students publish step-by-step project write-ups, mentors/admins review them before they go public, and the community likes, stars, and builds from them.
 
@@ -204,4 +204,4 @@ UPDATE users SET role = 'mentor' WHERE email = 'user@example.com';
    ```bash
    docker exec -i roboticgen_postgres psql -U roboticgen -d roboticgen < my_migration.sql
    ```
-2. Update `frontend/src/db/schema.ts` to match (Drizzle uses this for query typing — it does not drive migrations).
+2. Update `frontend/src/lib/db/schema.ts` to match (Drizzle uses this for query typing — it does not drive migrations).

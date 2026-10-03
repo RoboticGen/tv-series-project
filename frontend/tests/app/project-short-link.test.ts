@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 import { dbHolder } from "../setup/global-mocks";
 import { createTestDb, insertProject, insertUser, type TestDbHandle } from "../setup/pglite-db";
 import { GET } from "@/app/p/[id]/route";
-import { projectQrSvg, projectShortUrl } from "@/lib/project-links";
-import { SITE_URL } from "@/lib/site-url";
+import { projectQrSvg, projectShortUrl } from "@/features/projects/services/links";
+import { SITE_URL } from "@/lib/config/site";
 
 let handle: TestDbHandle;
 

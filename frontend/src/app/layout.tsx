@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Raleway, Inter, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@wrksz/themes/next";
-import { OfflineBanner } from "@/components/offline-banner";
-import { Providers } from "@/components/providers";
-import { SITE_URL } from "@/lib/site-url";
-import "./globals.css";
+import { OfflineBanner } from "@/shared/components/offline-banner";
+import { Providers } from "@/core/providers/providers";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
+import "@/styles/globals.css";
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -23,8 +23,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "RoboticGen Projects",
-  description: "Publish, discover, and build RoboticGen student projects.",
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({

@@ -3,7 +3,7 @@
 // database/init/004_tables.sql: no single FK can target two parent tables).
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 import { createTestDb, insertProject, insertUser, type TestDbHandle } from "../setup/pglite-db";
 
 let handle: TestDbHandle;

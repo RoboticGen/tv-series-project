@@ -1,0 +1,160 @@
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, Hammer, Heart, ImageOff, Sparkles, Star } from "lucide-react";
+import { EmptyState } from "@/shared/components/empty-state";
+import { getFeaturedProjects } from "@/features/projects/services/queries";
+import { ProjectCard, ProjectCardSkeleton } from "@/features/projects/components/project-card";
+import { Stagger, StaggerItem } from "@/shared/components/reveal";
+import { Badge } from "@/shared/components/ui/badge";
+import { buttonVariants } from "@/shared/components/ui/button-variants";
+import { CATEGORY_LABELS } from "@/features/projects/categories";
+import { cn } from "@/shared/lib/utils";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+
+const SPOTLIGHT_SIZE = 4;
+
+function SpotlightHeader() {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <span className="inline-flex items-center gap-1.5 rounded-sm border-2 border-edge bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-hard-2">
+          <Sparkles className="size-3.5" aria-hidden />
+          Featured builds
+        </span>
+        <h2
+          id="featured-heading"
+          className="mt-2 font-heading text-2xl font-black tracking-tight text-balance text-foreground sm:text-3xl"
+        >
+          Pick one and build it too!
+        </h2>
+        <p className="mt-1 text-sm font-medium text-pretty text-muted-foreground">
+          Mentors picked these awesome projects. Follow the steps, then share how yours turned out.
+        </p>
+      </div>
+      <Link
+        href="/projects"
+        className={buttonVariants({ variant: "outline", className: "shrink-0 gap-2" })}
+      >
+        See all projects
+        <ArrowRight className="size-4" aria-hidden />
+      </Link>
+    </div>
+  );
+}
+
+export function FeaturedSpotlightSkeleton({ className }: { className?: string }) {
+  return (
+    <section id="featured" aria-labelledby="featured-heading" aria-busy="true" className={cn("scroll-mt-6", className)}>
+      <SpotlightHeader />
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <Skeleton className="h-80 rounded-xl lg:col-span-3" />
+        {Array.from({ length: SPOTLIGHT_SIZE - 1 }, (_, i) => (
+          <ProjectCardSkeleton key={i} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export async function FeaturedSpotlight({ className }: { className?: string }) {
+  const featured = await getFeaturedProjects({ page: 1, pageSize: SPOTLIGHT_SIZE });
+  if (featured.length === 0) {
+    return (
+      <section id="featured" aria-labelledby="featured-heading" className={cn("scroll-mt-6", className)}>
+        <SpotlightHeader />
+        <div className="mt-6">
+          <EmptyState
+            icon={Sparkles}
+            title="Featured builds are coming soon"
+            description="Mentors haven't picked any projects yet. Check back soon, or share yours and it might be the first!"
+          />
+        </div>
+      </section>
+    );
+  }
+
+  const [lead, ...rest] = featured;
+
+  return (
+    <section id="featured" aria-labelledby="featured-heading" className={cn("scroll-mt-6", className)}>
+      <SpotlightHeader />
+
+      <div className="mt-6 flex flex-col gap-6">
+        <Link
+          href={`/projects/${lead.slug}`}
+          className="group grid overflow-hidden rounded-xl border-2 border-edge bg-brand-yellow/15 shadow-hard-6 dark:bg-secondary outline-none motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-8 focus-visible:ring-4 focus-visible:ring-ring md:grid-cols-2"
+        >
+          <div className="relative aspect-video border-b-2 border-edge bg-muted md:aspect-auto md:min-h-72 md:border-r-2 md:border-b-0">
+            {lead.coverImageUrl ? (
+              <Image
+                src={lead.coverImageUrl}
+                alt=""
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover motion-safe:transition-transform motion-safe:duration-(--duration-enter) group-hover:scale-105"
+                priority
+                unoptimized
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                <ImageOff className="size-8" aria-hidden />
+              </div>
+            )}
+            <span className="absolute top-3 left-3 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 border-edge bg-brand-yellow px-2.5 py-1 text-sm font-black text-brand-navy uppercase shadow-hard-3">
+              <Sparkles className="size-4" aria-hidden />
+              Top pick
+            </span>
+          </div>
+          <div className="flex flex-col gap-3 p-6">
+            <Badge variant="secondary">{CATEGORY_LABELS[lead.category] ?? lead.category}</Badge>
+            <h3 className="font-heading text-2xl font-black text-balance text-foreground sm:text-3xl">
+              {lead.title}
+            </h3>
+            <p className="line-clamp-3 font-medium text-pretty text-muted-foreground">
+              {lead.summary || "This project has no description yet."}
+            </p>
+            <p className="text-sm font-bold text-foreground">by {lead.authorName}</p>
+            <div className="mt-auto flex flex-wrap items-center gap-4 pt-2">
+              <span className="inline-flex items-center gap-2 rounded-lg border-2 border-edge bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-hard-3 motion-safe:transition-all group-hover:translate-x-[3px] group-hover:translate-y-[3px] group-hover:shadow-none">
+                <Hammer className="size-4" aria-hidden />
+                Let&apos;s build it!
+              </span>
+              <span className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Heart className="size-4 fill-brand-coral text-edge" aria-hidden />
+                  <span className="sr-only">Likes:</span>
+                  {lead.likeCount}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Star className="size-4 fill-brand-yellow text-edge" aria-hidden />
+                  <span className="sr-only">Stars:</span>
+                  {lead.starCount}
+                </span>
+              </span>
+            </div>
+          </div>
+        </Link>
+
+        {rest.length > 0 ? (
+          <Stagger as="ul" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {rest.map((project) => (
+              <StaggerItem as="li" key={project.id}>
+                <ProjectCard
+                  slug={project.slug}
+                  title={project.title}
+                  summary={project.summary}
+                  category={project.category}
+                  authorName={project.authorName}
+                  likeCount={project.likeCount}
+                  starCount={project.starCount}
+                  coverImageUrl={project.coverImageUrl}
+                  isFeatured
+                />
+              </StaggerItem>
+            ))}
+          </Stagger>
+        ) : null}
+      </div>
+    </section>
+  );
+}

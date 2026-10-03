@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bot, Compass } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button-variants";
+import { buttonVariants } from "@/shared/components/ui/button-variants";
+import { SITE_NAME } from "@/lib/config/site";
 
-export const metadata: Metadata = { title: "Page not found — RoboticGen Projects" };
+export const metadata: Metadata = { title: `Page not found — ${SITE_NAME}` };
 
 export default function NotFound() {
   return (

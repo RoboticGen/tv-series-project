@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
-import { auth } from "@/auth";
-import { getProjectBySlug } from "@/actions/projects";
-import { getPublicSubmissionsForProject } from "@/actions/submissions";
-import { listComments } from "@/actions/comments";
-import { getContentDoc } from "@/db/content";
-import { ProjectDetailPanel } from "@/components/project-detail-panel";
-import { SlidePanel } from "@/components/slide-panel";
+import { auth } from "@/lib/auth";
+import { getProjectBySlug } from "@/features/projects/services/queries";
+import { getPublicSubmissionsForProject } from "@/features/submissions/services/queries";
+import { listComments } from "@/features/comments/actions";
+import { getContentDoc } from "@/lib/db/content";
+import { ProjectDetailPanel } from "@/features/projects/components/project-detail-panel";
+import { SlidePanel } from "@/shared/components/slide-panel";
 
 export default async function ProjectDetailModal({
   params,

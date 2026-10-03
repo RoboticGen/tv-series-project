@@ -1,11 +1,11 @@
 // Denormalized counter columns maintained by triggers in
 // database/init/003_functions.sql -- the app never writes these directly
 // (see the "do not write from app code" comments on each column in
-// src/db/schema.ts), so the only thing that can keep them honest is the
+// src/lib/db/schema.ts), so the only thing that can keep them honest is the
 // trigger, which is what's under test here.
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 import { createTestDb, insertProject, insertUser, type TestDbHandle } from "../setup/pglite-db";
 
 let handle: TestDbHandle;

@@ -1,5 +1,5 @@
 ---
-name: RoboticGen Projects
+name: Obo Space
 description: Student project showcase where young makers publish builds, try each other's projects and level up.
 colors:
   brand-navy: "#022f49"
@@ -94,17 +94,17 @@ components:
     padding: "2px 8px"
 ---
 
-# Design System: RoboticGen Projects
+# Design System: Obo Space
 
 The values above are the source of truth for agents and tools. The code source
-of truth is `src/app/globals.css`; `/ui` is the living component reference.
+of truth is `src/styles/globals.css`; `/ui` is the living component reference.
 Motion lives in [`MOTION.md`](./MOTION.md).
 
 ## Overview
 
 **Creative North Star: "The Workshop Bench"**
 
-RoboticGen Projects is where students aged 8 to 15 show what they built:
+Obo Space is where students aged 8 to 15 show what they built:
 robots, circuits, code, drones. The interface should feel like a workbench
 covered in sticker sheets and labelled parts bins, not like a school portal.
 Everything is a solid object with a thick outline that you can pick up, press
@@ -320,7 +320,7 @@ a `dark:` twin. `brand-navy` as a class is only for ink on a brand fill
 - **Do** use `teal-ink` whenever teal is text, a link or a focus ring.
 - **Do** use `text-muted-foreground` for secondary copy; it is tuned per theme.
 - **Do** pair every colour signal with an icon or label (featured, liked, unread, error).
-- **Do** build new screens from `src/components/ui` and check them on `/ui` in both themes.
+- **Do** build new screens from `src/shared/components/ui` and check them on `/ui` in both themes.
 - **Do** write for a ten-year-old: short, concrete, encouraging.
 
 ### Don't:

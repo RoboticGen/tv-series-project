@@ -1,0 +1,74 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { StepsViewer } from "@/features/editor/components/steps-viewer";
+import type { Step } from "@/lib/models/steps";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Badge } from "@/shared/components/ui/badge";
+import { cn } from "@/shared/lib/utils";
+import { formatDate } from "@/shared/lib/format";
+
+interface SubmissionViewPanelProps {
+  submission: {
+    createdAt: Date;
+    projectTitle: string;
+    projectSlug: string;
+    authorName: string;
+    authorAvatarUrl: string | null;
+  };
+  steps: Step[];
+  variant?: "page" | "modal";
+  isPrivate?: boolean;
+}
+
+export function SubmissionViewPanel({
+  submission,
+  steps,
+  variant = "page",
+  isPrivate,
+}: SubmissionViewPanelProps) {
+  const isModal = variant === "modal";
+
+  return (
+    <div className={cn("px-6 py-8 sm:py-10", !isModal && "mx-auto max-w-3xl py-12", isModal && "pr-10")}>
+      {!isModal ? (
+        <Link
+          href={`/projects/${submission.projectSlug}`}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-3.5" />
+          Back to project
+        </Link>
+      ) : null}
+
+      <div className={cn("flex flex-wrap items-center gap-2 text-sm text-muted-foreground", !isModal && "mt-6")}>
+        <span>
+          {isPrivate !== undefined ? "Your build of" : "A build of"}{" "}
+          <Link
+            href={`/projects/${submission.projectSlug}`}
+            className="text-teal-ink hover:underline"
+          >
+            {submission.projectTitle}
+          </Link>
+        </span>
+        {isPrivate !== undefined ? (
+          <Badge variant={isPrivate ? "outline" : "secondary"}>
+            {isPrivate ? "Private" : "Public"}
+          </Badge>
+        ) : null}
+      </div>
+      <div className="mt-3 flex items-center gap-2">
+        <Avatar size="sm">
+          <AvatarImage src={submission.authorAvatarUrl ?? undefined} alt={submission.authorName} />
+          <AvatarFallback>{submission.authorName.slice(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+        <span className="text-sm font-medium text-foreground">{submission.authorName}</span>
+      </div>
+      <h1 className="mt-3 font-heading text-2xl font-bold text-foreground">
+        Submitted {formatDate(submission.createdAt)}
+      </h1>
+      <div className="mt-8 border-t pt-8">
+        <StepsViewer steps={steps} />
+      </div>
+    </div>
+  );
+}

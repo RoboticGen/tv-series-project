@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
-import { sendWeeklyDigests } from "@/lib/digest";
-import { isMailConfigured } from "@/lib/mailer";
+import { sendWeeklyDigests } from "@/features/email-digest/services/digest";
+import { isMailConfigured } from "@/services/mailer";
 
 function authorized(request: Request) {
   const secret = process.env.CRON_SECRET;

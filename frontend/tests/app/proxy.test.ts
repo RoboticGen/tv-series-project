@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { sessionHolder } from "../setup/global-mocks";
 
-vi.mock("@/auth", () => ({
+vi.mock("@/lib/auth", () => ({
   auth: (handler: (req: NextRequest & { auth: unknown }) => unknown) => (req: NextRequest) =>
     handler(Object.assign(req, { auth: sessionHolder.session })),
 }));

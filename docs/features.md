@@ -1,4 +1,4 @@
-# Feature reference — RoboticGen Projects
+# Feature reference — Obo Space
 
 An Instructables-style platform for RoboticGen learners: students publish
 step-by-step project write-ups, mentors/admins review them before they go
@@ -32,11 +32,11 @@ flowchart LR
 ```
 
 Auth is Google OAuth only, via [Auth.js v5](https://authjs.dev) with JWT
-sessions — see `frontend/src/auth.ts`. There is no local password and no
+sessions — see `frontend/src/lib/auth/index.ts`. There is no local password and no
 other identity provider.
 
 Schema source of truth: `database/init/*.sql` (see `database/README.md`
-for the full design rationale). `frontend/src/db/schema.ts` is a
+for the full design rationale). `frontend/src/lib/db/schema.ts` is a
 hand-maintained Drizzle mirror of it.
 
 ## Main flow, end to end
@@ -201,7 +201,7 @@ projects.
 
 ## 3. User accounts & publishing
 
-**Login:** Google only, via Auth.js. See `frontend/src/auth.ts`:
+**Login:** Google only, via Auth.js. See `frontend/src/lib/auth/index.ts`:
 - Rejects any provider other than Google and any unverified Google email.
 - On first sign-in, upserts a row into `users` keyed by `google_id`,
   defaulting `role` to `student` (the Postgres column default — never
@@ -280,7 +280,7 @@ Three separate signals, each already modeled in Postgres:
 
   Built: `createSubmission`/`getMySubmissions`/`getSubmissionById`/
   `getPublicSubmission`/`getPublicSubmissionsForProject`
-  (`frontend/src/actions/submissions.ts`), the write-up form with a
+  (`frontend/src/features/submissions/actions.ts`), the write-up form with a
   public/private switch (`submission-form.tsx`, only shown to the
   project's own author), `app/projects/[slug]/submissions/new` (create)
   and `app/projects/[slug]/submissions/[id]` (view a public one), plus
@@ -331,7 +331,7 @@ exactly the shape a small personal dashboard needs — no new schema
 required, just the UI and a route that selects from the view.
 
 **Avatars via DiceBear** — this conflicts with the current design.
-`database/README.md` and `frontend/src/auth.ts` both currently treat
+`database/README.md` and `frontend/src/lib/auth/index.ts` both currently treat
 `users.avatar_url` as *the Google profile picture*, refreshed from Google
 on every login. DiceBear (a generated, seeded avatar — e.g.
 `https://api.dicebear.com/9.x/adventurer/svg?seed=<seed>`) is a different

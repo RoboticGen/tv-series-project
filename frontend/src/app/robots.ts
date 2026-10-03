@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site-url";
+import { SITE_URL } from "@/lib/config/site";
 
 // Steers crawlers away from signed-in and utility pages
 export default function robots(): MetadataRoute.Robots {

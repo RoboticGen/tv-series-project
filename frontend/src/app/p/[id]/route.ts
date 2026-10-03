@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
-import { projects } from "@/db/schema";
+import { db } from "@/lib/db";
+import { projects } from "@/lib/db/schema";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

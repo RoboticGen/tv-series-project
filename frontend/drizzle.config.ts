@@ -5,7 +5,7 @@ import { defineConfig } from "drizzle-kit";
 // `out` migrations folder wired into app startup, and `push`/`generate`
 // against this file is not part of the schema-change workflow.
 export default defineConfig({
-  schema: "./src/db/schema.ts",
+  schema: "./src/lib/db/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL!,

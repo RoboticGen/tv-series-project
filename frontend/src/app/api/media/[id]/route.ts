@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
-import { auth } from "@/auth";
-import { db } from "@/db";
-import { mediaAssets, projects, submissions } from "@/db/schema";
-import { getUploadedFile } from "@/lib/storage";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { mediaAssets, projects, submissions } from "@/lib/db/schema";
+import { getUploadedFile } from "@/services/storage";
 
 const CONTENT_TYPE_BY_EXTENSION: Record<string, string> = {
   png: "image/png",

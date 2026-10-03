@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/config/site";
 
 // Makes the site installable ("Add to Home Screen").
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "RoboticGen Projects",
-    short_name: "RoboticGen",
-    description: "Publish, discover, and build RoboticGen student projects.",
+    name: SITE_NAME,
+    short_name: SITE_NAME,
+    description: SITE_DESCRIPTION,
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

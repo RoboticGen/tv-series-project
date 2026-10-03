@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { and, eq, gt, max } from "drizzle-orm";
-import { db } from "@/db";
-import { collections, projects, users } from "@/db/schema";
-import { SITE_URL } from "@/lib/site-url";
+import { db } from "@/lib/db";
+import { collections, projects, users } from "@/lib/db/schema";
+import { SITE_URL } from "@/lib/config/site";
 
 export const revalidate = 3600;
 

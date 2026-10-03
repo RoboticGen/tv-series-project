@@ -3,11 +3,11 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import sharp from "sharp";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 import { dbHolder } from "../setup/global-mocks";
 import { createTestDb, insertProject, insertUser, type TestDb, type TestDbHandle } from "../setup/pglite-db";
-import { getUploadedFile } from "@/lib/storage";
-import Image from "@/app/projects/[slug]/opengraph-image";
+import { getUploadedFile } from "@/services/storage";
+import Image from "@/app/(site)/projects/[slug]/opengraph-image";
 
 let handle: TestDbHandle;
 

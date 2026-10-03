@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 import { dbHolder } from "../setup/global-mocks";
 import { createTestDb, insertProject, insertUser, type TestDb, type TestDbHandle } from "../setup/pglite-db";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
-import { SITE_URL } from "@/lib/site-url";
+import { SITE_URL } from "@/lib/config/site";
 
 let handle: TestDbHandle;
 

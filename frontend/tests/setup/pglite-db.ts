@@ -10,7 +10,7 @@ import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { citext } from "@electric-sql/pglite/contrib/citext";
 import { pg_trgm } from "@electric-sql/pglite/contrib/pg_trgm";
 import { drizzle, type PgliteDatabase } from "drizzle-orm/pglite";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 
 const INIT_DIR = path.resolve(__dirname, "../../../database/init");
 const INIT_FILES = [

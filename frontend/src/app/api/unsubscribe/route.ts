@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { verifyUnsubscribeToken } from "@/lib/unsubscribe-token";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { verifyUnsubscribeToken } from "@/features/email-digest/services/unsubscribe-token";
+import { SITE_NAME } from "@/lib/config/site";
 
 function page(title: string, body: string, status = 200) {
   return new Response(
@@ -29,5 +30,5 @@ export async function POST(request: Request) {
   const userId = verifyUnsubscribeToken(new URL(request.url).searchParams.get("token"));
   if (!userId) return INVALID();
   await db.update(users).set({ emailDigest: false, emailMentorDigest: false }).where(eq(users.id, userId));
-  return page("You're unsubscribed", "<p>You won't get weekly emails from RoboticGen Projects any more.</p>");
+  return page("You're unsubscribed", `<p>You won't get weekly emails from ${SITE_NAME} any more.</p>`);
 }
