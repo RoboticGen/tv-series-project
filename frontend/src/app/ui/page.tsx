@@ -126,7 +126,7 @@ export default function UiPage() {
   return (
     <div className="min-h-full bg-background">
       {/* Brand-style header, mirrors roboticgenacademy.com's nav */}
-      <header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-brand-navy/90">
+      <header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-background/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-full bg-brand-teal text-sm font-bold text-white">

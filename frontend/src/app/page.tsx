@@ -130,7 +130,7 @@ function SectionHeading({
     <Reveal className="mx-auto max-w-2xl text-center">
       <span
         className={cn(
-          "inline-block rounded-sm px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]",
+          "inline-block rounded-sm px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
           BORDER,
           eyebrowFill,
         )}
@@ -222,7 +222,7 @@ export default async function LandingPage() {
           <Link href="/landing" className="flex items-center gap-2">
             <span
               className={cn(
-                "flex size-9 items-center justify-center rounded-md bg-brand-teal font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)]",
+                "flex size-9 items-center justify-center rounded-md bg-brand-teal font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
                 BORDER,
               )}
             >
@@ -258,13 +258,13 @@ export default async function LandingPage() {
         >
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[radial-gradient(var(--brand-navy)_1px,transparent_1px)] [background-size:22px_22px] opacity-10 dark:bg-[radial-gradient(var(--edge)_1px,transparent_1px)]"
+            className="absolute inset-0 -z-10 bg-[radial-gradient(var(--brand-navy)_1px,transparent_1px)] [background-size:22px_22px] opacity-10 dark:bg-[radial-gradient(var(--foreground)_1px,transparent_1px)]"
           />
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-sm bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]",
+                  "inline-flex items-center gap-1.5 rounded-sm bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
                   BORDER,
                 )}
               >
@@ -377,7 +377,7 @@ export default async function LandingPage() {
         </section>
 
         {/* Featured projects -- same spotlight kids see on their dashboard */}
-        <div className="border-b-2 border-brand-navy bg-brand-yellow/10 py-16 sm:py-20 dark:border-edge">
+        <div className="border-b-2 border-brand-navy bg-brand-yellow/10 py-16 sm:py-20 dark:border-edge dark:bg-card">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <FeaturedSpotlight className="scroll-mt-24" />
           </div>
@@ -440,7 +440,7 @@ export default async function LandingPage() {
             <div className="mx-auto max-w-2xl text-center">
               <span
                 className={cn(
-                  "inline-block rounded-sm bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]",
+                  "inline-block rounded-sm bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
                   BORDER,
                 )}
               >
@@ -539,7 +539,7 @@ export default async function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t-2 border-brand-navy bg-brand-navy py-10 text-white/80 dark:border-edge">
+      <footer className="border-t-2 border-brand-navy bg-brand-navy py-10 text-white/80 dark:border-edge dark:bg-card">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">
           <div className="flex items-center gap-2">
             <span className="flex size-7 items-center justify-center rounded-md border-2 border-white bg-brand-teal text-xs font-black text-white">
