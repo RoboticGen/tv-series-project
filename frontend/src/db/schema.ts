@@ -97,6 +97,9 @@ export const users = pgTable("users", {
   followingCount: bigint("following_count", { mode: "number" }).notNull().default(0),
   // Denormalized total of point_events, kept in sync by DB triggers -- do not write from app code.
   points: bigint("points", { mode: "number" }).notNull().default(0),
+  emailDigest: boolean("email_digest").notNull().default(false),
+  emailMentorDigest: boolean("email_mentor_digest").notNull().default(true),
+  lastDigestSentAt: timestamp("last_digest_sent_at", { withTimezone: true }),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

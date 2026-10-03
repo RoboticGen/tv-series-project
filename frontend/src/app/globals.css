@@ -163,3 +163,87 @@
     @apply font-heading;
   }
 }
+
+/* Tokens the neobrutalism.dev components expect, mapped to this project's. */
+@theme inline {
+  --color-main: var(--primary);
+  --color-main-foreground: var(--primary-foreground);
+  --color-secondary-background: var(--card);
+  --color-overlay: oklch(0 0 0 / 0.55);
+  --radius-base: var(--radius);
+  --shadow-shadow: 4px 4px 0 0 var(--edge);
+  --font-weight-base: 500;
+}
+
+/* Motion tokens */
+:root {
+  --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-press: 120ms;
+  --duration-enter: 260ms;
+}
+
+@theme inline {
+  --animate-marquee: marquee 28s linear infinite;
+  --animate-marquee2: marquee2 28s linear infinite;
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-stamp: stamp 420ms var(--ease-pop) both;
+  --animate-wobble: wobble 1.6s ease-in-out infinite;
+  --animate-shake: shake 360ms var(--ease-snap) both;
+
+  @keyframes marquee {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-100%); }
+  }
+  @keyframes marquee2 {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0%); }
+  }
+  /* `translate`, not `transform`, so it stacks with rotate-* utilities. */
+  @keyframes float {
+    50% { translate: 0 -8px; }
+  }
+  @keyframes stamp {
+    from { scale: 2.4; opacity: 0; }
+    60% { opacity: 1; }
+  }
+  @keyframes wobble {
+    0%, 100% { rotate: -6deg; }
+    50% { rotate: 6deg; }
+  }
+  @keyframes shake {
+    20%, 60% { translate: -6px 0; }
+    40%, 80% { translate: 6px 0; }
+  }
+}
+
+/* Slide panel */
+::view-transition-new(.panel-in) {
+  animation: 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both panel-slide;
+}
+::view-transition-old(.panel-out) {
+  animation: 180ms ease-in both panel-slide reverse;
+}
+::view-transition-new(.backdrop-in) {
+  animation: 260ms ease-out both backdrop-fade;
+}
+::view-transition-old(.backdrop-out) {
+  animation: 180ms ease-in both backdrop-fade reverse;
+}
+@keyframes panel-slide {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes backdrop-fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

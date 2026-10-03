@@ -31,6 +31,8 @@ import { LandingAuthButton } from "@/components/landing-auth-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LandingHeroCta } from "@/components/landing-hero-cta";
 import { LevelBoard } from "@/components/level-board";
+import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/reveal";
+import { Marquee } from "@/components/ui/marquee";
 import { projectCategory } from "@/db/schema";
 import { CATEGORY_LABELS, type ProjectCategory } from "@/lib/categories";
 import { cn } from "@/lib/utils";
@@ -125,7 +127,7 @@ function SectionHeading({
   desc?: string;
 }) {
   return (
-    <div className="mx-auto max-w-2xl text-center">
+    <Reveal className="mx-auto max-w-2xl text-center">
       <span
         className={cn(
           "inline-block rounded-sm px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]",
@@ -144,7 +146,7 @@ function SectionHeading({
       {desc ? (
         <p className="mt-3 font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">{desc}</p>
       ) : null}
-    </div>
+    </Reveal>
   );
 }
 
@@ -166,7 +168,7 @@ function HeroIllustration({ pointValues }: { pointValues: PointValues }) {
 
       <span
         className={cn(
-          "absolute top-8 -right-2 -rotate-6 rounded-lg bg-white px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-brand-navy sm:-right-6",
+          "absolute top-8 -right-2 -rotate-6 motion-safe:animate-float rounded-lg bg-white px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-brand-navy sm:-right-6",
           BORDER,
           SHADOW,
         )}
@@ -176,7 +178,7 @@ function HeroIllustration({ pointValues }: { pointValues: PointValues }) {
       </span>
       <span
         className={cn(
-          "absolute bottom-2 left-0 rotate-3 rounded-lg bg-brand-coral px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-white sm:-left-4",
+          "absolute bottom-2 left-0 rotate-3 motion-safe:animate-float motion-safe:[animation-delay:1.3s] rounded-lg bg-brand-coral px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-white sm:-left-4",
           BORDER,
           SHADOW,
         )}
@@ -186,7 +188,7 @@ function HeroIllustration({ pointValues }: { pointValues: PointValues }) {
       </span>
       <span
         className={cn(
-          "absolute top-1/2 -left-2 -rotate-6 rounded-lg bg-brand-green px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-white sm:-left-8",
+          "absolute top-1/2 -left-2 -rotate-6 motion-safe:animate-float motion-safe:[animation-delay:2.6s] rounded-lg bg-brand-green px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-white sm:-left-8",
           BORDER,
           SHADOW,
         )}
@@ -309,7 +311,7 @@ export default async function LandingPage() {
                         {count.label}
                       </dt>
                       <dd className="font-heading text-3xl font-black tabular-nums lining-nums text-brand-navy">
-                        {count.value.toLocaleString("en")}
+                        <CountUp value={count.value} />
                       </dd>
                     </div>
                   ))}
@@ -320,6 +322,8 @@ export default async function LandingPage() {
             <HeroIllustration pointValues={pointValues} />
           </div>
         </section>
+
+        <Marquee items={projectCategory.enumValues.map((value) => CATEGORY_LABELS[value])} />
 
         {/* How it works */}
         <section
@@ -393,11 +397,11 @@ export default async function LandingPage() {
               title="What do you want to build?"
               desc="Pick a topic to find projects you'll love."
             />
-            <ul className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+            <Stagger as="ul" className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
               {projectCategory.enumValues.map((value) => {
                 const { icon: Icon, fill } = CATEGORY_STYLES[value];
                 return (
-                  <li key={value}>
+                  <StaggerItem as="li" key={value}>
                     <Link
                       href={`/projects?category=${value}`}
                       className={cn(
@@ -419,10 +423,10 @@ export default async function LandingPage() {
                         {CATEGORY_LABELS[value]}
                       </span>
                     </Link>
-                  </li>
+                  </StaggerItem>
                 );
               })}
-            </ul>
+            </Stagger>
           </div>
         </section>
 

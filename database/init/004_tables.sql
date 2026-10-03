@@ -24,6 +24,10 @@ CREATE TABLE users (
   -- Maintained by triggers on point_events -- see adjust_user_points in
   -- 003_functions.sql. Do not write from app code.
   points         BIGINT NOT NULL DEFAULT 0,
+  -- Weekly email
+  email_digest         BOOLEAN NOT NULL DEFAULT false,
+  email_mentor_digest  BOOLEAN NOT NULL DEFAULT true,
+  last_digest_sent_at  TIMESTAMPTZ,
   last_login_at  TIMESTAMPTZ,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()

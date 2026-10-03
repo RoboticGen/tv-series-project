@@ -4,6 +4,7 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getUnreadNotificationCount } from "@/actions/notifications";
+import { toast } from "@/components/toast";
 
 export const NOTIFICATIONS_PATH = "/dashboard/notifications";
 const POLL_MS = 60_000;
@@ -11,6 +12,7 @@ export function useUnreadNotifications() {
   const pathname = usePathname();
   const { status } = useSession();
   const [count, setCount] = React.useState(0);
+  const lastSeen = React.useRef<number | null>(null);
   const onPage = pathname === NOTIFICATIONS_PATH;
 
   React.useEffect(() => {
@@ -20,7 +22,12 @@ export function useUnreadNotifications() {
       if (document.visibilityState !== "visible") return;
       getUnreadNotificationCount()
         .then((unread) => {
-          if (!cancelled) setCount(unread);
+          if (cancelled) return;
+          if (lastSeen.current !== null && unread > lastSeen.current) {
+            toast({ title: "You have a new notification", description: "Tap to see what happened.", href: NOTIFICATIONS_PATH });
+          }
+          lastSeen.current = unread;
+          setCount(unread);
         })
         .catch(() => {});
     }

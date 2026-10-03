@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, ilike, inArray, not, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, not, or, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -368,15 +368,15 @@ export async function getFeaturedProjects(options?: {
 
 // Browse/search page: every published project, not just featured ones --
 // featured projects just sort first within that.
-export async function getPublishedProjects(options?: {
+const BROWSE_PAGE_SIZE = 12;
+
+interface BrowseFilters {
   query?: string;
   category?: string;
   featured?: boolean;
-  page?: number;
-}) {
-  const page = options?.page ?? 1;
-  const pageSize = 12;
+}
 
+function browseConditions(options?: BrowseFilters) {
   const conditions = [eq(projects.status, "published")];
   if (options?.category) {
     conditions.push(eq(projects.category, options.category as (typeof projects.category.enumValues)[number]));
@@ -386,6 +386,22 @@ export async function getPublishedProjects(options?: {
     conditions.push(or(ilike(projects.title, term), ilike(projects.summary, term))!);
   }
   if (options?.featured) conditions.push(eq(projects.isFeatured, true));
+  return conditions;
+}
+
+// Number of browse pages for the same filters getPublishedProjects takes.
+export async function countPublishedProjectPages(options?: BrowseFilters) {
+  const [row] = await db
+    .select({ total: count() })
+    .from(projects)
+    .where(and(...browseConditions(options)));
+  return Math.max(1, Math.ceil((row?.total ?? 0) / BROWSE_PAGE_SIZE));
+}
+
+export async function getPublishedProjects(options?: BrowseFilters & { page?: number }) {
+  const page = Math.max(1, Math.floor(options?.page ?? 1));
+  const pageSize = BROWSE_PAGE_SIZE;
+  const conditions = browseConditions(options);
 
   const rows = await db
     .select({

@@ -21,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { celebrate } from "@/components/celebration";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { StepsEditor } from "@/components/steps-editor";
 import { CoverImageUpload } from "@/components/cover-image-upload";
 import {
@@ -144,6 +146,7 @@ export function ProjectForm({
     try {
       if (isDirty && !(await handleSave())) return;
       await publishProject(projectId);
+      celebrate({ title: "Published!", subtitle: "Your project is live for everyone to see" });
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to publish");
@@ -152,10 +155,9 @@ export function ProjectForm({
     }
   }
 
+  const [confirmingUnpublish, setConfirmingUnpublish] = React.useState(false);
+
   async function handleUnpublish() {
-    if (!window.confirm("Unpublish this project? It will be hidden from others and go back to being a draft.")) {
-      return;
-    }
     setError(null);
     setIsUnpublishing(true);
     try {
@@ -271,11 +273,23 @@ export function ProjectForm({
           </Button>
         ) : null}
         {canUnpublish ? (
-          <Button onClick={handleUnpublish} disabled={isBusy} variant="outline">
+          <Button onClick={() => setConfirmingUnpublish(true)} disabled={isBusy} variant="outline">
             {isUnpublishing ? "Unpublishing…" : "Unpublish"}
           </Button>
         ) : null}
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        <ConfirmDialog
+          open={confirmingUnpublish}
+          onOpenChange={setConfirmingUnpublish}
+          title="Unpublish this project?"
+          description="It will be hidden from others and go back to being a draft."
+          confirmLabel="Unpublish"
+          onConfirm={handleUnpublish}
+        />
+        {error ? (
+          <p key={error} role="alert" className="text-sm text-destructive motion-safe:animate-shake">
+            {error}
+          </p>
+        ) : null}
       </div>
     </div>
   );

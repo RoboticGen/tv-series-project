@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { ArrowDown, ArrowUp, ImagePlus, Plus, Trash2, X } from "lucide-react";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MarkdownEditor } from "@/components/markdown-editor";
@@ -28,15 +29,28 @@ export function StepsEditor({ steps, onChange, onImageAdd }: StepsEditorProps) {
     onChange(next);
   }
 
+  const [pendingRemoveId, setPendingRemoveId] = React.useState<string | null>(null);
+
   function removeStep(id: string) {
     const step = steps.find((s) => s.id === id);
     const hasContent = step && (step.title || step.body || step.images.length > 0);
-    if (hasContent && !window.confirm("Delete this step and its content?")) return;
-    onChange(steps.filter((s) => s.id !== id));
+    if (hasContent) setPendingRemoveId(id);
+    else onChange(steps.filter((s) => s.id !== id));
   }
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog
+        open={pendingRemoveId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemoveId(null);
+        }}
+        title="Delete this step?"
+        description="The step and everything written in it will be removed."
+        confirmLabel="Delete step"
+        destructive
+        onConfirm={() => onChange(steps.filter((s) => s.id !== pendingRemoveId))}
+      />
       {steps.map((step, index) => (
         <section key={step.id} className="rounded-xl border bg-card/50">
           <div className="flex items-center gap-2 border-b px-4 py-3">

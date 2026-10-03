@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "motion/react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,22 +20,22 @@ export function StarButton({
   initialCount,
   signedIn,
 }: StarButtonProps) {
-  const [starred, setStarred] = React.useState(initialStarred);
-  const [count, setCount] = React.useState(initialCount);
-  const [isPending, startTransition] = React.useTransition();
+  const [confirmed, setConfirmed] = React.useState({ starred: initialStarred, count: initialCount });
+  const [{ starred, count }, setOptimistic] = React.useOptimistic(confirmed);
+  const [, startTransition] = React.useTransition();
 
   function handleClick() {
-    if (!signedIn || isPending) return;
-    const nextStarred = !starred;
-    setStarred(nextStarred);
-    setCount((c) => c + (nextStarred ? 1 : -1));
+    if (!signedIn) return;
     startTransition(async () => {
+      setOptimistic({ starred: !starred, count: count + (starred ? -1 : 1) });
       try {
-        await toggleStar(projectId);
-      } catch {
-        setStarred(!nextStarred);
-        setCount((c) => c + (nextStarred ? -1 : 1));
-      }
+        const result = await toggleStar(projectId);
+        setConfirmed((prev) =>
+          prev.starred === result.starred
+            ? prev
+            : { starred: result.starred, count: prev.count + (result.starred ? 1 : -1) },
+        );
+      } catch {}
     });
   }
 
@@ -48,7 +49,14 @@ export function StarButton({
       title="Save this project"
       aria-label="Favorite / Save this project"
     >
-      <Star className={cn("size-4 text-brand-yellow", starred && "fill-brand-yellow")} />
+      <motion.span
+        className="flex"
+        initial={false}
+        animate={{ rotate: starred ? 216 : 0, scale: starred ? [1, 1.5, 1] : 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Star className={cn("size-4 text-brand-yellow", starred && "fill-brand-yellow")} />
+      </motion.span>
       {count}
     </Button>
   );

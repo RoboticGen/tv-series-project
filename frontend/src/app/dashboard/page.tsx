@@ -28,6 +28,7 @@ import { RecentPoints } from "@/components/recent-points";
 import { FeaturedSpotlight, FeaturedSpotlightSkeleton } from "@/components/featured-spotlight";
 import { NewProjectButton } from "@/components/new-project-button";
 import { ProjectCard } from "@/components/project-card";
+import { Stagger, StaggerItem } from "@/components/reveal";
 import { SubmissionCard } from "@/components/submission-card";
 import { CollectionCard } from "@/components/collection-card";
 import { CreateCollectionButton } from "@/components/create-collection-button";
@@ -190,9 +191,9 @@ export default async function DashboardPage() {
                 action={<NewProjectButton>Start my first project</NewProjectButton>}
               />
             ) : (
-              <ul className={GRID}>
+              <Stagger as="ul" className={GRID}>
                 {sortedProjects.map((project) => (
-                  <li key={project.id}>
+                  <StaggerItem as="li" key={project.id}>
                     <ProjectCard
                       slug={project.slug}
                       title={project.title}
@@ -206,9 +207,9 @@ export default async function DashboardPage() {
                       statusBadge={project.status === "rejected" ? "needs a fix" : project.status}
                       href={`/projects/${project.slug}/edit`}
                     />
-                  </li>
+                  </StaggerItem>
                 ))}
-              </ul>
+              </Stagger>
             )}
           </TabsContent>
 
@@ -221,18 +222,18 @@ export default async function DashboardPage() {
                 action={<BrowseButton label="Find a build to try" />}
               />
             ) : (
-              <ul className={GRID}>
+              <Stagger as="ul" className={GRID}>
                 {mySubmissions.map((submission) => (
-                  <li key={submission.id}>
+                  <StaggerItem as="li" key={submission.id}>
                     <SubmissionCard
                       id={submission.id}
                       projectTitle={submission.projectTitle}
                       createdAt={submission.createdAt}
                       isPrivate={submission.isPrivate}
                     />
-                  </li>
+                  </StaggerItem>
                 ))}
-              </ul>
+              </Stagger>
             )}
           </TabsContent>
 
@@ -245,9 +246,9 @@ export default async function DashboardPage() {
                 action={<BrowseButton />}
               />
             ) : (
-              <ul className={GRID}>
+              <Stagger as="ul" className={GRID}>
                 {starredProjects.map((project) => (
-                  <li key={project.id}>
+                  <StaggerItem as="li" key={project.id}>
                     <ProjectCard
                       slug={project.slug}
                       title={project.title}
@@ -258,9 +259,9 @@ export default async function DashboardPage() {
                       starCount={project.starCount}
                       coverImageUrl={project.coverImageUrl}
                     />
-                  </li>
+                  </StaggerItem>
                 ))}
-              </ul>
+              </Stagger>
             )}
           </TabsContent>
 
@@ -275,9 +276,9 @@ export default async function DashboardPage() {
                 description="Make a collection to keep your favorite projects together, like a playlist of builds."
               />
             ) : (
-              <ul className={GRID}>
+              <Stagger as="ul" className={GRID}>
                 {myCollections.map((collection) => (
-                  <li key={collection.id}>
+                  <StaggerItem as="li" key={collection.id}>
                     <CollectionCard
                       slug={collection.slug}
                       title={collection.title}
@@ -286,9 +287,9 @@ export default async function DashboardPage() {
                       isPrivate={collection.isPrivate}
                       coverImageUrls={collection.coverImageUrls}
                     />
-                  </li>
+                  </StaggerItem>
                 ))}
-              </ul>
+              </Stagger>
             )}
           </TabsContent>
         </Tabs>

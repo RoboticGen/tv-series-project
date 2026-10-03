@@ -1,4 +1,12 @@
 import type { LucideIcon } from "lucide-react";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export function EmptyState({
   icon: Icon,
@@ -12,17 +20,18 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-brand-navy bg-brand-sky/5 px-6 py-14 text-center dark:border-edge">
-      <div className="flex size-16 items-center justify-center rounded-full border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] motion-safe:animate-bounce motion-safe:[animation-duration:2s] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]">
-        <Icon className="size-7" aria-hidden />
-      </div>
-      <div>
-        <p className="font-heading text-lg font-black text-foreground">{title}</p>
-        <p className="mx-auto mt-1 max-w-sm text-sm font-medium text-pretty text-muted-foreground">
-          {description}
-        </p>
-      </div>
-      {action ? <div className="mt-1">{action}</div> : null}
-    </div>
+    <Empty className="rounded-xl bg-brand-sky/5">
+      <EmptyHeader>
+        <EmptyMedia
+          variant="icon"
+          className="size-16 rounded-full bg-brand-teal text-white shadow-[3px_3px_0_0_var(--edge)] motion-safe:animate-bounce motion-safe:[animation-duration:2s] [&_svg:not([class*='size-'])]:size-7"
+        >
+          <Icon aria-hidden />
+        </EmptyMedia>
+        <EmptyTitle className="text-lg">{title}</EmptyTitle>
+        <EmptyDescription className="font-medium text-pretty text-muted-foreground">{description}</EmptyDescription>
+      </EmptyHeader>
+      {action ? <EmptyContent>{action}</EmptyContent> : null}
+    </Empty>
   );
 }

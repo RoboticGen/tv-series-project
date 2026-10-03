@@ -5,6 +5,7 @@ import { Lock, FolderOpen, ArrowLeft } from "lucide-react";
 import { auth } from "@/auth";
 import { getCollectionBySlug } from "@/actions/collections";
 import { ProjectCard } from "@/components/project-card";
+import { Stagger, StaggerItem } from "@/components/reveal";
 import { RemoveFromCollectionButton } from "@/components/remove-from-collection-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -93,9 +94,9 @@ export default async function CollectionDetailPage({
             ) : null}
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {collection.projects.map((project) => (
-              <div key={project.id} className="relative">
+              <StaggerItem key={project.id} className="relative">
                 {isOwner ? (
                   <RemoveFromCollectionButton
                     collectionId={collection.id}
@@ -112,9 +113,9 @@ export default async function CollectionDetailPage({
                   starCount={project.starCount}
                   coverImageUrl={project.coverImageUrl}
                 />
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
       </div>
     </div>

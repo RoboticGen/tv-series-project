@@ -4,10 +4,12 @@ import { ArrowRight, Hammer, Heart, ImageOff, Sparkles, Star } from "lucide-reac
 import { EmptyState } from "@/components/empty-state";
 import { getFeaturedProjects } from "@/actions/projects";
 import { ProjectCard, ProjectCardSkeleton } from "@/components/project-card";
+import { Stagger, StaggerItem } from "@/components/reveal";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const SPOTLIGHT_SIZE = 4;
 
@@ -45,7 +47,7 @@ export function FeaturedSpotlightSkeleton({ className }: { className?: string })
     <section id="featured" aria-labelledby="featured-heading" aria-busy="true" className={cn("scroll-mt-6", className)}>
       <SpotlightHeader />
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="h-80 animate-pulse rounded-xl border-2 border-brand-navy bg-muted lg:col-span-3 dark:border-edge" />
+        <Skeleton className="h-80 rounded-xl lg:col-span-3" />
         {Array.from({ length: SPOTLIGHT_SIZE - 1 }, (_, i) => (
           <ProjectCardSkeleton key={i} />
         ))}
@@ -136,9 +138,9 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
         </Link>
 
         {rest.length > 0 ? (
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger as="ul" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {rest.map((project) => (
-              <li key={project.id}>
+              <StaggerItem as="li" key={project.id}>
                 <ProjectCard
                   slug={project.slug}
                   title={project.title}
@@ -150,9 +152,9 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
                   coverImageUrl={project.coverImageUrl}
                   isFeatured
                 />
-              </li>
+              </StaggerItem>
             ))}
-          </ul>
+          </Stagger>
         ) : null}
       </div>
     </section>

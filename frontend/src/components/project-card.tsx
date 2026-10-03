@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProjectCardProps {
   slug: string;
@@ -29,16 +30,16 @@ interface ProjectCardProps {
 export function ProjectCardSkeleton() {
   return (
     <div className="flex h-full flex-col gap-4 overflow-hidden rounded-lg border-2 border-brand-navy bg-card py-4 dark:border-edge">
-      <div className="aspect-video w-full animate-pulse bg-muted" />
+      <Skeleton className="aspect-video w-full" />
       <div className="flex flex-col gap-2 px-4">
-        <div className="h-5 w-20 animate-pulse rounded-sm bg-muted" />
-        <div className="mt-1 h-5 w-3/4 animate-pulse rounded bg-muted" />
-        <div className="h-4 w-full animate-pulse rounded bg-muted" />
-        <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+        <Skeleton className="h-5 w-20 rounded-sm" />
+        <Skeleton className="mt-1 h-5 w-3/4 rounded" />
+        <Skeleton className="h-4 w-full rounded" />
+        <Skeleton className="h-4 w-2/3 rounded" />
       </div>
       <div className="mt-auto flex items-center justify-between border-t-2 border-brand-navy bg-muted/50 px-4 pt-4 dark:border-edge">
-        <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-        <div className="h-4 w-16 animate-pulse rounded bg-muted" />
+        <Skeleton className="h-4 w-20 rounded" />
+        <Skeleton className="h-4 w-16 rounded" />
       </div>
     </div>
   );
@@ -61,7 +62,7 @@ export function ProjectCard({
     <Link href={href ?? `/projects/${slug}`} className="block h-full">
       <Card
         className={cn(
-          "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_var(--edge)]",
+          "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 motion-safe:hover:-rotate-1 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_var(--edge)]",
           isFeatured && "bg-brand-yellow/10 dark:bg-brand-yellow/5",
         )}
       >
@@ -81,7 +82,7 @@ export function ProjectCard({
             </div>
           )}
           {isFeatured ? (
-            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]">
+            <span className="absolute top-2 left-2 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 motion-safe:animate-stamp border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]">
               <Sparkles className="size-3.5" aria-hidden />
               Featured
             </span>

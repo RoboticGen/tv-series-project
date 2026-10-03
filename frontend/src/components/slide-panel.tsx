@@ -66,31 +66,35 @@ export function SlidePanel({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/40" onClick={close} />
-      <aside
-        ref={asideRef}
-        style={width ? { width, maxWidth: "none" } : undefined}
-        className="absolute inset-y-0 right-0 flex w-full max-w-4xl flex-col bg-background shadow-2xl"
-      >
-        <div
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Resize panel width"
-          onPointerDown={handleResizeStart}
-          className="absolute inset-y-0 left-0 z-10 hidden w-3 -translate-x-1/2 cursor-col-resize items-center justify-center touch-none sm:flex"
+      <React.ViewTransition enter="backdrop-in" exit="backdrop-out" default="none">
+        <div className="absolute inset-0 bg-black/40" onClick={close} />
+      </React.ViewTransition>
+      <React.ViewTransition enter="panel-in" exit="panel-out" default="none">
+        <aside
+          ref={asideRef}
+          style={width ? { width, maxWidth: "none" } : undefined}
+          className="absolute inset-y-0 right-0 flex w-full max-w-4xl flex-col bg-background shadow-2xl"
         >
-          <div className="h-10 w-1 rounded-full bg-border transition-colors hover:bg-brand-teal" />
-        </div>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          className="absolute top-4 right-4 z-10"
-          onClick={close}
-        >
-          <X className="size-4" />
-        </Button>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
-      </aside>
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize panel width"
+            onPointerDown={handleResizeStart}
+            className="absolute inset-y-0 left-0 z-10 hidden w-3 -translate-x-1/2 cursor-col-resize items-center justify-center touch-none sm:flex"
+          >
+            <div className="h-10 w-1 rounded-full bg-border transition-colors hover:bg-brand-teal" />
+          </div>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            className="absolute top-4 right-4 z-10"
+            onClick={close}
+          >
+            <X className="size-4" />
+          </Button>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
+        </aside>
+      </React.ViewTransition>
     </div>
   );
 }

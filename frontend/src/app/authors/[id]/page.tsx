@@ -8,6 +8,7 @@ import { users } from "@/db/schema";
 import { getPublishedProjectsByAuthor } from "@/actions/projects";
 import { getFollowStatus } from "@/actions/follows";
 import { ProjectCard } from "@/components/project-card";
+import { Stagger, StaggerItem } from "@/components/reveal";
 import { FollowButton } from "@/components/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -102,21 +103,22 @@ export default async function AuthorProfilePage({
             ) : null}
           </div>
         ) : (
-          <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                slug={project.slug}
-                title={project.title}
-                summary={project.summary}
-                category={project.category}
-                authorName={author.displayName}
-                likeCount={project.likeCount}
-                starCount={project.starCount}
-                coverImageUrl={project.coverImageUrl}
-              />
+              <StaggerItem key={project.id}>
+                <ProjectCard
+                  slug={project.slug}
+                  title={project.title}
+                  summary={project.summary}
+                  category={project.category}
+                  authorName={author.displayName}
+                  likeCount={project.likeCount}
+                  starCount={project.starCount}
+                  coverImageUrl={project.coverImageUrl}
+                />
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
       </section>
     </div>

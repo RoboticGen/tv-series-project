@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Bell } from "lucide-react";
 import { auth } from "@/auth";
+import { getEmailPreferences } from "@/actions/email-preferences";
 import { getMyNotifications } from "@/actions/notifications";
+import { EmailDigestSettings } from "@/components/email-digest-settings";
 import { EmptyState } from "@/components/empty-state";
 import { NotificationList } from "@/components/notification-list";
 
@@ -12,7 +14,7 @@ export default async function NotificationsPage() {
   const session = await auth();
   if (!session?.user) redirect("/");
 
-  const items = await getMyNotifications();
+  const [items, emailPreferences] = await Promise.all([getMyNotifications(), getEmailPreferences()]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
@@ -32,6 +34,9 @@ export default async function NotificationsPage() {
         ) : (
           <NotificationList items={items} />
         )}
+      </div>
+      <div className="mt-8">
+        <EmailDigestSettings {...emailPreferences} />
       </div>
     </div>
   );

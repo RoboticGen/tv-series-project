@@ -1,7 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import { Bolt, Cog, Rocket, Trophy, Wrench } from "lucide-react";
 import type { PointValues } from "@/actions/points";
-import { Progress } from "@/components/ui/progress";
+import { LevelProgress } from "@/components/level-progress";
+import { CountUp } from "@/components/reveal";
 import { cn } from "@/lib/utils";
 
 // Builder levels turn the stored points total (users.points, maintained by
@@ -53,18 +54,21 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
           </p>
         </div>
         <p className="ml-auto text-right">
-          <span className="block font-heading text-2xl font-black tabular-nums lining-nums text-brand-navy dark:text-foreground">
-            {points}
-          </span>
+          <CountUp
+            value={points}
+            className="block font-heading text-2xl font-black tabular-nums lining-nums text-brand-navy dark:text-foreground"
+          />
           <span className="text-xs font-bold text-muted-foreground uppercase">points</span>
         </p>
       </div>
 
       <div>
-        <Progress
-          value={progress}
-          aria-label={next ? `Progress to ${next.name}` : "Top level reached"}
-          className="h-5"
+        <LevelProgress
+          points={points}
+          progress={progress}
+          levelName={level.name}
+          levelMinPoints={level.minPoints}
+          label={next ? `Progress to ${next.name}` : "Top level reached"}
         />
         <p className="mt-2 text-sm font-medium text-pretty text-muted-foreground">
           {next ? (

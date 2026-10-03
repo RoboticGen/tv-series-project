@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DURATION } from "@/lib/motion";
 import { toggleFollow } from "@/actions/follows";
 
 interface FollowButtonProps {
@@ -11,19 +14,18 @@ interface FollowButtonProps {
 }
 
 export function FollowButton({ userId, initialFollowing, signedIn }: FollowButtonProps) {
-  const [following, setFollowing] = React.useState(initialFollowing);
-  const [isPending, startTransition] = React.useTransition();
+  const [confirmed, setConfirmed] = React.useState(initialFollowing);
+  const [following, setOptimistic] = React.useOptimistic(confirmed);
+  const [, startTransition] = React.useTransition();
 
   function handleClick() {
-    if (!signedIn || isPending) return;
-    const nextFollowing = !following;
-    setFollowing(nextFollowing);
+    if (!signedIn) return;
     startTransition(async () => {
+      setOptimistic(!following);
       try {
-        await toggleFollow(userId);
-      } catch {
-        setFollowing(!nextFollowing);
-      }
+        const result = await toggleFollow(userId);
+        setConfirmed(result.following);
+      } catch {}
     });
   }
 
@@ -34,7 +36,19 @@ export function FollowButton({ userId, initialFollowing, signedIn }: FollowButto
       disabled={!signedIn}
       onClick={handleClick}
     >
-      {following ? "Following" : "Follow"}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={following ? "following" : "follow"}
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -10, opacity: 0 }}
+          transition={{ duration: DURATION.press }}
+          className="inline-flex items-center gap-1.5"
+        >
+          {following ? <Check className="size-4" aria-hidden /> : null}
+          {following ? "Following" : "Follow"}
+        </motion.span>
+      </AnimatePresence>
     </Button>
   );
 }

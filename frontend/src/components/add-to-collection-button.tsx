@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { FolderPlus, Loader2 } from "lucide-react";
+import { FolderPlus } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -125,7 +126,7 @@ export function AddToCollectionButton({ projectId, signedIn }: AddToCollectionBu
 
         {loading ? (
           <div className="flex items-center justify-center py-6 text-muted-foreground">
-            <Loader2 className="size-5 animate-spin" />
+            <Spinner className="size-5" />
           </div>
         ) : (
           <div className="max-h-64 space-y-1 overflow-y-auto">

@@ -16,21 +16,21 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border-2 border-brand-navy bg-primary text-primary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
+          "border-2 border-brand-navy bg-primary text-primary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-x-[3px] active:translate-y-[3px] hover:shadow-none active:shadow-none dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
         noShadow:
           "border-2 border-brand-navy bg-primary text-primary-foreground dark:border-edge",
         neutral:
-          "border-2 border-brand-navy bg-background text-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
+          "border-2 border-brand-navy bg-background text-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-x-[3px] active:translate-y-[3px] hover:shadow-none active:shadow-none dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
         reverse:
           "border-2 border-brand-navy bg-primary text-primary-foreground hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:hover:shadow-[3px_3px_0_0_var(--edge)]",
         outline:
-          "border-2 border-brand-navy bg-background text-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] hover:bg-muted hover:shadow-none aria-expanded:bg-muted dark:border-edge dark:bg-input/30 dark:shadow-[3px_3px_0_0_var(--edge)]",
+          "border-2 border-brand-navy bg-background text-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-x-[3px] active:translate-y-[3px] hover:bg-muted hover:shadow-none active:shadow-none aria-expanded:bg-muted dark:border-edge dark:bg-input/30 dark:shadow-[3px_3px_0_0_var(--edge)]",
         secondary:
-          "border-2 border-brand-navy bg-secondary text-secondary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none aria-expanded:bg-secondary dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
+          "border-2 border-brand-navy bg-secondary text-secondary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-x-[3px] active:translate-y-[3px] hover:shadow-none active:shadow-none aria-expanded:bg-secondary dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
         ghost:
           "border-2 border-transparent bg-transparent text-foreground hover:border-brand-navy hover:bg-muted aria-expanded:border-brand-navy aria-expanded:bg-muted dark:hover:border-edge dark:hover:bg-muted/50 dark:aria-expanded:border-edge",
         destructive:
-          "border-2 border-destructive bg-destructive/10 text-destructive shadow-[3px_3px_0_0_var(--destructive)] hover:translate-x-[3px] hover:translate-y-[3px] hover:bg-destructive/20 hover:shadow-none dark:bg-destructive/20",
+          "border-2 border-destructive bg-destructive/10 text-destructive shadow-[3px_3px_0_0_var(--destructive)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-x-[3px] active:translate-y-[3px] hover:bg-destructive/20 hover:shadow-none active:shadow-none dark:bg-destructive/20",
         link: "border-2 border-transparent bg-transparent text-primary underline-offset-4 hover:underline",
       },
       size: {

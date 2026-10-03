@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "motion/react";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,22 +20,22 @@ export function LikeButton({
   initialCount,
   signedIn,
 }: LikeButtonProps) {
-  const [liked, setLiked] = React.useState(initialLiked);
-  const [count, setCount] = React.useState(initialCount);
-  const [isPending, startTransition] = React.useTransition();
+  const [confirmed, setConfirmed] = React.useState({ liked: initialLiked, count: initialCount });
+  const [{ liked, count }, setOptimistic] = React.useOptimistic(confirmed);
+  const [, startTransition] = React.useTransition();
 
   function handleClick() {
-    if (!signedIn || isPending) return;
-    const nextLiked = !liked;
-    setLiked(nextLiked);
-    setCount((c) => c + (nextLiked ? 1 : -1));
+    if (!signedIn) return;
     startTransition(async () => {
+      setOptimistic({ liked: !liked, count: count + (liked ? -1 : 1) });
       try {
-        await toggleLike(projectId);
-      } catch {
-        setLiked(!nextLiked);
-        setCount((c) => c + (nextLiked ? -1 : 1));
-      }
+        const result = await toggleLike(projectId);
+        setConfirmed((prev) =>
+          prev.liked === result.liked
+            ? prev
+            : { liked: result.liked, count: prev.count + (result.liked ? 1 : -1) },
+        );
+      } catch {}
     });
   }
 
@@ -46,7 +47,14 @@ export function LikeButton({
       onClick={handleClick}
       className="gap-1.5"
     >
-      <Heart className={cn("size-4 text-brand-coral", liked && "fill-brand-coral")} />
+      <motion.span
+        className="flex"
+        initial={false}
+        animate={{ scale: liked ? [1, 1.6, 1] : 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Heart className={cn("size-4 text-brand-coral", liked && "fill-brand-coral")} />
+      </motion.span>
       {count}
     </Button>
   );

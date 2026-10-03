@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { projects, submissions, users } from "@/db/schema";
+import { pointEvents, projects, submissions, users } from "@/db/schema";
 import { createContentDoc } from "@/db/content";
+import { EARNED_PARAM } from "@/lib/earned-points";
 import { createSubmissionSchema } from "@/lib/validation";
 import type { Step } from "@/lib/steps";
 
@@ -52,6 +53,20 @@ export async function createSubmission(
     parsed.steps,
   );
 
+  // Points are awarded by a trigger, once per project
+  const buildPoints = () =>
+    db
+      .select({ points: pointEvents.points })
+      .from(pointEvents)
+      .where(
+        and(
+          eq(pointEvents.userId, session.user.id),
+          eq(pointEvents.projectId, projectId),
+          eq(pointEvents.reason, "submission_created"),
+        ),
+      );
+  const [alreadyAwarded] = await buildPoints();
+
   const [submission] = await db
     .insert(submissions)
     .values({
@@ -62,9 +77,11 @@ export async function createSubmission(
     })
     .returning({ id: submissions.id });
 
+  const [award] = alreadyAwarded ? [] : await buildPoints();
+
   revalidatePath("/dashboard");
   revalidatePath(`/projects/${project.slug}`);
-  redirect(`/dashboard/submissions/${submission.id}`);
+  redirect(`/dashboard/submissions/${submission.id}${award ? `?${EARNED_PARAM}=${award.points}` : ""}`);
 }
 
 export async function getMySubmissions(userId: string) {

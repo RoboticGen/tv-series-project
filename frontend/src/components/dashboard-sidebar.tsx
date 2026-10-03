@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "motion/react";
 import { useSession, signOut } from "next-auth/react";
 import { Bell, LayoutDashboard, Compass, ClipboardCheck, ShieldCheck, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { NewProjectButton } from "@/components/new-project-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NOTIFICATIONS_PATH, useUnreadNotifications } from "@/components/use-unread-notifications";
+import { SPRING_POP } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -23,7 +25,11 @@ const NAV_ITEMS = [
 function UnreadBadge({ count, className }: { count: number; className?: string }) {
   if (count === 0) return null;
   return (
-    <span
+    <motion.span
+      key={count}
+      initial={{ scale: 0.3 }}
+      animate={{ scale: 1 }}
+      transition={SPRING_POP}
       className={cn(
         "rounded-full border-2 border-brand-navy bg-brand-coral px-1.5 text-xs leading-4 font-black tabular-nums text-brand-navy dark:border-edge",
         className,
@@ -31,7 +37,7 @@ function UnreadBadge({ count, className }: { count: number; className?: string }
     >
       {count > 99 ? "99+" : count}
       <span className="sr-only"> unread</span>
-    </span>
+    </motion.span>
   );
 }
 
@@ -168,7 +174,14 @@ export function DashboardSidebar() {
             className="relative"
             render={<Link href={NOTIFICATIONS_PATH} aria-label="Notifications" />}
           >
-            <Bell className="size-4" aria-hidden />
+            <motion.span
+              key={unread}
+              className="flex origin-top"
+              animate={unread > 0 ? { rotate: [0, -20, 16, -10, 6, 0] } : undefined}
+              transition={{ duration: 0.6 }}
+            >
+              <Bell className="size-4" aria-hidden />
+            </motion.span>
             <UnreadBadge count={unread} className="absolute -top-2 -right-2" />
           </Button>
           <Button

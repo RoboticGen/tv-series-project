@@ -177,3 +177,25 @@ describe("getSubmissionById", () => {
     expect(await getSubmissionById(submission.id, owner.id)).not.toBeNull();
   });
 });
+
+describe("createSubmission points toast", () => {
+  const steps = [{ id: "s1", title: "", images: [], body: "a".repeat(20) }];
+
+  it("adds ?earned to the redirect only the first time a build earns points", async () => {
+    const { db } = handle;
+    const author = await insertUser(db);
+    const builder = await insertUser(db);
+    const project = await insertProject(db, author.id, {
+      status: "published",
+      publishedAt: new Date(),
+      isFeatured: true,
+    });
+
+    signInAs(builder);
+    await expect(createSubmission(project.id, { steps })).rejects.toThrow(/\?earned=5$/);
+    await expect(createSubmission(project.id, { steps })).rejects.toThrow(/\/dashboard\/submissions\/[0-9a-f-]+$/);
+
+    signInAs(author);
+    await expect(createSubmission(project.id, { steps })).rejects.toThrow(/\/dashboard\/submissions\/[0-9a-f-]+$/);
+  });
+});

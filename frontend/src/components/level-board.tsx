@@ -1,6 +1,7 @@
-import { Bot, Bug, Cable, Flag } from "lucide-react";
+import { Bug, Cable, Flag } from "lucide-react";
 import type { PointValues } from "@/actions/points";
 import { LEVELS } from "@/components/builder-level";
+import { LevelBoardToken } from "@/components/level-board-token";
 import { cn } from "@/lib/utils";
 
 // "Snakes and ladders" for makers: ladders are the actions that earn
@@ -41,6 +42,13 @@ function squarePosition(n: number) {
   const col = row % 2 === 0 ? offset : COLS - 1 - offset;
   return { row, col, x: col * CELL + CELL / 2, y: (ROWS - 1 - row) * CELL + CELL / 2 };
 }
+
+// The robot's route. TODO: This needs to be properly updated
+const TOKEN_PATH = [1, 2, 13, 14, 15, 16, 17, 18, 29, 30];
+const TOKEN_STOPS = TOKEN_PATH.map((n) => {
+  const { row, col } = squarePosition(n);
+  return { left: (col / COLS) * 100, top: ((ROWS - 1 - row) / ROWS) * 100 };
+});
 
 function Ladder({ from, to }: { from: number; to: number }) {
   const a = squarePosition(from);
@@ -228,8 +236,8 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
           })}
         </div>
 
-        {/* Start robot and finish flag */}
-        <Bot className="absolute bottom-[2%] left-[19%] size-6 text-brand-navy motion-safe:animate-bounce sm:size-9 dark:text-foreground" />
+        {/* Robot piece and finish flag */}
+        <LevelBoardToken stops={TOKEN_STOPS} cols={COLS} rows={ROWS} />
         <Flag className="absolute top-[1%] right-[1%] size-5 fill-brand-coral text-brand-navy sm:size-8" />
       </div>
 

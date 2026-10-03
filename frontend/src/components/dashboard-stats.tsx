@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Rocket, Sparkles, Heart, Star, Hammer } from "lucide-react";
+import { CountUp } from "@/components/reveal";
 import { cn } from "@/lib/utils";
 
 interface DashboardStatsProps {
@@ -40,7 +41,7 @@ export function StatTile({
       </div>
       <div className="w-full min-w-0">
         <p className="font-heading text-3xl leading-none font-black tabular-nums lining-nums text-brand-navy dark:text-foreground">
-          {value}
+          <CountUp value={value} />
         </p>
         <p className="mt-1 text-xs leading-tight font-bold tracking-wide text-balance break-words text-brand-navy/75 uppercase dark:text-foreground/75">
           {label}
