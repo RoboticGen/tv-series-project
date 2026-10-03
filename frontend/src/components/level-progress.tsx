@@ -52,10 +52,10 @@ export function LevelProgress({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={progress}
-      className="relative h-5 w-full overflow-hidden rounded-lg border-2 border-brand-navy bg-background dark:border-edge"
+      className="relative h-5 w-full overflow-hidden rounded-lg border-2 border-edge bg-background"
     >
       <motion.div
-        className="h-full border-r-2 border-brand-navy bg-primary dark:border-edge"
+        className="h-full border-r-2 border-edge bg-primary"
         initial={{ width: "0%" }}
         animate={{ width: `${progress}%` }}
         transition={{ duration: 0.9, ease: EASE_SNAP, delay: 0.15 }}

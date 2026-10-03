@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 // who clicked "Explore projects" on the landing page had no way back.
 export function PublicHeader() {
   return (
-    <header className="sticky top-0 z-50 print:hidden border-b-2 border-brand-navy bg-background/95 backdrop-blur dark:border-edge">
+    <header className="sticky top-0 z-50 print:hidden border-b-2 border-edge bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
           <Link
@@ -22,10 +22,10 @@ export function PublicHeader() {
             <span className="sm:hidden">Home</span>
           </Link>
           <Link href="/" className="hidden items-center gap-2 md:flex" aria-label="RoboticGen Projects home">
-            <span className="flex size-9 items-center justify-center rounded-md border-2 border-brand-navy bg-brand-teal font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)] dark:border-edge">
+            <span className="flex size-9 items-center justify-center rounded-md border-2 border-edge bg-brand-teal font-black text-brand-navy shadow-hard-2">
               R
             </span>
-            <span className="font-heading font-black tracking-tight text-brand-navy dark:text-foreground">
+            <span className="font-heading font-black tracking-tight text-foreground">
               RoboticGen Projects
             </span>
           </Link>

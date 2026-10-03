@@ -12,6 +12,8 @@
   --font-heading: var(--font-raleway);
   --color-brand-navy: var(--brand-navy);
   --color-brand-teal: var(--brand-teal);
+  --color-teal-ink: var(--teal-ink);
+  --color-control: var(--control-edge);
   --color-brand-sky: var(--brand-sky);
   --color-brand-coral: var(--brand-coral);
   --color-brand-green: var(--brand-green);
@@ -59,7 +61,8 @@
 
 :root {
   --brand-navy: #022f49;
-  --brand-teal: #219cbc;
+  /* Playbook teal is #219cbc; lifted 2% so navy ink clears 4.5:1 on it. */
+  --brand-teal: oklch(0.66 0.11 220);
   --brand-sky: #54afe7;
   --brand-coral: #e87a55;
   --brand-green: #43b268;
@@ -68,6 +71,8 @@
   --brand-black: #1f2022;
   /* Outline + hard-shadow colour for the neobrutalist edges. */
   --edge: var(--brand-navy);
+  --control-edge: var(--brand-navy);
+  --teal-ink: oklch(0.47 0.085 222);
 
   --background: oklch(1 0 0);
   --foreground: var(--brand-navy);
@@ -76,17 +81,17 @@
   --popover: oklch(1 0 0);
   --popover-foreground: var(--brand-navy);
   --primary: var(--brand-teal);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary-foreground: var(--brand-navy);
   --secondary: oklch(0.96 0.02 217);
   --secondary-foreground: var(--brand-navy);
   --muted: oklch(0.96 0.01 217);
-  --muted-foreground: var(--brand-grey);
+  --muted-foreground: oklch(0.5 0.03 235);
   --accent: var(--brand-coral);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: oklch(0.577 0.215 27.325);
+  --accent-foreground: var(--brand-navy);
+  --destructive: oklch(0.55 0.21 27);
   --border: oklch(0.9 0.015 217);
   --input: oklch(0.9 0.015 217);
-  --ring: var(--brand-sky);
+  --ring: var(--teal-ink);
   --chart-1: var(--brand-teal);
   --chart-2: var(--brand-coral);
   --chart-3: var(--brand-green);
@@ -96,19 +101,21 @@
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: var(--brand-navy);
   --sidebar-primary: var(--brand-teal);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-primary-foreground: var(--brand-navy);
   --sidebar-accent: oklch(0.96 0.02 217);
   --sidebar-accent-foreground: var(--brand-navy);
   --sidebar-border: oklch(0.9 0.015 217);
-  --sidebar-ring: var(--brand-sky);
+  --sidebar-ring: var(--teal-ink);
 }
 
 .dark {
   color-scheme: dark;
   /* neobrutalism.dev dark recipe: fills stay loud, edges go near-black,
      the page sits lighter than the cards so hard shadows still read. */
-  --brand-teal: oklch(0.58 0.105 222);
   --edge: oklch(0.13 0.02 240);
+  /* Black edges cannot reach 3:1 on a dark page, so form controls get a light outline. */
+  --control-edge: oklch(0.72 0.03 230);
+  --teal-ink: oklch(0.78 0.1 220);
 
   --background: oklch(0.29 0.04 235);
   --foreground: oklch(0.95 0.008 230);
@@ -171,6 +178,11 @@
   --color-overlay: oklch(0 0 0 / 0.55);
   --radius-base: var(--radius);
   --shadow-shadow: 4px 4px 0 0 var(--edge);
+  --shadow-hard-2: 2px 2px 0 0 var(--edge);
+  --shadow-hard-3: 3px 3px 0 0 var(--edge);
+  --shadow-hard-4: 4px 4px 0 0 var(--edge);
+  --shadow-hard-6: 6px 6px 0 0 var(--edge);
+  --shadow-hard-8: 8px 8px 0 0 var(--edge);
   --font-weight-base: 500;
 }
 
@@ -218,13 +230,13 @@
 
 /* Slide panel */
 ::view-transition-new(.panel-in) {
-  animation: 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both panel-slide;
+  animation: var(--duration-enter) var(--ease-snap) both panel-slide;
 }
 ::view-transition-old(.panel-out) {
   animation: 180ms ease-in both panel-slide reverse;
 }
 ::view-transition-new(.backdrop-in) {
-  animation: 260ms ease-out both backdrop-fade;
+  animation: var(--duration-enter) ease-out both backdrop-fade;
 }
 ::view-transition-old(.backdrop-out) {
   animation: 180ms ease-in both backdrop-fade reverse;
@@ -244,5 +256,11 @@
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+  /* Radix enter/exit animations (dialog, select, tooltip). */
+  [data-state],
+  [data-open],
+  [data-closed] {
+    animation-duration: 1ms !important;
   }
 }

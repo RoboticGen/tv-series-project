@@ -66,7 +66,7 @@ export function ProjectEditorPanel({
       >
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-heading text-2xl font-bold text-brand-navy dark:text-foreground">
+            <h1 className="font-heading text-2xl font-bold text-foreground">
               {project.title === "Untitled project" ? "New project" : "Edit project"}
             </h1>
             <Badge

@@ -12,12 +12,12 @@ export function Marquee({ items, className }: { items: string[]; className?: str
     <div
       aria-hidden
       className={cn(
-        "relative flex w-full overflow-x-hidden border-y-2 border-brand-navy bg-brand-yellow font-heading text-xl font-black tracking-wide text-brand-navy uppercase dark:border-edge",
+        "group relative flex w-full overflow-x-hidden border-y-2 border-edge bg-brand-yellow font-heading text-xl font-black tracking-wide text-brand-navy uppercase",
         className,
       )}
     >
-      <div className="py-3 whitespace-nowrap motion-safe:animate-marquee">{track}</div>
-      <div className="absolute top-0 py-3 whitespace-nowrap motion-safe:animate-marquee2">{track}</div>
+      <div className="py-3 whitespace-nowrap motion-safe:animate-marquee group-hover:[animation-play-state:paused]">{track}</div>
+      <div className="absolute top-0 py-3 whitespace-nowrap motion-safe:animate-marquee2 group-hover:[animation-play-state:paused]">{track}</div>
     </div>
   );
 }

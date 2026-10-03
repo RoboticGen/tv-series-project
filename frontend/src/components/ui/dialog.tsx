@@ -64,7 +64,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
+        "fixed inset-0 z-50 bg-overlay data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
         className,
       )}
       {...props}
@@ -86,7 +86,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border-2 border-brand-navy bg-popover p-6 text-sm text-popover-foreground shadow-[6px_6px_0_0_var(--brand-navy)] duration-200 outline-none sm:max-w-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)]",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border-2 border-edge bg-popover p-6 text-sm text-popover-foreground shadow-hard-6 duration-200 outline-none sm:max-w-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
           className,
         )}
         {...props}
@@ -95,7 +95,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-3 right-3 rounded-md border-2 border-transparent p-1 outline-none transition-colors hover:border-brand-navy hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none dark:hover:border-edge [&_svg]:size-4 [&_svg]:shrink-0"
+            className="absolute top-3 right-3 rounded-md border-2 border-transparent p-1 outline-none transition-colors hover:border-edge hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring disabled:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
           >
             <XIcon />
             <span className="sr-only">Close</span>
@@ -128,7 +128,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-6 -mb-6 mt-2 flex flex-col-reverse gap-2 rounded-b-[calc(var(--radius-lg)-2px)] border-t-2 border-brand-navy bg-muted/50 p-4 sm:flex-row sm:justify-end dark:border-edge",
+        "-mx-6 -mb-6 mt-2 flex flex-col-reverse gap-2 rounded-b-[calc(var(--radius-lg)-2px)] border-t-2 border-edge bg-muted/50 p-4 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}

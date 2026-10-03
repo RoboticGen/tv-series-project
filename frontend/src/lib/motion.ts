@@ -7,4 +7,4 @@ export const SPRING_SNAP = { type: "spring", stiffness: 420, damping: 30 } as co
 export const DURATION = { press: 0.12, enter: 0.26, reveal: 0.4 } as const;
 
 // Confetti in brand colours (globals.css :root).
-export const CONFETTI_COLORS = ["#219cbc", "#54afe7", "#e87a55", "#43b268", "#fdb713", "#022f49"];
+export const CONFETTI_COLORS = ["#29a1c1", "#54afe7", "#e87a55", "#43b268", "#fdb713", "#022f49"];

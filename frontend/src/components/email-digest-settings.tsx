@@ -48,7 +48,7 @@ export function EmailDigestSettings({
   return (
     <section
       aria-labelledby="email-digest-heading"
-      className="flex flex-col gap-4 rounded-xl border-2 border-brand-navy bg-card p-4 dark:border-edge"
+      className="flex flex-col gap-4 rounded-xl border-2 border-edge bg-card p-4"
     >
       <h2
         id="email-digest-heading"

@@ -45,7 +45,7 @@ export function SubmissionViewPanel({
           {isPrivate !== undefined ? "Your build of" : "A build of"}{" "}
           <Link
             href={`/projects/${submission.projectSlug}`}
-            className="text-brand-teal hover:underline"
+            className="text-teal-ink hover:underline"
           >
             {submission.projectTitle}
           </Link>
@@ -63,7 +63,7 @@ export function SubmissionViewPanel({
         </Avatar>
         <span className="text-sm font-medium text-foreground">{submission.authorName}</span>
       </div>
-      <h1 className="mt-3 font-heading text-2xl font-bold text-brand-navy dark:text-foreground">
+      <h1 className="mt-3 font-heading text-2xl font-bold text-foreground">
         Submitted {submission.createdAt.toLocaleDateString()}
       </h1>
       <div className="mt-8 border-t pt-8">

@@ -53,7 +53,7 @@ export function LikeButton({
         animate={{ scale: liked ? [1, 1.6, 1] : 1 }}
         transition={{ duration: 0.3 }}
       >
-        <Heart className={cn("size-4 text-brand-coral", liked && "fill-brand-coral")} />
+        <Heart className={cn("size-4", liked && "fill-brand-coral text-edge")} />
       </motion.span>
       {count}
     </Button>

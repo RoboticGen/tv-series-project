@@ -80,7 +80,7 @@ export function SlidePanelStack({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/40" onClick={close} />
+      <div className="absolute inset-0 bg-overlay" onClick={close} />
       <div className="absolute inset-y-0 right-0 flex max-w-full">
         <aside
           className={cn(

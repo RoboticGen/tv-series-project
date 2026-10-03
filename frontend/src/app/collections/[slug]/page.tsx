@@ -42,7 +42,7 @@ export default async function CollectionDetailPage({
     <div className="mx-auto max-w-6xl px-6 py-12">
       <Link
         href={`/authors/${collection.ownerId}`}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-brand-teal"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-teal-ink"
       >
         <ArrowLeft className="size-3.5" />
         Back to {collection.ownerName}&rsquo;s profile
@@ -57,7 +57,7 @@ export default async function CollectionDetailPage({
         ) : null}
       </div>
 
-      <h1 className="mt-2 font-heading text-balance text-2xl font-bold text-brand-navy dark:text-foreground">
+      <h1 className="mt-2 font-heading text-balance text-2xl font-bold text-foreground">
         {collection.title}
       </h1>
       {collection.description ? (
@@ -69,7 +69,7 @@ export default async function CollectionDetailPage({
         By{" "}
         <Link
           href={`/authors/${collection.ownerId}`}
-          className="underline underline-offset-2 transition-colors hover:text-brand-teal"
+          className="underline underline-offset-2 transition-colors hover:text-teal-ink"
         >
           {collection.ownerName}
         </Link>{" "}
@@ -79,7 +79,7 @@ export default async function CollectionDetailPage({
       <div className="mt-10">
         {collection.projects.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-14 text-center">
-            <div className="flex size-10 items-center justify-center rounded-full bg-brand-teal/10 text-brand-teal">
+            <div className="flex size-10 items-center justify-center rounded-full bg-brand-teal/10 text-teal-ink">
               <FolderOpen className="size-5" />
             </div>
             <p className="text-sm text-muted-foreground">

@@ -47,7 +47,7 @@ export function LevelBoardToken({
           key={index}
           animate={finished ? { rotate: [0, -14, 14, -8, 0], scale: [1, 1.25, 1] } : { y: [0, -12, 0] }}
           transition={{ duration: finished ? 0.7 : 0.35 }}
-          className="flex size-6 items-center justify-center rounded-full border-2 border-brand-navy dark:border-edge bg-brand-coral text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)] sm:size-9"
+          className="flex size-6 items-center justify-center rounded-full border-2 border-edge bg-brand-coral text-brand-navy shadow-hard-2 sm:size-9"
         >
           <Bot className="size-4 sm:size-6" />
         </motion.span>

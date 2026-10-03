@@ -137,7 +137,7 @@ export function ProjectDetailPanel({
           ) : null}
         </div>
 
-        <h1 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl dark:text-foreground">
+        <h1 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {project.title}
         </h1>
 
@@ -153,7 +153,7 @@ export function ProjectDetailPanel({
               <AvatarImage src={project.authorAvatarUrl ?? undefined} alt={project.authorName} />
               <AvatarFallback>{project.authorName.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium text-foreground transition-colors hover:text-brand-teal hover:underline">
+            <span className="text-sm font-medium text-foreground transition-colors hover:text-teal-ink hover:underline">
               {project.authorName}
             </span>
           </Link>
@@ -221,7 +221,7 @@ export function ProjectDetailPanel({
 
       {submissions.length > 0 ? (
         <div className="mt-10 border-t pt-8">
-          <h2 className="font-heading text-lg font-bold text-brand-navy dark:text-foreground">
+          <h2 className="font-heading text-lg font-bold text-foreground">
             Community builds
           </h2>
           <ul className="mt-4 space-y-2">

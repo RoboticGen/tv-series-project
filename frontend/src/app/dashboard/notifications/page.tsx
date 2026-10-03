@@ -18,7 +18,7 @@ export default async function NotificationsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
-      <h1 className="font-heading text-3xl font-black tracking-tight text-brand-navy dark:text-foreground">
+      <h1 className="font-heading text-3xl font-black tracking-tight text-foreground">
         Notifications
       </h1>
       <p className="mt-1 text-sm font-medium text-muted-foreground">

@@ -47,7 +47,7 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
   return (
     <section
       aria-labelledby="recent-points-heading"
-      className="rounded-xl border-2 border-brand-navy bg-card p-4 shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]"
+      className="rounded-xl border-2 border-edge bg-card p-4 shadow-hard-4"
     >
       <h2
         id="recent-points-heading"
@@ -58,7 +58,7 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
 
       {events.length === 0 ? (
         <p className="mt-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Trophy className="size-4 shrink-0 text-brand-yellow" aria-hidden />
+          <Trophy className="size-4 shrink-0 fill-brand-yellow text-edge" aria-hidden />
           No points yet. Try a featured build to earn your first ones!
         </p>
       ) : (
@@ -71,7 +71,7 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
               <li key={event.id} className="flex items-center gap-3 text-sm">
                 <span
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy dark:border-edge",
+                    "flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-edge text-brand-navy",
                     fill,
                   )}
                 >
@@ -95,7 +95,7 @@ export function RecentPoints({ events }: { events: RecentPointEvent[] }) {
                     {timeAgo(event.createdAt)}
                   </span>
                 </p>
-                <span className="shrink-0 rounded-full border-2 border-brand-navy bg-brand-green/20 px-2 py-0.5 font-sans font-black tabular-nums text-brand-navy dark:border-edge dark:text-foreground">
+                <span className="shrink-0 rounded-full border-2 border-edge bg-brand-green/20 px-2 py-0.5 font-sans font-black tabular-nums text-foreground">
                   +{event.points}
                 </span>
               </li>

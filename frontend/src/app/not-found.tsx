@@ -9,15 +9,15 @@ export default function NotFound() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-20 text-center">
       <div className="relative">
-        <div className="flex size-32 origin-bottom items-center justify-center rounded-3xl border-2 border-brand-navy bg-brand-teal text-white shadow-[6px_6px_0_0_var(--brand-navy)] motion-safe:animate-wobble dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)]">
+        <div className="flex size-32 origin-bottom items-center justify-center rounded-3xl border-2 border-edge bg-brand-teal text-brand-navy shadow-hard-6 motion-safe:animate-wobble">
           <Bot className="size-16" strokeWidth={1.5} aria-hidden />
         </div>
-        <span className="absolute -top-3 -right-8 rotate-12 rounded-lg border-2 border-brand-navy bg-brand-yellow px-3 py-1 font-heading text-xl font-black text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:shadow-[3px_3px_0_0_var(--edge)] motion-safe:animate-stamp dark:border-edge">
+        <span className="absolute -top-3 -right-8 rotate-12 rounded-lg border-2 border-edge bg-brand-yellow px-3 py-1 font-heading text-xl font-black text-brand-navy shadow-hard-3 motion-safe:animate-stamp">
           404
         </span>
       </div>
       <div>
-        <h1 className="font-heading text-3xl font-black tracking-tight text-brand-navy sm:text-4xl dark:text-foreground">
+        <h1 className="font-heading text-3xl font-black tracking-tight text-foreground sm:text-4xl">
           This page ran away!
         </h1>
         <p className="mx-auto mt-2 max-w-sm font-medium text-pretty text-muted-foreground">

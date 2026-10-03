@@ -55,8 +55,8 @@ async function BrowseGrid({
   if (projects.length === 0) {
     const hasFilters = Boolean(query || category || featured);
     return (
-      <div className="flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-brand-navy py-16 text-center dark:border-edge">
-        <div className="flex size-12 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]">
+      <div className="flex flex-col items-center gap-3 rounded-md border-2 border-dashed border-edge py-16 text-center">
+        <div className="flex size-12 items-center justify-center rounded-sm border-2 border-edge bg-brand-teal text-brand-navy shadow-hard-3">
           <SearchX className="size-5" aria-hidden="true" />
         </div>
         <p className="font-bold text-foreground">
@@ -70,7 +70,7 @@ async function BrowseGrid({
         {hasFilters ? (
           <Link
             href="/projects"
-            className="inline-flex items-center gap-1 text-sm font-bold text-brand-teal transition-colors hover:text-brand-teal/80"
+            className="inline-flex items-center gap-1 text-sm font-bold text-teal-ink transition-colors hover:text-teal-ink/80"
           >
             <X className="size-3.5" />
             Clear search and filters
@@ -142,7 +142,7 @@ export default async function ProjectsPage({
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
       <div>
-        <h1 className="text-balance font-heading text-2xl font-bold text-brand-navy dark:text-foreground">
+        <h1 className="text-balance font-heading text-2xl font-bold text-foreground">
           Browse projects
         </h1>
         <p className="mt-1 text-pretty text-sm text-muted-foreground">
@@ -180,8 +180,8 @@ export default async function ProjectsPage({
           className={cn(
             "inline-flex items-center gap-1.5 rounded-sm border-2 px-3 py-1 font-bold transition-all",
             featured
-              ? "border-brand-navy bg-brand-yellow text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]"
-              : "border-brand-navy text-foreground hover:bg-brand-yellow/30 dark:border-edge",
+              ? "border-edge bg-brand-yellow text-brand-navy shadow-hard-3"
+              : "border-edge text-foreground hover:bg-brand-yellow/30",
           )}
         >
           <Sparkles className="size-3.5" />
@@ -193,8 +193,8 @@ export default async function ProjectsPage({
           className={cn(
             "rounded-sm border-2 px-3 py-1 font-bold transition-all",
             !category
-              ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]"
-              : "border-transparent text-muted-foreground hover:border-brand-navy hover:text-foreground dark:hover:border-edge",
+              ? "border-edge bg-brand-teal text-brand-navy shadow-hard-3"
+              : "border-transparent text-muted-foreground hover:border-edge hover:text-foreground",
           )}
         >
           All
@@ -207,8 +207,8 @@ export default async function ProjectsPage({
             className={cn(
               "rounded-sm border-2 px-3 py-1 font-bold transition-all",
               category === value
-                ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]"
-                : "border-transparent text-muted-foreground hover:border-brand-navy hover:text-foreground dark:hover:border-edge",
+                ? "border-edge bg-brand-teal text-brand-navy shadow-hard-3"
+                : "border-transparent text-muted-foreground hover:border-edge hover:text-foreground",
             )}
           >
             {CATEGORY_LABELS[value]}

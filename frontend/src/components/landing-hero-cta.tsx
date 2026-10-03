@@ -5,7 +5,7 @@ import { Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewProjectButton } from "@/components/new-project-button";
 
-const CTA_CLASS = "gap-2 bg-brand-coral text-white";
+const CTA_CLASS = "gap-2 bg-brand-coral text-brand-navy";
 
 export function LandingHeroCta() {
   const { data: session, status } = useSession();

@@ -31,12 +31,12 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
   return (
     <section
       aria-labelledby="builder-level-heading"
-      className="flex flex-col gap-4 rounded-xl border-2 border-brand-navy bg-card p-5 shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]"
+      className="flex flex-col gap-4 rounded-xl border-2 border-edge bg-card p-5 shadow-hard-4"
     >
       <div className="flex items-center gap-3">
         <div
           className={cn(
-            "flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]",
+            "flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-edge text-brand-navy shadow-hard-3",
             level.fill,
           )}
         >
@@ -49,14 +49,14 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
           >
             Your builder level
           </h2>
-          <p className="font-heading text-2xl font-black text-brand-navy dark:text-foreground">
+          <p className="font-heading text-2xl font-black text-foreground">
             {level.name}
           </p>
         </div>
         <p className="ml-auto text-right">
           <CountUp
             value={points}
-            className="block font-heading text-2xl font-black tabular-nums lining-nums text-brand-navy dark:text-foreground"
+            className="block font-heading text-2xl font-black tabular-nums lining-nums text-foreground"
           />
           <span className="text-xs font-bold text-muted-foreground uppercase">points</span>
         </p>
@@ -95,9 +95,9 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
             >
               <div
                 className={cn(
-                  "flex size-9 items-center justify-center rounded-full border-2 border-brand-navy dark:border-edge",
+                  "flex size-9 items-center justify-center rounded-full border-2 border-edge",
                   reached ? cn(step.fill, "text-brand-navy") : "bg-muted text-muted-foreground",
-                  current && "ring-3 ring-brand-navy ring-offset-2 ring-offset-card dark:ring-foreground",
+                  current && "ring-3 ring-edge ring-offset-2 ring-offset-card dark:ring-foreground",
                 )}
               >
                 <StepIcon className="size-4" aria-hidden />

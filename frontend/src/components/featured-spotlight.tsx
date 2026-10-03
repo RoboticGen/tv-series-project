@@ -17,13 +17,13 @@ function SpotlightHeader() {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <span className="inline-flex items-center gap-1.5 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)] dark:border-edge">
+        <span className="inline-flex items-center gap-1.5 rounded-sm border-2 border-edge bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-hard-2">
           <Sparkles className="size-3.5" aria-hidden />
           Featured builds
         </span>
         <h2
           id="featured-heading"
-          className="mt-2 font-heading text-2xl font-black tracking-tight text-balance text-brand-navy sm:text-3xl dark:text-foreground"
+          className="mt-2 font-heading text-2xl font-black tracking-tight text-balance text-foreground sm:text-3xl"
         >
           Pick one and build it too!
         </h2>
@@ -84,16 +84,16 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
       <div className="mt-6 flex flex-col gap-6">
         <Link
           href={`/projects/${lead.slug}`}
-          className="group grid overflow-hidden rounded-xl border-2 border-brand-navy bg-brand-yellow/15 shadow-[6px_6px_0_0_var(--brand-navy)] dark:bg-secondary outline-none motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_0_var(--brand-navy)] focus-visible:ring-4 focus-visible:ring-ring/60 md:grid-cols-2 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)] dark:hover:shadow-[8px_8px_0_0_var(--edge)]"
+          className="group grid overflow-hidden rounded-xl border-2 border-edge bg-brand-yellow/15 shadow-hard-6 dark:bg-secondary outline-none motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-8 focus-visible:ring-4 focus-visible:ring-ring md:grid-cols-2"
         >
-          <div className="relative aspect-video border-b-2 border-brand-navy bg-muted md:aspect-auto md:min-h-72 md:border-r-2 md:border-b-0 dark:border-edge">
+          <div className="relative aspect-video border-b-2 border-edge bg-muted md:aspect-auto md:min-h-72 md:border-r-2 md:border-b-0">
             {lead.coverImageUrl ? (
               <Image
                 src={lead.coverImageUrl}
                 alt=""
                 fill
                 sizes="(min-width: 768px) 50vw, 100vw"
-                className="object-cover motion-safe:transition-transform motion-safe:duration-500 group-hover:scale-105"
+                className="object-cover motion-safe:transition-transform motion-safe:duration-(--duration-enter) group-hover:scale-105"
                 priority
                 unoptimized
               />
@@ -102,14 +102,14 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
                 <ImageOff className="size-8" aria-hidden />
               </div>
             )}
-            <span className="absolute top-3 left-3 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 border-brand-navy dark:border-edge bg-brand-yellow px-2.5 py-1 text-sm font-black text-brand-navy uppercase shadow-[3px_3px_0_0_var(--brand-navy)] dark:shadow-[3px_3px_0_0_var(--edge)]">
+            <span className="absolute top-3 left-3 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 border-edge bg-brand-yellow px-2.5 py-1 text-sm font-black text-brand-navy uppercase shadow-hard-3">
               <Sparkles className="size-4" aria-hidden />
               Top pick
             </span>
           </div>
           <div className="flex flex-col gap-3 p-6">
             <Badge variant="secondary">{CATEGORY_LABELS[lead.category] ?? lead.category}</Badge>
-            <h3 className="font-heading text-2xl font-black text-balance text-brand-navy sm:text-3xl dark:text-foreground">
+            <h3 className="font-heading text-2xl font-black text-balance text-foreground sm:text-3xl">
               {lead.title}
             </h3>
             <p className="line-clamp-3 font-medium text-pretty text-muted-foreground">
@@ -117,18 +117,18 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
             </p>
             <p className="text-sm font-bold text-foreground">by {lead.authorName}</p>
             <div className="mt-auto flex flex-wrap items-center gap-4 pt-2">
-              <span className="inline-flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-[3px_3px_0_0_var(--brand-navy)] motion-safe:transition-all group-hover:translate-x-[3px] group-hover:translate-y-[3px] group-hover:shadow-none dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]">
+              <span className="inline-flex items-center gap-2 rounded-lg border-2 border-edge bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-hard-3 motion-safe:transition-all group-hover:translate-x-[3px] group-hover:translate-y-[3px] group-hover:shadow-none">
                 <Hammer className="size-4" aria-hidden />
                 Let&apos;s build it!
               </span>
               <span className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Heart className="size-4 text-brand-coral" aria-hidden />
+                  <Heart className="size-4 fill-brand-coral text-edge" aria-hidden />
                   <span className="sr-only">Likes:</span>
                   {lead.likeCount}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Star className="size-4 text-brand-yellow" aria-hidden />
+                  <Star className="size-4 fill-brand-yellow text-edge" aria-hidden />
                   <span className="sr-only">Stars:</span>
                   {lead.starCount}
                 </span>

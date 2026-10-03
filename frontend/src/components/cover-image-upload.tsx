@@ -73,7 +73,7 @@ export function CoverImageUpload({ url, onSelect, onRemove, disabled = false }: 
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="flex h-48 w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors hover:border-brand-teal hover:text-brand-teal disabled:opacity-50"
+          className="flex h-48 w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors hover:border-brand-teal hover:text-teal-ink disabled:opacity-50"
         >
           <ImagePlus className="size-6" />
           Add a cover image

@@ -54,7 +54,7 @@ export function StepsEditor({ steps, onChange, onImageAdd }: StepsEditorProps) {
       {steps.map((step, index) => (
         <section key={step.id} className="rounded-xl border bg-card/50">
           <div className="flex items-center gap-2 border-b px-4 py-3">
-            <span className="shrink-0 font-heading text-sm font-semibold text-brand-teal">
+            <span className="shrink-0 font-heading text-sm font-semibold text-teal-ink">
               Step {index + 1}
             </span>
             <Input
@@ -176,7 +176,7 @@ function StepImages({ images, onChange, onImageAdd }: StepImagesProps) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex aspect-4/3 flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-xs text-muted-foreground transition-colors hover:border-brand-teal hover:text-brand-teal disabled:opacity-50"
+            className="flex aspect-4/3 flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-xs text-muted-foreground transition-colors hover:border-brand-teal hover:text-teal-ink disabled:opacity-50"
           >
             <ImagePlus className="size-5" />
             Add images

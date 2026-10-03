@@ -85,25 +85,25 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-8 sm:px-6 sm:py-10">
       {/* Hero */}
-      <header className="relative overflow-hidden rounded-2xl border-2 border-brand-navy bg-brand-teal p-6 text-white shadow-[6px_6px_0_0_var(--brand-navy)] sm:p-8 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)]">
+      <header className="relative overflow-hidden rounded-2xl border-2 border-edge bg-brand-teal p-6 text-brand-navy shadow-hard-6 sm:p-8">
         {/* Decorative shapes — hidden from assistive tech */}
         <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
-          <div className="absolute -top-10 -right-10 size-40 rounded-full border-2 border-brand-navy dark:border-edge bg-brand-yellow" />
-          <div className="absolute right-28 -bottom-8 size-20 rotate-12 rounded-lg border-2 border-brand-navy dark:border-edge bg-brand-coral" />
-          <div className="absolute top-8 right-44 size-8 rounded-full border-2 border-brand-navy dark:border-edge bg-brand-green" />
+          <div className="absolute -top-10 -right-10 size-40 rounded-full border-2 border-edge bg-brand-yellow" />
+          <div className="absolute right-28 -bottom-8 size-20 rotate-12 rounded-lg border-2 border-edge bg-brand-coral" />
+          <div className="absolute top-8 right-44 size-8 rounded-full border-2 border-edge bg-brand-green" />
           <Cog className="absolute top-4 right-6 size-16 text-brand-navy motion-safe:animate-[spin_12s_linear_infinite]" />
-          <Bot className="absolute right-8 bottom-4 hidden size-20 text-white/90 md:block" />
+          <Bot className="absolute right-8 bottom-4 hidden size-20 text-brand-navy md:block" />
           <Zap className="absolute top-1/2 right-56 hidden size-8 text-brand-yellow lg:block" />
         </div>
 
         <div className="relative max-w-xl">
-          <p className="inline-block rounded-sm border-2 border-brand-navy dark:border-edge bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase">
+          <p className="inline-block rounded-sm border-2 border-edge bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase">
             My workshop
           </p>
           <h1 className="mt-3 font-heading text-3xl font-black tracking-tight text-balance sm:text-4xl">
             Hey {firstName}, ready to build something awesome?
           </h1>
-          <p className="mt-2 font-medium text-pretty text-white/90">
+          <p className="mt-2 font-medium text-pretty text-brand-navy">
             Start a new project, try a featured build, or keep working on your ideas.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
         <BuilderLevel points={points.total} pointValues={pointValues} />
         <div className="flex flex-col gap-4">
           {stats.featuredProjects > 0 ? (
-            <p className="flex items-center gap-3 rounded-xl border-2 border-brand-navy bg-brand-yellow p-4 font-bold text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]">
+            <p className="flex items-center gap-3 rounded-xl border-2 border-edge bg-brand-yellow p-4 font-bold text-brand-navy shadow-hard-4">
               <Sparkles className="size-6 shrink-0" aria-hidden />
               <span>
                 Woohoo! {stats.featuredProjects === 1 ? "One of your projects is" : `${stats.featuredProjects} of your projects are`}{" "}
@@ -137,14 +137,14 @@ export default async function DashboardPage() {
           {stats.draftProjects > 0 || stats.rejectedProjects > 0 ? (
             <ul className="flex flex-wrap gap-3 text-sm font-bold">
               {stats.draftProjects > 0 ? (
-                <li className="flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-card px-3 py-2 dark:border-edge">
-                  <PencilLine className="size-4 text-brand-teal" aria-hidden />
+                <li className="flex items-center gap-2 rounded-lg border-2 border-edge bg-card px-3 py-2">
+                  <PencilLine className="size-4 text-teal-ink" aria-hidden />
                   {stats.draftProjects} {stats.draftProjects === 1 ? "draft" : "drafts"} waiting for you to finish
                 </li>
               ) : null}
               {stats.rejectedProjects > 0 ? (
-                <li className="flex items-center gap-2 rounded-lg border-2 border-brand-navy bg-brand-coral/15 px-3 py-2 dark:border-edge">
-                  <Wrench className="size-4 text-brand-coral" aria-hidden />
+                <li className="flex items-center gap-2 rounded-lg border-2 border-edge bg-brand-coral/15 px-3 py-2">
+                  <Wrench className="size-4 text-foreground" aria-hidden />
                   {stats.rejectedProjects} {stats.rejectedProjects === 1 ? "project needs" : "projects need"} a small fix
                 </li>
               ) : null}
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
       <section aria-labelledby="my-stuff-heading">
         <h2
           id="my-stuff-heading"
-          className="font-heading text-2xl font-black tracking-tight text-brand-navy sm:text-3xl dark:text-foreground"
+          className="font-heading text-2xl font-black tracking-tight text-foreground sm:text-3xl"
         >
           My stuff
         </h2>

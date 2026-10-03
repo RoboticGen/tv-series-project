@@ -67,7 +67,7 @@ export function SlidePanel({
   return (
     <div className="fixed inset-0 z-50">
       <React.ViewTransition enter="backdrop-in" exit="backdrop-out" default="none">
-        <div className="absolute inset-0 bg-black/40" onClick={close} />
+        <div className="absolute inset-0 bg-overlay" onClick={close} />
       </React.ViewTransition>
       <React.ViewTransition enter="panel-in" exit="panel-out" default="none">
         <aside

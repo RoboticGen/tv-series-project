@@ -41,7 +41,7 @@ export default async function ModerateProjectPage({
         {project.isFeatured ? <Badge variant="outline">Featured</Badge> : null}
       </div>
 
-      <h1 className="mt-3 text-balance font-heading text-3xl font-bold text-brand-navy dark:text-foreground">
+      <h1 className="mt-3 text-balance font-heading text-3xl font-bold text-foreground">
         {project.title}
       </h1>
       <p className="mt-2 text-pretty text-muted-foreground">

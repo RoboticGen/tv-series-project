@@ -24,7 +24,7 @@ export function EmptyState({
       <EmptyHeader>
         <EmptyMedia
           variant="icon"
-          className="size-16 rounded-full bg-brand-teal text-white shadow-[3px_3px_0_0_var(--edge)] motion-safe:animate-bounce motion-safe:[animation-duration:2s] [&_svg:not([class*='size-'])]:size-7"
+          className="size-16 rounded-full bg-brand-teal text-brand-navy shadow-hard-3 motion-safe:animate-bounce motion-safe:[animation-duration:2s] [&_svg:not([class*='size-'])]:size-7"
         >
           <Icon aria-hidden />
         </EmptyMedia>

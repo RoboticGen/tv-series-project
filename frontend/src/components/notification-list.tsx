@@ -17,7 +17,7 @@ const TYPES: Record<
   project_built: { icon: Hammer, fill: "bg-brand-green text-brand-navy", describe: () => "Someone built" },
   project_unpublished: { icon: EyeOff, fill: "bg-destructive text-white", describe: () => "A mentor unpublished" },
   project_commented: { icon: MessageCircle, fill: "bg-brand-sky text-brand-navy", describe: (a) => `${a} commented on` },
-  comment_replied: { icon: Reply, fill: "bg-brand-teal text-white", describe: (a) => `${a} replied to your comment on` },
+  comment_replied: { icon: Reply, fill: "bg-brand-teal text-brand-navy", describe: (a) => `${a} replied to your comment on` },
   new_follower: { icon: UserPlus, fill: "bg-brand-navy text-white dark:bg-foreground dark:text-brand-navy", describe: (a) => `${a} started following you` },
 };
 
@@ -58,14 +58,14 @@ export function NotificationList({ items }: { items: MyNotification[] }) {
           <li
             key={item.id}
             className={cn(
-              "flex items-start gap-3 rounded-xl border-2 border-brand-navy bg-card p-4 text-sm dark:border-edge",
+              "flex items-start gap-3 rounded-xl border-2 border-edge bg-card p-4 text-sm",
               !item.readAt &&
-                "bg-brand-yellow/15 shadow-[4px_4px_0_0_var(--brand-navy)] dark:shadow-[4px_4px_0_0_var(--edge)]",
+                "bg-brand-yellow/15 shadow-hard-4",
             )}
           >
             <span
               className={cn(
-                "flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-brand-navy dark:border-edge",
+                "flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-edge",
                 fill,
               )}
             >
@@ -86,7 +86,7 @@ export function NotificationList({ items }: { items: MyNotification[] }) {
               </p>
             </div>
             {item.points ? (
-              <span className="shrink-0 rounded-full border-2 border-brand-navy bg-brand-green/20 px-2 py-0.5 font-sans font-black tabular-nums text-brand-navy dark:border-edge dark:text-foreground">
+              <span className="shrink-0 rounded-full border-2 border-edge bg-brand-green/20 px-2 py-0.5 font-sans font-black tabular-nums text-foreground">
                 +{item.points}
               </span>
             ) : null}

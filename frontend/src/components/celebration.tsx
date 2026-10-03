@@ -73,7 +73,7 @@ export function Celebration() {
             animate={{ scale: 1, rotate: -4, opacity: 1 }}
             exit={{ scale: 0.6, opacity: 0 }}
             transition={SPRING_POP}
-            className="rounded-2xl border-4 border-brand-navy dark:border-edge bg-brand-yellow px-8 py-6 text-center text-brand-navy shadow-[8px_8px_0_0_var(--brand-navy)] dark:shadow-[8px_8px_0_0_var(--edge)]"
+            className="rounded-2xl border-4 border-edge bg-brand-yellow px-8 py-6 text-center text-brand-navy shadow-hard-8"
           >
             <p className="font-heading text-4xl font-black tracking-tight uppercase sm:text-6xl">{moment.title}</p>
             {moment.subtitle ? <p className="mt-2 text-base font-bold sm:text-lg">{moment.subtitle}</p> : null}

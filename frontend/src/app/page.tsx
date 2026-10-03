@@ -53,16 +53,16 @@ const NAV_LINKS = [
 ];
 
 const CATEGORY_STYLES: Record<ProjectCategory, { icon: LucideIcon; fill: string }> = {
-  robotics: { icon: Bot, fill: "bg-brand-teal text-white" },
+  robotics: { icon: Bot, fill: "bg-brand-teal text-brand-navy" },
   electronics: { icon: Cpu, fill: "bg-brand-yellow text-brand-navy" },
-  iot: { icon: Radio, fill: "bg-brand-coral text-white" },
-  coding_software: { icon: Code2, fill: "bg-brand-green text-white" },
+  iot: { icon: Radio, fill: "bg-brand-coral text-brand-navy" },
+  coding_software: { icon: Code2, fill: "bg-brand-green text-brand-navy" },
   ai_ml: { icon: Brain, fill: "bg-brand-sky text-brand-navy" },
   drones: { icon: Plane, fill: "bg-brand-sky text-brand-navy" },
-  threed_printing: { icon: Boxes, fill: "bg-brand-coral text-white" },
-  sensors_automation: { icon: SlidersHorizontal, fill: "bg-brand-green text-white" },
+  threed_printing: { icon: Boxes, fill: "bg-brand-coral text-brand-navy" },
+  sensors_automation: { icon: SlidersHorizontal, fill: "bg-brand-green text-brand-navy" },
   competitions: { icon: Trophy, fill: "bg-brand-yellow text-brand-navy" },
-  other: { icon: Sparkles, fill: "bg-brand-teal text-white" },
+  other: { icon: Sparkles, fill: "bg-brand-teal text-brand-navy" },
 };
 
 const STEPS = [
@@ -110,8 +110,8 @@ const SAFETY_ITEMS = [
   },
 ];
 
-const SHADOW = "shadow-[4px_4px_0_0_var(--brand-navy)] dark:shadow-[4px_4px_0_0_var(--edge)]";
-const BORDER = "border-2 border-brand-navy dark:border-edge";
+const SHADOW = "shadow-hard-4";
+const BORDER = "border-2 border-edge";
 
 function SectionHeading({
   id,
@@ -130,7 +130,7 @@ function SectionHeading({
     <Reveal className="mx-auto max-w-2xl text-center">
       <span
         className={cn(
-          "inline-block rounded-sm px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
+          "inline-block rounded-sm px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-hard-2",
           BORDER,
           eyebrowFill,
         )}
@@ -139,12 +139,12 @@ function SectionHeading({
       </span>
       <h2
         id={id}
-        className="mt-3 font-heading text-3xl font-black tracking-tight text-balance text-brand-navy sm:text-4xl dark:text-foreground"
+        className="mt-3 font-heading text-3xl font-black tracking-tight text-balance text-foreground sm:text-4xl"
       >
         {title}
       </h2>
       {desc ? (
-        <p className="mt-3 font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">{desc}</p>
+        <p className="mt-3 font-medium text-pretty text-foreground/75">{desc}</p>
       ) : null}
     </Reveal>
   );
@@ -161,9 +161,9 @@ function HeroIllustration({ pointValues }: { pointValues: PointValues }) {
           SHADOW,
         )}
       >
-        <Bot className="size-2/5 text-white motion-safe:animate-bounce motion-safe:[animation-duration:3s]" strokeWidth={1.5} />
+        <Bot className="size-2/5 text-brand-navy motion-safe:animate-bounce motion-safe:[animation-duration:3s]" strokeWidth={1.5} />
       </div>
-      <Cog className="absolute top-0 left-2 size-16 text-brand-navy motion-safe:animate-[spin_10s_linear_infinite] dark:text-foreground" />
+      <Cog className="absolute top-0 left-2 size-16 text-foreground motion-safe:animate-[spin_10s_linear_infinite]" />
       <Zap className="absolute right-4 bottom-10 size-12 fill-brand-yellow text-brand-navy" />
 
       <span
@@ -173,22 +173,22 @@ function HeroIllustration({ pointValues }: { pointValues: PointValues }) {
           SHADOW,
         )}
       >
-        <Sparkles className="mr-1 inline size-4 text-brand-yellow" />
+        <Sparkles className="mr-1 inline size-4 fill-brand-yellow text-brand-navy" />
         Featured! <span className="font-sans">+{pointValues.project_featured}</span>
       </span>
       <span
         className={cn(
-          "absolute bottom-2 left-0 rotate-3 motion-safe:animate-float motion-safe:[animation-delay:1.3s] rounded-lg bg-brand-coral px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-white sm:-left-4",
+          "absolute bottom-2 left-0 rotate-3 motion-safe:animate-float motion-safe:[animation-delay:1.3s] rounded-lg bg-brand-coral px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-brand-navy sm:-left-4",
           BORDER,
           SHADOW,
         )}
       >
-        <Star className="mr-1 inline size-4 fill-brand-yellow text-brand-yellow" />
+        <Star className="mr-1 inline size-4 fill-brand-yellow text-brand-navy" />
         New star <span className="font-sans">+{pointValues.star_received}</span>
       </span>
       <span
         className={cn(
-          "absolute top-1/2 -left-2 -rotate-6 motion-safe:animate-float motion-safe:[animation-delay:2.6s] rounded-lg bg-brand-green px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-white sm:-left-8",
+          "absolute top-1/2 -left-2 -rotate-6 motion-safe:animate-float motion-safe:[animation-delay:2.6s] rounded-lg bg-brand-green px-3 py-1.5 font-heading text-sm font-black tabular-nums lining-nums text-brand-navy sm:-left-8",
           BORDER,
           SHADOW,
         )}
@@ -217,18 +217,18 @@ export default async function LandingPage() {
       </a>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b-2 border-brand-navy bg-background/95 backdrop-blur dark:border-edge">
+      <header className="sticky top-0 z-50 border-b-2 border-edge bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Link href="/landing" className="flex items-center gap-2">
             <span
               className={cn(
-                "flex size-9 items-center justify-center rounded-md bg-brand-teal font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
+                "flex size-9 items-center justify-center rounded-md bg-brand-teal font-black text-brand-navy shadow-hard-2",
                 BORDER,
               )}
             >
               R
             </span>
-            <span className="font-heading font-black tracking-tight text-brand-navy dark:text-foreground">
+            <span className="font-heading font-black tracking-tight text-foreground">
               RoboticGen Projects
             </span>
           </Link>
@@ -237,7 +237,7 @@ export default async function LandingPage() {
               <a
                 key={link.id}
                 href={`#${link.id}`}
-                className="rounded-md border-2 border-transparent px-3 py-1.5 text-sm font-bold text-brand-navy transition-colors hover:border-brand-navy hover:bg-brand-yellow dark:text-foreground dark:hover:border-edge dark:hover:text-brand-navy"
+                className="rounded-md border-2 border-transparent px-3 py-1.5 text-sm font-bold text-foreground transition-colors hover:border-edge hover:bg-brand-yellow dark:hover:text-brand-navy"
               >
                 {link.label}
               </a>
@@ -254,7 +254,7 @@ export default async function LandingPage() {
         {/* Hero */}
         <section
           aria-labelledby="hero-heading"
-          className="relative overflow-hidden border-b-2 border-brand-navy bg-brand-sky/15 dark:border-edge"
+          className="relative overflow-hidden border-b-2 border-edge bg-brand-sky/15"
         >
           <div
             aria-hidden
@@ -264,7 +264,7 @@ export default async function LandingPage() {
             <div>
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-sm bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
+                  "inline-flex items-center gap-1.5 rounded-sm bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-hard-2",
                   BORDER,
                 )}
               >
@@ -273,7 +273,7 @@ export default async function LandingPage() {
               </span>
               <h1
                 id="hero-heading"
-                className="mt-4 font-heading text-4xl leading-[1.05] font-black tracking-tight text-balance text-brand-navy sm:text-6xl dark:text-foreground"
+                className="mt-4 font-heading text-4xl leading-[1.05] font-black tracking-tight text-balance text-foreground sm:text-6xl"
               >
                 Build cool stuff.{" "}
                 <span className="relative inline-block">
@@ -283,9 +283,9 @@ export default async function LandingPage() {
                     className="absolute inset-x-0 bottom-1 -z-0 h-4 -rotate-1 bg-brand-yellow sm:h-5"
                   />
                 </span>{" "}
-                <span className="text-brand-teal">Level up!</span>
+                <span className="text-teal-ink">Level up!</span>
               </h1>
-              <p className="mt-5 max-w-lg text-lg font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">
+              <p className="mt-5 max-w-lg text-lg font-medium text-pretty text-foreground/75">
                 Robots, drones, gadgets and code. Try projects made by other kids, show off your
                 own inventions and earn points on your way to Robot Master.
               </p>
@@ -329,7 +329,7 @@ export default async function LandingPage() {
         <section
           id="how-it-works"
           aria-labelledby="how-heading"
-          className="scroll-mt-20 border-b-2 border-brand-navy py-16 sm:py-20 dark:border-edge"
+          className="scroll-mt-20 border-b-2 border-edge py-16 sm:py-20"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <SectionHeading
@@ -366,10 +366,10 @@ export default async function LandingPage() {
                   >
                     <step.icon className="size-6" aria-hidden />
                   </span>
-                  <h3 className="font-heading text-xl font-black text-brand-navy dark:text-foreground">
+                  <h3 className="font-heading text-xl font-black text-foreground">
                     {step.title}
                   </h3>
-                  <p className="text-sm font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">{step.body}</p>
+                  <p className="text-sm font-medium text-pretty text-foreground/75">{step.body}</p>
                 </li>
               ))}
             </ol>
@@ -377,7 +377,7 @@ export default async function LandingPage() {
         </section>
 
         {/* Featured projects -- same spotlight kids see on their dashboard */}
-        <div className="border-b-2 border-brand-navy bg-brand-yellow/10 py-16 sm:py-20 dark:border-edge dark:bg-card">
+        <div className="border-b-2 border-edge bg-brand-yellow/10 py-16 sm:py-20 dark:bg-card">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <FeaturedSpotlight className="scroll-mt-24" />
           </div>
@@ -387,7 +387,7 @@ export default async function LandingPage() {
         <section
           id="categories"
           aria-labelledby="categories-heading"
-          className="scroll-mt-20 border-b-2 border-brand-navy py-16 sm:py-20 dark:border-edge"
+          className="scroll-mt-20 border-b-2 border-edge py-16 sm:py-20"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <SectionHeading
@@ -405,7 +405,7 @@ export default async function LandingPage() {
                     <Link
                       href={`/projects?category=${value}`}
                       className={cn(
-                        "group flex h-full flex-col items-center gap-3 rounded-xl bg-card p-5 text-center outline-none motion-safe:transition-transform hover:-translate-y-1 hover:rotate-1 focus-visible:ring-4 focus-visible:ring-ring/60",
+                        "group flex h-full flex-col items-center gap-3 rounded-xl bg-card p-5 text-center outline-none motion-safe:transition-transform hover:-translate-y-1 hover:rotate-1 focus-visible:ring-4 focus-visible:ring-ring",
                         BORDER,
                         SHADOW,
                       )}
@@ -419,7 +419,7 @@ export default async function LandingPage() {
                       >
                         <Icon className="size-7" aria-hidden />
                       </span>
-                      <span className="font-heading text-sm font-black text-brand-navy dark:text-foreground">
+                      <span className="font-heading text-sm font-black text-foreground">
                         {CATEGORY_LABELS[value]}
                       </span>
                     </Link>
@@ -434,13 +434,13 @@ export default async function LandingPage() {
         <section
           id="levels"
           aria-labelledby="levels-heading"
-          className="scroll-mt-20 border-b-2 border-brand-navy bg-brand-teal py-16 text-white sm:py-20 dark:border-edge"
+          className="scroll-mt-20 border-b-2 border-edge bg-brand-teal py-16 text-brand-navy sm:py-20"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <span
                 className={cn(
-                  "inline-block rounded-sm bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]",
+                  "inline-block rounded-sm bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-hard-2",
                   BORDER,
                 )}
               >
@@ -452,7 +452,7 @@ export default async function LandingPage() {
               >
                 Earn points. Climb the levels.
               </h2>
-              <p className="mt-3 font-medium text-pretty text-white/90">
+              <p className="mt-3 font-medium text-pretty text-brand-navy">
                 Climb the ladders from Starter to Robot Master. Watch out for tangled wires!
               </p>
             </div>
@@ -466,7 +466,7 @@ export default async function LandingPage() {
         {/* For parents & teachers */}
         <section
           aria-labelledby="safety-heading"
-          className="border-b-2 border-brand-navy py-16 sm:py-20 dark:border-edge"
+          className="border-b-2 border-edge py-16 sm:py-20"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <SectionHeading
@@ -483,16 +483,16 @@ export default async function LandingPage() {
                 >
                   <span
                     className={cn(
-                      "flex size-11 items-center justify-center rounded-lg bg-brand-sky/30 text-brand-navy dark:text-foreground",
+                      "flex size-11 items-center justify-center rounded-lg bg-brand-sky/30 text-foreground",
                       BORDER,
                     )}
                   >
                     <item.icon className="size-5" aria-hidden />
                   </span>
-                  <h3 className="font-heading text-lg font-black text-brand-navy dark:text-foreground">
+                  <h3 className="font-heading text-lg font-black text-foreground">
                     {item.title}
                   </h3>
-                  <p className="text-sm font-medium text-pretty text-brand-navy/75 dark:text-foreground/75">{item.body}</p>
+                  <p className="text-sm font-medium text-pretty text-foreground/75">{item.body}</p>
                 </li>
               ))}
             </ul>
@@ -506,7 +506,7 @@ export default async function LandingPage() {
               className={cn(
                 "relative overflow-hidden rounded-2xl bg-brand-yellow p-8 text-center sm:p-12",
                 BORDER,
-                "shadow-[6px_6px_0_0_var(--brand-navy)] dark:shadow-[6px_6px_0_0_var(--edge)]",
+                "shadow-hard-6",
               )}
             >
               <Cog
@@ -539,10 +539,10 @@ export default async function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t-2 border-brand-navy bg-brand-navy py-10 text-white/80 dark:border-edge dark:bg-card">
+      <footer className="border-t-2 border-edge bg-brand-navy py-10 text-white/80 dark:bg-card">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">
           <div className="flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-md border-2 border-white bg-brand-teal text-xs font-black text-white">
+            <span className="flex size-7 items-center justify-center rounded-md border-2 border-white bg-brand-teal text-xs font-black text-brand-navy">
               R
             </span>
             <span className="font-heading text-sm font-black text-white">RoboticGen Projects</span>

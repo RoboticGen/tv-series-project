@@ -55,7 +55,7 @@ export function StarButton({
         animate={{ rotate: starred ? 216 : 0, scale: starred ? [1, 1.5, 1] : 1 }}
         transition={{ duration: 0.4 }}
       >
-        <Star className={cn("size-4 text-brand-yellow", starred && "fill-brand-yellow")} />
+        <Star className={cn("size-4", starred && "fill-brand-yellow text-edge")} />
       </motion.span>
       {count}
     </Button>

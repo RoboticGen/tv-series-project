@@ -11,7 +11,7 @@ export function OfflineBanner() {
   return (
     <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
       {isOffline && (
-        <div className="pointer-events-auto flex items-center gap-3 rounded-lg border-2 border-brand-navy bg-brand-yellow px-4 py-2.5 text-sm font-bold text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[4px_4px_0_0_var(--edge)]">
+        <div className="pointer-events-auto flex items-center gap-3 rounded-lg border-2 border-edge bg-brand-yellow px-4 py-2.5 text-sm font-bold text-brand-navy shadow-hard-4">
           <WifiOff className="size-4 shrink-0" aria-hidden />
           <span>
             You&apos;re offline.{" "}

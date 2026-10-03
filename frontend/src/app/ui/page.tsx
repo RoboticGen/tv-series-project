@@ -52,12 +52,12 @@ import {
 } from "@/components/ui/accordion";
 const brandColors = [
   { name: "Navy", token: "--brand-navy", hex: "#022f49", fg: "text-white" },
-  { name: "Teal", token: "--brand-teal", hex: "#219cbc", fg: "text-white" },
-  { name: "Sky", token: "--brand-sky", hex: "#54afe7", fg: "text-white" },
-  { name: "Coral", token: "--brand-coral", hex: "#e87a55", fg: "text-white" },
-  { name: "Green", token: "--brand-green", hex: "#43b268", fg: "text-white" },
+  { name: "Teal", token: "--brand-teal", hex: "#29a1c1", fg: "text-brand-navy" },
+  { name: "Sky", token: "--brand-sky", hex: "#54afe7", fg: "text-brand-navy" },
+  { name: "Coral", token: "--brand-coral", hex: "#e87a55", fg: "text-brand-navy" },
+  { name: "Green", token: "--brand-green", hex: "#43b268", fg: "text-brand-navy" },
   { name: "Yellow", token: "--brand-yellow", hex: "#fdb713", fg: "text-brand-navy" },
-  { name: "Grey", token: "--brand-grey", hex: "#939598", fg: "text-white" },
+  { name: "Grey", token: "--brand-grey", hex: "#939598", fg: "text-brand-navy" },
   { name: "Black", token: "--brand-black", hex: "#1f2022", fg: "text-white" },
 ];
 
@@ -75,7 +75,7 @@ function Section({
   return (
     <section id={id} className="scroll-mt-24 border-b py-12 first:pt-0 last:border-b-0">
       <div className="mb-6">
-        <h2 className="font-heading text-xl font-semibold text-brand-navy dark:text-foreground">
+        <h2 className="font-heading text-xl font-semibold text-foreground">
           {title}
         </h2>
         {description ? (
@@ -129,10 +129,10 @@ export default function UiPage() {
       <header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-background/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-full bg-brand-teal text-sm font-bold text-white">
+            <div className="flex size-8 items-center justify-center rounded-full bg-brand-teal text-sm font-bold text-brand-navy">
               R
             </div>
-            <span className="font-heading text-sm font-bold text-brand-navy dark:text-foreground">
+            <span className="font-heading text-sm font-bold text-foreground">
               RoboticGen Academy
             </span>
             <Badge variant="secondary" className="ml-2 hidden sm:inline-flex">
@@ -151,7 +151,7 @@ export default function UiPage() {
             <a
               key={link.id}
               href={`#${link.id}`}
-              className="whitespace-nowrap text-muted-foreground hover:text-brand-teal"
+              className="whitespace-nowrap text-muted-foreground hover:text-teal-ink"
             >
               {link.label}
             </a>
@@ -161,8 +161,8 @@ export default function UiPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-12">
-          <p className="text-sm font-medium text-brand-teal">Design system</p>
-          <h1 className="mt-1 font-heading text-3xl font-bold text-brand-navy dark:text-foreground sm:text-4xl">
+          <p className="text-sm font-medium text-teal-ink">Design system</p>
+          <h1 className="mt-1 font-heading text-3xl font-bold text-foreground sm:text-4xl">
             UI components
           </h1>
           <p className="mt-3 max-w-2xl text-muted-foreground">
@@ -200,13 +200,13 @@ export default function UiPage() {
           description="Raleway for headings (the brand's real display face), Inter for body text."
         >
           <div className="space-y-4 rounded-xl border bg-card p-6">
-            <h1 className="font-heading text-4xl font-bold text-brand-navy dark:text-foreground">
+            <h1 className="font-heading text-4xl font-bold text-foreground">
               Find Your Child&apos;s Superpower
             </h1>
-            <h2 className="font-heading text-2xl font-semibold text-brand-navy dark:text-foreground">
+            <h2 className="font-heading text-2xl font-semibold text-foreground">
               Heading 2 — section title
             </h2>
-            <h3 className="font-heading text-lg font-semibold text-brand-navy dark:text-foreground">
+            <h3 className="font-heading text-lg font-semibold text-foreground">
               Heading 3 — card title
             </h3>
             <p className="text-base text-foreground">
@@ -242,7 +242,7 @@ export default function UiPage() {
             <Demo label="States">
               <div className="flex flex-wrap gap-3">
                 <Button disabled>Disabled</Button>
-                <Button className="rounded-full bg-brand-coral text-white hover:bg-brand-coral/90">
+                <Button className="rounded-full bg-brand-coral text-brand-navy hover:bg-brand-coral/90">
                   Accent (coral)
                 </Button>
                 <Button className="rounded-full bg-[#075E54] text-white hover:bg-[#075E54]/90">
@@ -270,7 +270,7 @@ export default function UiPage() {
             <Badge variant="secondary">Secondary</Badge>
             <Badge variant="outline">Outline</Badge>
             <Badge variant="destructive">Destructive</Badge>
-            <Badge className="bg-brand-green text-white">Enrolled</Badge>
+            <Badge className="bg-brand-green text-brand-navy">Enrolled</Badge>
             <Badge className="bg-brand-yellow text-brand-navy">New batch</Badge>
           </div>
         </Section>
@@ -413,10 +413,10 @@ export default function UiPage() {
               <Avatar>
                 <AvatarFallback>OB</AvatarFallback>
               </Avatar>
-              <Avatar className="bg-brand-coral text-white">
+              <Avatar className="bg-brand-coral text-brand-navy">
                 <AvatarFallback>AP</AvatarFallback>
               </Avatar>
-              <Avatar className="bg-brand-green text-white">
+              <Avatar className="bg-brand-green text-brand-navy">
                 <AvatarFallback>KS</AvatarFallback>
               </Avatar>
             </div>
@@ -424,10 +424,10 @@ export default function UiPage() {
               <Avatar>
                 <AvatarFallback>OB</AvatarFallback>
               </Avatar>
-              <Avatar className="bg-brand-coral text-white">
+              <Avatar className="bg-brand-coral text-brand-navy">
                 <AvatarFallback>AP</AvatarFallback>
               </Avatar>
-              <Avatar className="bg-brand-green text-white">
+              <Avatar className="bg-brand-green text-brand-navy">
                 <AvatarFallback>KS</AvatarFallback>
               </Avatar>
               <Avatar className="bg-brand-yellow text-brand-navy">

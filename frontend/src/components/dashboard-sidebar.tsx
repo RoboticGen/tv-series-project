@@ -31,7 +31,7 @@ function UnreadBadge({ count, className }: { count: number; className?: string }
       animate={{ scale: 1 }}
       transition={SPRING_POP}
       className={cn(
-        "rounded-full border-2 border-brand-navy bg-brand-coral px-1.5 text-xs leading-4 font-black tabular-nums text-brand-navy dark:border-edge",
+        "rounded-full border-2 border-edge bg-brand-coral px-1.5 text-xs leading-4 font-black tabular-nums text-brand-navy",
         className,
       )}
     >
@@ -64,10 +64,10 @@ function SidebarContent({ unread, onNavigate }: { unread: number; onNavigate?: (
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex size-8 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-sm font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[2px_2px_0_0_var(--edge)]">
+        <div className="flex size-8 items-center justify-center rounded-sm border-2 border-edge bg-brand-teal text-sm font-black text-brand-navy shadow-hard-2">
           R
         </div>
-        <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-foreground">
+        <span className="font-heading text-sm font-black tracking-tight text-foreground">
           RoboticGen Projects
         </span>
         {/* The mobile drawer's close button sits in this corner instead;
@@ -94,8 +94,8 @@ function SidebarContent({ unread, onNavigate }: { unread: number; onNavigate?: (
               className={cn(
                 "flex items-center gap-2.5 rounded-md border-2 px-3 py-2 text-sm font-bold transition-all",
                 isActive
-                  ? "border-brand-navy bg-brand-teal text-white shadow-[3px_3px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[3px_3px_0_0_var(--edge)]"
-                  : "border-transparent text-muted-foreground hover:border-brand-navy hover:bg-muted hover:text-foreground dark:hover:border-edge",
+                  ? "border-edge bg-brand-teal text-brand-navy shadow-hard-3"
+                  : "border-transparent text-muted-foreground hover:border-edge hover:bg-muted hover:text-foreground",
               )}
             >
               <item.icon className="size-4" aria-hidden />
@@ -107,9 +107,9 @@ function SidebarContent({ unread, onNavigate }: { unread: number; onNavigate?: (
       </nav>
 
       <div className="mt-auto p-3">
-        <Separator className="mb-3 border-2 border-brand-navy dark:border-edge" />
+        <Separator className="mb-3 border-2 border-edge" />
         {session?.user ? (
-          <div className="flex items-center gap-2.5 rounded-md border-2 border-brand-navy p-2 dark:border-edge">
+          <div className="flex items-center gap-2.5 rounded-md border-2 border-edge p-2">
             <Avatar size="sm">
               <AvatarImage src={session.user.image ?? undefined} alt={session.user.name ?? "You"} />
               <AvatarFallback>
@@ -156,12 +156,12 @@ export function DashboardSidebar() {
 
   return (
     <>
-      <header className="flex items-center justify-between border-b-2 border-brand-navy bg-card px-4 py-3 md:hidden dark:border-edge">
+      <header className="flex items-center justify-between border-b-2 border-edge bg-card px-4 py-3 md:hidden">
         <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-sm border-2 border-brand-navy bg-brand-teal text-xs font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge dark:shadow-[2px_2px_0_0_var(--edge)]">
+          <div className="flex size-7 items-center justify-center rounded-sm border-2 border-edge bg-brand-teal text-xs font-black text-brand-navy shadow-hard-2">
             R
           </div>
-          <span className="font-heading text-sm font-black tracking-tight text-brand-navy dark:text-foreground">
+          <span className="font-heading text-sm font-black tracking-tight text-foreground">
             RoboticGen Projects
           </span>
         </div>
@@ -199,10 +199,10 @@ export function DashboardSidebar() {
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-overlay"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative flex h-full w-72 flex-col border-r-2 border-brand-navy bg-card dark:border-edge">
+          <aside className="relative flex h-full w-72 flex-col border-r-2 border-edge bg-card">
             <Button
               size="icon-sm"
               variant="ghost"
@@ -217,7 +217,7 @@ export function DashboardSidebar() {
         </div>
       ) : null}
 
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 border-r-2 border-brand-navy bg-card md:flex md:flex-col dark:border-edge">
+      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 border-r-2 border-edge bg-card md:flex md:flex-col">
         <SidebarContent unread={unread} />
       </aside>
     </>

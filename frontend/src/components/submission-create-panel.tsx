@@ -32,7 +32,7 @@ export function SubmissionCreatePanel({
         </Link>
       ) : null}
 
-      <h1 className={cn("font-heading text-2xl font-bold text-brand-navy dark:text-foreground", !isModal && "mt-6")}>
+      <h1 className={cn("font-heading text-2xl font-bold text-foreground", !isModal && "mt-6")}>
         I built this: {project.title}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">

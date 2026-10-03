@@ -29,7 +29,7 @@ interface ProjectCardProps {
 
 export function ProjectCardSkeleton() {
   return (
-    <div className="flex h-full flex-col gap-4 overflow-hidden rounded-lg border-2 border-brand-navy bg-card py-4 dark:border-edge">
+    <div className="flex h-full flex-col gap-4 overflow-hidden rounded-lg border-2 border-edge bg-card py-4">
       <Skeleton className="aspect-video w-full" />
       <div className="flex flex-col gap-2 px-4">
         <Skeleton className="h-5 w-20 rounded-sm" />
@@ -37,7 +37,7 @@ export function ProjectCardSkeleton() {
         <Skeleton className="h-4 w-full rounded" />
         <Skeleton className="h-4 w-2/3 rounded" />
       </div>
-      <div className="mt-auto flex items-center justify-between border-t-2 border-brand-navy bg-muted/50 px-4 pt-4 dark:border-edge">
+      <div className="mt-auto flex items-center justify-between border-t-2 border-edge bg-muted/50 px-4 pt-4">
         <Skeleton className="h-4 w-20 rounded" />
         <Skeleton className="h-4 w-16 rounded" />
       </div>
@@ -62,11 +62,11 @@ export function ProjectCard({
     <Link href={href ?? `/projects/${slug}`} className="block h-full">
       <Card
         className={cn(
-          "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 motion-safe:hover:-rotate-1 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_var(--edge)]",
+          "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 motion-safe:hover:-rotate-1 hover:shadow-hard-6",
           isFeatured && "bg-brand-yellow/10 dark:bg-secondary",
         )}
       >
-        <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-brand-navy bg-muted dark:border-edge">
+        <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-edge bg-muted">
           {coverImageUrl ? (
             <Image
               src={coverImageUrl}
@@ -82,7 +82,7 @@ export function ProjectCard({
             </div>
           )}
           {isFeatured ? (
-            <span className="absolute top-2 left-2 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 motion-safe:animate-stamp border-brand-navy dark:border-edge bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]">
+            <span className="absolute top-2 left-2 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 motion-safe:animate-stamp border-edge bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-hard-2">
               <Sparkles className="size-3.5" aria-hidden />
               Featured
             </span>
@@ -108,12 +108,12 @@ export function ProjectCard({
           <span className="text-sm text-muted-foreground">by {authorName}</span>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Heart className="size-4 text-brand-coral" aria-hidden />
+              <Heart className="size-4 fill-brand-coral text-edge" aria-hidden />
               <span className="sr-only">Likes:</span>
               {likeCount}
             </span>
             <span className="flex items-center gap-1">
-              <Star className="size-4 text-brand-yellow" aria-hidden />
+              <Star className="size-4 fill-brand-yellow text-edge" aria-hidden />
               <span className="sr-only">Stars:</span>
               {starCount}
             </span>
