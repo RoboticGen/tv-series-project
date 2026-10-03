@@ -63,7 +63,7 @@ export function ProjectCard({
       <Card
         className={cn(
           "h-full pt-0 motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 motion-safe:hover:-rotate-1 hover:shadow-[6px_6px_0_0_var(--brand-navy)] dark:hover:shadow-[6px_6px_0_0_var(--edge)]",
-          isFeatured && "bg-brand-yellow/10 dark:bg-brand-yellow/5",
+          isFeatured && "bg-brand-yellow/10 dark:bg-secondary",
         )}
       >
         <div className="relative aspect-video w-full overflow-hidden rounded-t-[calc(var(--radius-lg)-2px)] border-b-2 border-brand-navy bg-muted dark:border-edge">
@@ -82,7 +82,7 @@ export function ProjectCard({
             </div>
           )}
           {isFeatured ? (
-            <span className="absolute top-2 left-2 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 motion-safe:animate-stamp border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)]">
+            <span className="absolute top-2 left-2 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 motion-safe:animate-stamp border-brand-navy dark:border-edge bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)]">
               <Sparkles className="size-3.5" aria-hidden />
               Featured
             </span>

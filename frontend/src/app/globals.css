@@ -66,9 +66,7 @@
   --brand-yellow: #fdb713;
   --brand-grey: #939598;
   --brand-black: #1f2022;
-  /* Outline + hard-shadow colour for the neobrutalist edges. Light mode
-     draws them in navy directly; dark mode uses dark:*-edge so the edges
-     are a soft blue-grey instead of glaring pure white. */
+  /* Outline + hard-shadow colour for the neobrutalist edges. */
   --edge: var(--brand-navy);
 
   --background: oklch(1 0 0);
@@ -106,32 +104,28 @@
 }
 
 .dark {
-  /* Dimmed brand fills: same hues, lower lightness/chroma so blocks of
-     yellow/teal/coral don't glow against the dark background. Navy stays
-     as-is -- it's the text colour on these fills. */
-  --brand-teal: oklch(0.58 0.08 222);
-  --brand-sky: oklch(0.68 0.08 238);
-  --brand-coral: oklch(0.68 0.1 42);
-  --brand-green: oklch(0.68 0.1 150);
-  --brand-yellow: oklch(0.77 0.11 80);
-  --edge: oklch(0.62 0.025 230);
+  color-scheme: dark;
+  /* neobrutalism.dev dark recipe: fills stay loud, edges go near-black,
+     the page sits lighter than the cards so hard shadows still read. */
+  --brand-teal: oklch(0.58 0.105 222);
+  --edge: oklch(0.13 0.02 240);
 
-  --background: oklch(0.2 0.025 235);
-  --foreground: oklch(0.88 0.012 230);
-  --card: oklch(0.235 0.025 235);
+  --background: oklch(0.29 0.04 235);
+  --foreground: oklch(0.95 0.008 230);
+  --card: oklch(0.235 0.032 235);
   --card-foreground: var(--foreground);
-  --popover: oklch(0.235 0.025 235);
+  --popover: oklch(0.235 0.032 235);
   --popover-foreground: var(--foreground);
   --primary: var(--brand-sky);
   --primary-foreground: var(--brand-navy);
-  --secondary: oklch(0.28 0.025 235);
+  --secondary: oklch(0.35 0.04 235);
   --secondary-foreground: var(--foreground);
-  --muted: oklch(0.28 0.025 235);
-  --muted-foreground: oklch(0.68 0.015 230);
+  --muted: oklch(0.35 0.04 235);
+  --muted-foreground: oklch(0.78 0.02 230);
   --accent: var(--brand-coral);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.66 0.16 22);
-  --border: oklch(1 0 0 / 10%);
+  --accent-foreground: var(--brand-navy);
+  --destructive: oklch(0.7 0.19 25);
+  --border: oklch(0 0 0 / 45%);
   --input: oklch(1 0 0 / 13%);
   --ring: var(--brand-sky);
   --chart-1: var(--brand-teal);
@@ -139,13 +133,13 @@
   --chart-3: var(--brand-green);
   --chart-4: var(--brand-yellow);
   --chart-5: var(--brand-sky);
-  --sidebar: oklch(0.215 0.025 235);
+  --sidebar: oklch(0.235 0.032 235);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--brand-sky);
   --sidebar-primary-foreground: var(--brand-navy);
-  --sidebar-accent: oklch(0.28 0.025 235);
+  --sidebar-accent: oklch(0.35 0.04 235);
   --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-border: oklch(0 0 0 / 45%);
   --sidebar-ring: var(--brand-sky);
 }
 
@@ -158,6 +152,11 @@
   }
   html {
     @apply font-sans;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 35%, transparent) transparent;
+  }
+  ::selection {
+    background: var(--brand-yellow);
+    color: var(--brand-navy);
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;

@@ -18,7 +18,7 @@ const TYPES: Record<
   project_unpublished: { icon: EyeOff, fill: "bg-destructive text-white", describe: () => "A mentor unpublished" },
   project_commented: { icon: MessageCircle, fill: "bg-brand-sky text-brand-navy", describe: (a) => `${a} commented on` },
   comment_replied: { icon: Reply, fill: "bg-brand-teal text-white", describe: (a) => `${a} replied to your comment on` },
-  new_follower: { icon: UserPlus, fill: "bg-brand-navy text-white", describe: (a) => `${a} started following you` },
+  new_follower: { icon: UserPlus, fill: "bg-brand-navy text-white dark:bg-foreground dark:text-brand-navy", describe: (a) => `${a} started following you` },
 };
 
 function Subject({ item }: { item: MyNotification }) {
@@ -77,7 +77,7 @@ export function NotificationList({ items }: { items: MyNotification[] }) {
                 {describe(item.actorName ?? "Someone")} <Subject item={item} />
               </p>
               {item.detail ? (
-                <p className="mt-1 rounded-md border-2 border-brand-navy/20 bg-muted px-2 py-1 text-muted-foreground dark:border-edge/40">
+                <p className="mt-1 rounded-md border-2 border-brand-navy/20 bg-muted px-2 py-1 text-muted-foreground dark:border-edge/60">
                   {item.detail}
                 </p>
               ) : null}

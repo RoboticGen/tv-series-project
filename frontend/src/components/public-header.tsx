@@ -22,7 +22,7 @@ export function PublicHeader() {
             <span className="sm:hidden">Home</span>
           </Link>
           <Link href="/" className="hidden items-center gap-2 md:flex" aria-label="RoboticGen Projects home">
-            <span className="flex size-9 items-center justify-center rounded-md border-2 border-brand-navy bg-brand-teal font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge">
+            <span className="flex size-9 items-center justify-center rounded-md border-2 border-brand-navy bg-brand-teal font-black text-white shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)] dark:border-edge">
               R
             </span>
             <span className="font-heading font-black tracking-tight text-brand-navy dark:text-foreground">

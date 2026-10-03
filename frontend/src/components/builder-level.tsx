@@ -97,7 +97,7 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
                 className={cn(
                   "flex size-9 items-center justify-center rounded-full border-2 border-brand-navy dark:border-edge",
                   reached ? cn(step.fill, "text-brand-navy") : "bg-muted text-muted-foreground",
-                  current && "ring-3 ring-brand-navy ring-offset-2 ring-offset-card dark:ring-edge",
+                  current && "ring-3 ring-brand-navy ring-offset-2 ring-offset-card dark:ring-foreground",
                 )}
               >
                 <StepIcon className="size-4" aria-hidden />
@@ -118,7 +118,7 @@ export function BuilderLevel({ points, pointValues }: { points: number; pointVal
         })}
       </ol>
 
-      <ul aria-label="How to earn points" className="grid border-t-2 border-dashed border-brand-navy/20 pt-3 dark:border-edge/20 grid-cols-2 gap-x-3 gap-y-1 text-xs font-bold text-muted-foreground">
+      <ul aria-label="How to earn points" className="grid border-t-2 border-dashed border-brand-navy/20 pt-3 dark:border-edge/60 grid-cols-2 gap-x-3 gap-y-1 text-xs font-bold text-muted-foreground">
         <li>Try a build: +{pointValues.submission_created}</li>
         <li>Get featured: +{pointValues.project_featured}</li>
         <li>Each star you get: +{pointValues.star_received}</li>

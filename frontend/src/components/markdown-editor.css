@@ -8,11 +8,11 @@
   --baseBgActive: var(--muted);
   --baseBorder: var(--border);
   --baseBorderHover: var(--brand-teal);
-  --baseText: var(--brand-navy);
-  --baseTextContrast: var(--brand-navy);
+  --baseText: var(--foreground);
+  --baseTextContrast: var(--foreground);
   --accentBase: var(--brand-teal);
-  --accentBg: color-mix(in oklch, var(--brand-teal) 12%, white);
-  --accentBgHover: color-mix(in oklch, var(--brand-teal) 20%, white);
+  --accentBg: color-mix(in oklch, var(--brand-teal) 12%, var(--background));
+  --accentBgHover: color-mix(in oklch, var(--brand-teal) 20%, var(--background));
   --accentBorder: var(--brand-teal);
   --accentSolid: var(--brand-teal);
   --accentSolidHover: var(--brand-navy);

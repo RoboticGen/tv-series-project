@@ -12,7 +12,7 @@ export default function NotFound() {
         <div className="flex size-32 origin-bottom items-center justify-center rounded-3xl border-2 border-brand-navy bg-brand-teal text-white shadow-[6px_6px_0_0_var(--brand-navy)] motion-safe:animate-wobble dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)]">
           <Bot className="size-16" strokeWidth={1.5} aria-hidden />
         </div>
-        <span className="absolute -top-3 -right-8 rotate-12 rounded-lg border-2 border-brand-navy bg-brand-yellow px-3 py-1 font-heading text-xl font-black text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] motion-safe:animate-stamp dark:border-edge">
+        <span className="absolute -top-3 -right-8 rotate-12 rounded-lg border-2 border-brand-navy bg-brand-yellow px-3 py-1 font-heading text-xl font-black text-brand-navy shadow-[3px_3px_0_0_var(--brand-navy)] dark:shadow-[3px_3px_0_0_var(--edge)] motion-safe:animate-stamp dark:border-edge">
           404
         </span>
       </div>

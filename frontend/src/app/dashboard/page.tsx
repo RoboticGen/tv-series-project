@@ -88,16 +88,16 @@ export default async function DashboardPage() {
       <header className="relative overflow-hidden rounded-2xl border-2 border-brand-navy bg-brand-teal p-6 text-white shadow-[6px_6px_0_0_var(--brand-navy)] sm:p-8 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)]">
         {/* Decorative shapes — hidden from assistive tech */}
         <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
-          <div className="absolute -top-10 -right-10 size-40 rounded-full border-2 border-brand-navy bg-brand-yellow" />
-          <div className="absolute right-28 -bottom-8 size-20 rotate-12 rounded-lg border-2 border-brand-navy bg-brand-coral" />
-          <div className="absolute top-8 right-44 size-8 rounded-full border-2 border-brand-navy bg-brand-green" />
+          <div className="absolute -top-10 -right-10 size-40 rounded-full border-2 border-brand-navy dark:border-edge bg-brand-yellow" />
+          <div className="absolute right-28 -bottom-8 size-20 rotate-12 rounded-lg border-2 border-brand-navy dark:border-edge bg-brand-coral" />
+          <div className="absolute top-8 right-44 size-8 rounded-full border-2 border-brand-navy dark:border-edge bg-brand-green" />
           <Cog className="absolute top-4 right-6 size-16 text-brand-navy motion-safe:animate-[spin_12s_linear_infinite]" />
           <Bot className="absolute right-8 bottom-4 hidden size-20 text-white/90 md:block" />
           <Zap className="absolute top-1/2 right-56 hidden size-8 text-brand-yellow lg:block" />
         </div>
 
         <div className="relative max-w-xl">
-          <p className="inline-block rounded-sm border-2 border-brand-navy bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase">
+          <p className="inline-block rounded-sm border-2 border-brand-navy dark:border-edge bg-white px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase">
             My workshop
           </p>
           <h1 className="mt-3 font-heading text-3xl font-black tracking-tight text-balance sm:text-4xl">

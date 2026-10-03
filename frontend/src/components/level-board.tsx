@@ -82,7 +82,7 @@ function Ladder({ from, to }: { from: number; to: number }) {
           y1={a.y + dy * t - py}
           x2={a.x + dx * t + px}
           y2={a.y + dy * t + py}
-          className="stroke-brand-navy dark:stroke-edge"
+          className="stroke-brand-navy dark:stroke-brand-yellow"
           strokeWidth={6}
         />
       ))}
@@ -174,7 +174,7 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
 
       <div
         aria-hidden
-        className="relative aspect-[6/5] w-full overflow-hidden rounded-2xl border-4 border-brand-navy bg-card shadow-[6px_6px_0_0_var(--brand-navy)] dark:border-edge"
+        className="relative aspect-[6/5] w-full overflow-hidden rounded-2xl border-4 border-brand-navy bg-card shadow-[6px_6px_0_0_var(--brand-navy)] dark:shadow-[6px_6px_0_0_var(--edge)] dark:border-edge"
       >
         {/* Layer 1: numbered squares */}
         <div className="absolute inset-0 grid grid-cols-6 grid-rows-5">
@@ -187,7 +187,7 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
                 key={n}
                 style={{ gridRow: ROWS - row, gridColumn: col + 1 }}
                 className={cn(
-                  "relative border border-brand-navy/25 dark:border-edge/20",
+                  "relative border border-brand-navy/25 dark:border-edge/50",
                   level ? cn(level.fill, "opacity-90") : (row + col) % 2 === 0 ? "bg-brand-sky/15" : "bg-card",
                 )}
               >
@@ -222,7 +222,7 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
               >
                 <span
                   className={cn(
-                    "flex size-7 items-center justify-center rounded-full border-2 border-brand-navy bg-white text-brand-navy shadow-[2px_2px_0_0_var(--brand-navy)] sm:size-11",
+                    "flex size-7 items-center justify-center rounded-full border-2 border-brand-navy dark:border-edge bg-white text-brand-navy shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)] sm:size-11",
                     isTop && "bg-brand-yellow",
                   )}
                 >
@@ -243,7 +243,7 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
 
       {/* Legend */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border-2 border-brand-navy bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:text-foreground">
+        <div className="rounded-xl border-2 border-brand-navy dark:border-edge bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:shadow-[4px_4px_0_0_var(--edge)] dark:text-foreground">
           <p className="flex items-center gap-2 font-heading font-black">
             <svg viewBox="0 0 24 24" className="size-6" aria-hidden>
               <path d="M7 2v20M17 2v20M7 6h10M7 12h10M7 18h10" stroke="currentColor" strokeWidth={2.5} fill="none" strokeLinecap="round" />
@@ -256,7 +256,7 @@ export function LevelBoard({ pointValues }: { pointValues: PointValues }) {
             ))}
           </ul>
         </div>
-        <div className="rounded-xl border-2 border-brand-navy bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:text-foreground">
+        <div className="rounded-xl border-2 border-brand-navy dark:border-edge bg-card p-4 text-brand-navy shadow-[4px_4px_0_0_var(--brand-navy)] dark:shadow-[4px_4px_0_0_var(--edge)] dark:text-foreground">
           <p className="flex items-center gap-2 font-heading font-black">
             <Cable className="size-6" aria-hidden />
             Tangled wires are bugs

@@ -17,7 +17,7 @@ function SpotlightHeader() {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <span className="inline-flex items-center gap-1.5 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:border-edge">
+        <span className="inline-flex items-center gap-1.5 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2 py-0.5 text-xs font-black tracking-wide text-brand-navy uppercase shadow-[2px_2px_0_0_var(--brand-navy)] dark:shadow-[2px_2px_0_0_var(--edge)] dark:border-edge">
           <Sparkles className="size-3.5" aria-hidden />
           Featured builds
         </span>
@@ -84,7 +84,7 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
       <div className="mt-6 flex flex-col gap-6">
         <Link
           href={`/projects/${lead.slug}`}
-          className="group grid overflow-hidden rounded-xl border-2 border-brand-navy bg-brand-yellow/15 shadow-[6px_6px_0_0_var(--brand-navy)] outline-none motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_0_var(--brand-navy)] focus-visible:ring-4 focus-visible:ring-ring/60 md:grid-cols-2 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)] dark:hover:shadow-[8px_8px_0_0_var(--edge)]"
+          className="group grid overflow-hidden rounded-xl border-2 border-brand-navy bg-brand-yellow/15 shadow-[6px_6px_0_0_var(--brand-navy)] dark:bg-secondary outline-none motion-safe:transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_0_var(--brand-navy)] focus-visible:ring-4 focus-visible:ring-ring/60 md:grid-cols-2 dark:border-edge dark:shadow-[6px_6px_0_0_var(--edge)] dark:hover:shadow-[8px_8px_0_0_var(--edge)]"
         >
           <div className="relative aspect-video border-b-2 border-brand-navy bg-muted md:aspect-auto md:min-h-72 md:border-r-2 md:border-b-0 dark:border-edge">
             {lead.coverImageUrl ? (
@@ -102,7 +102,7 @@ export async function FeaturedSpotlight({ className }: { className?: string }) {
                 <ImageOff className="size-8" aria-hidden />
               </div>
             )}
-            <span className="absolute top-3 left-3 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 border-brand-navy bg-brand-yellow px-2.5 py-1 text-sm font-black text-brand-navy uppercase shadow-[3px_3px_0_0_var(--brand-navy)]">
+            <span className="absolute top-3 left-3 inline-flex -rotate-3 items-center gap-1 rounded-sm border-2 border-brand-navy dark:border-edge bg-brand-yellow px-2.5 py-1 text-sm font-black text-brand-navy uppercase shadow-[3px_3px_0_0_var(--brand-navy)] dark:shadow-[3px_3px_0_0_var(--edge)]">
               <Sparkles className="size-4" aria-hidden />
               Top pick
             </span>
