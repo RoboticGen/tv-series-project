@@ -14,8 +14,8 @@ docker compose up -d
 
 The scripts in `init/` run once, in filename order, only when the
 `pgdata` volume is first created (empty data directory). To pick up
-schema changes after that, write a migration instead of editing an
-`init/*.sql` file in place — see "Changing the schema" below.
+schema changes, edit the relevant `init/*.sql` file in place and
+recreate the volume (see "Changing the schema" below).
 
 Connect with:
 
@@ -36,7 +36,7 @@ mongodb://roboticgen:roboticgen@localhost:27017
 | `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns, builder points fns, notification fns |
 | `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items`, `point_events`, `notifications` |
 | `init/005_views.sql` | `user_dashboard_stats`, `pending_review_queue`, `user_liked_projects`, `user_starred_projects` |
-| `migrations/*.sql` | Schema changes applied after `init/` already ran once (see "Changing the schema" below) |
+
 | `frontend/src/lib/db/schema.ts` | Drizzle model of the same schema (hand-maintained, see below) |
 
 ## Design notes
@@ -140,15 +140,17 @@ mongodb://roboticgen:roboticgen@localhost:27017
 
 ## Changing the schema
 
-Once the `pgdata` volume exists, `init/*.sql` no longer runs. From here,
-schema changes should go through a migration step -- a new numbered file
-under `migrations/` (plain SQL, run against the running container) --
-rather than editing these files in place. Keep `init/` as the from-scratch
-bootstrap (still updated to match, so a fresh volume gets the same schema
-directly) and let `migrations/` layer on top of it for databases that
-already exist. `frontend/src/lib/db/schema.ts` is a hand-maintained TypeScript mirror of
-this SQL for query typing; update it to match whenever a migration
-changes a table/view shape, but it does not drive the schema itself —
+Edit the relevant `init/*.sql` file directly, then recreate the volume
+so Postgres re-runs the bootstrap scripts:
+
+```bash
+docker compose down -v   # drops the pgdata volume
+docker compose up -d     # re-runs init/ from scratch
+```
+
+`frontend/src/lib/db/schema.ts` is a hand-maintained TypeScript mirror of
+this SQL for query typing; update it to match whenever a table or view
+shape changes, but it does not drive the schema itself —
 `drizzle-kit push`/`generate` are not part of this workflow.
 
 ## Verifying indexes are used
