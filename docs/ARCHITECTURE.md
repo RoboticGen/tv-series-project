@@ -1,4 +1,4 @@
-# RoboticGen Academy Projects — Architecture & Features
+# Obo Space — Architecture & Features
 
 A single reference for what this platform is, how it's built, and what
 each feature actually does in code today (not just what was planned).
@@ -31,7 +31,7 @@ An Instructables-style platform for RoboticGen learners:
 | Document DB | MongoDB 7 (official `mongodb` driver) |
 | File storage | Private S3 bucket |
 | Validation | Zod |
-| UI | Tailwind CSS v4, a shadcn-style primitive kit in `components/ui/`, `@uiw/react-md-editor` for Markdown |
+| UI | Tailwind CSS v4, a shadcn-style primitive kit in `shared/components/ui/`, `@uiw/react-md-editor` for Markdown |
 | Local infra | Docker Compose (`database/docker-compose.yml`) runs Postgres + Mongo |
 
 No test framework (no Jest/Vitest/Playwright) is set up yet.
@@ -64,7 +64,7 @@ Postgres owns workflow/metadata, Mongo owns prose, and the app code is
 what ties `content_doc_id` to a Mongo `_id`.
 
 Almost everything is a **Next.js Server Action** (`"use server"` files
-under `src/actions/`), not REST endpoints. The only real API routes are
+in each feature's `actions.ts`), not REST endpoints. The only real API routes are
 NextAuth's callback handler and the authenticated image-streaming route.
 
 ### Data flow, end to end
@@ -93,7 +93,7 @@ stateDiagram-v2
 
 ## 4. Auth — how sign-in actually works
 
-`frontend/src/auth.ts`, Auth.js v5:
+`frontend/src/lib/auth/index.ts`, Auth.js v5:
 
 - **Google only.** `signIn` callback rejects any other provider and
   rejects unverified Google emails (`profile.email_verified` must be true).
@@ -121,7 +121,7 @@ Role checks live in the server-action layer (`review.ts`'s
 Source of truth: `database/init/*.sql`, run once by Docker on first
 volume creation (`004_tables.sql`, `005_views.sql`, etc.). Schema
 changes after that go through **migrations**, never editing `init/*`
-in place. `frontend/src/db/schema.ts` is a hand-maintained Drizzle
+in place. `frontend/src/lib/db/schema.ts` is a hand-maintained Drizzle
 mirror for query typing — it does not drive the schema.
 
 **Tables:** `users`, `projects`, `media_assets`, `project_likes`,
@@ -167,16 +167,16 @@ sensors_automation, competitions, other).
 
 - **Write-ups are Instructables-style steps** — an ordered `steps` array
   of `{ id, title, images[], body }` (Markdown body, gallery of
-  `/api/media/<id>` URLs; type + validation in `src/lib/steps.ts`). They
-  live in Mongo's single `content_docs` collection (`src/db/content.ts`:
+  `/api/media/<id>` URLs; type + validation in `src/lib/models/steps.ts`). They
+  live in Mongo's single `content_docs` collection (`src/lib/db/content.ts`:
   `createContentDoc`/`getContentDoc`/`updateContentDoc`/
   `deleteContentDoc`), referenced from Postgres by
   `projects.content_doc_id` / `submissions.content_doc_id`. Older docs
   with a single Markdown `body` string are read as one untitled step and
   rewritten as `steps` on the next save. Edited with
-  `components/steps-editor.tsx`, rendered with `components/steps-viewer.tsx`.
+  `features/editor/components/steps-editor.tsx`, rendered with `features/editor/components/steps-viewer.tsx`.
 - **Images** are saved to a private S3 bucket under the key
-  `<ownerType>/<ownerId>/<uuid>.<ext>` (`src/lib/storage.ts`). The bucket
+  `<ownerType>/<ownerId>/<uuid>.<ext>` (`src/services/storage.ts`). The bucket
   is never public-read. A `media_assets` row records the object key.
 - The **only** way an uploaded image is ever served is
   `GET /api/media/[id]` (`src/app/api/media/[id]/route.ts`), which:
@@ -186,7 +186,7 @@ sensors_automation, competitions, other).
      images are visible **only** to the submission's own author),
   3. streams the file with the right `Content-Type` and a cache policy
      that differs for public vs. private images.
-- Upload is a server action, `uploadMediaAsset` (`src/actions/media.ts`):
+- Upload is a server action, `uploadMediaAsset` (`src/features/editor/actions.ts`):
   validates auth, `ownerType`, MIME type (png/jpeg/webp/gif only), size
   (5MB cap), and that the caller actually owns the project/submission,
   before writing to disk and inserting the DB row.
@@ -201,7 +201,7 @@ screen. (Open decision, unresolved: introduce a real `categories` table
 if runtime admin management is required.)
 
 ### 7.2 Search & browse
-`getFeaturedProjects` (`src/actions/projects.ts`) powers both
+`getFeaturedProjects` (`src/features/projects/services/queries.ts`) powers both
 `/landing`'s featured rail and `/projects`' browse grid: title/summary
 `ILIKE` search, category filter, pagination — all against real Postgres
 data (not mocked), backed by the partial/GIN/trigram indexes above.
@@ -243,7 +243,7 @@ Fully implemented (previously the biggest gap, now closed): Mongo client
 (`db/mongo.ts`, connection cached on `globalThis` in dev for hot-reload
 safety), content CRUD (`db/content.ts`), a Markdown editor with slash
 commands and embed support (`markdown-editor.tsx`, `slash-command-menu.tsx`,
-`embed-block.tsx`, `lib/embeds.ts`), a viewer (`markdown-viewer.tsx`), and
+`embed-block.tsx`, `features/editor/embeds.ts`), a viewer (`markdown-viewer.tsx`), and
 image upload wired into the editor toolbar (`cover-image-upload.tsx` +
 `uploadMediaAsset`).
 
@@ -272,7 +272,7 @@ chars) so the student always gets actionable feedback.
   **slide-in panel** over the current page instead of a full navigation,
   falling back to a normal full page on direct link/refresh
   (`slide-panel.tsx`, `slide-panel-stack.tsx`).
-- `components/ui/` is a shadcn-style primitive kit (button, dialog,
+- `shared/components/ui/` is a shadcn-style primitive kit (button, dialog,
   tabs, select, etc.) that the feature components build on.
 - `app/ui/page.tsx` is a dev-only kitchen-sink/style-reference page, not
   part of the real product surface.
@@ -309,3 +309,68 @@ Carried over from `features.md`, still unresolved as of this doc:
 6. **Image bytes are proxied through the app** — `/api/media/[id]`
    streams from S3 so it can enforce visibility; published images could
    later move to a CDN or pre-signed URLs if bandwidth becomes an issue.
+
+## Code layout (`frontend/src`)
+
+Feature modules, with shared code and app wiring kept apart. `app/` is
+routing only.
+
+```
+app/                      Routes only. (parentheses) are route groups: they organise
+                          routes and layouts without changing URLs.
+  (marketing)/            Landing page, "/".
+  (site)/                 /projects, /authors, /collections, with one shared layout.
+  (workspace)/            /dashboard and everything under it.
+  (print)/                Chrome-less pages rendered to PDF.
+  (internal)/             /ui, the component reference.
+  @modal/  api/  p/       Intercepted slide panels and route handlers.
+features/<name>/          projects, submissions, collections, comments, notifications,
+                          email-digest, gamification, follows, review, admin,
+                          dashboard, editor, auth, landing.
+  components/             UI owned by the feature.
+  hooks/                  Client hooks owned by the feature.
+  services/               Server-only code: queries.ts (reads) and helpers.
+  actions.ts              "use server" mutations, plus the few reads the browser calls.
+  schemas.ts              Zod schemas, shared by the form and the server action.
+core/                     App-wide wiring; the only layer that composes features.
+  layout/                 App shell, public header, dashboard sidebar.
+  providers/              Session, query client, URL state, motion.
+  jobs.ts                 Registers every feature's background jobs.
+shared/                   Knows nothing about any feature.
+  components/ui/          Design-system primitives (see Design.md).
+  components/             Toast, reveal, slide panels, empty and no-results states.
+  hooks/  lib/  constants/
+services/                 External integrations: storage (S3), mailer, queue (pg-boss).
+lib/                      Foundations.
+  db/                     Drizzle schema, Postgres client, Mongo content store.
+  auth/                   Auth.js config and session guards.
+  config/                 Site name and URL, startup env validation.
+  models/                 Data shapes used by both the database layer and features.
+styles/  types/
+```
+
+`frontend/tests` mirrors this: `tests/features/<name>/`, `tests/app/`,
+`tests/db/`, `tests/lib/`, `tests/shared/`.
+
+### Dependency rules
+
+```
+app -> core -> features -> shared -> lib
+                  |
+               services -> lib
+```
+
+These are enforced by `no-restricted-imports` rules in `eslint.config.mjs`,
+so a wrong import fails lint.
+
+- A new page goes in the route group for its audience; shared chrome belongs
+  in that group's `layout.tsx`, not in each page.
+- A feature may import another feature's `actions.ts`, `services/queries.ts`,
+  `schemas.ts` and components.
+- Reads go in `services/queries.ts` unless a client component has to call them.
+- Database, storage, mail and query modules start with `import "server-only"`,
+  so importing one from a client component fails the build.
+- Auth checks come from `lib/auth/session.ts` (`requireSession`,
+  `requireUserId`, `requireReviewer`).
+- Required environment variables are checked once at startup by
+  `lib/config/env.ts`.

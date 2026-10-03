@@ -1,0 +1,86 @@
+import { notFound } from "next/navigation";
+import { getProjectBySlug } from "@/features/projects/services/queries";
+import { getContentDoc } from "@/lib/db/content";
+import { StepsViewer } from "@/features/editor/components/steps-viewer";
+import { CATEGORY_LABELS } from "@/features/projects/categories";
+import { projectQrSvg } from "@/features/projects/services/links";
+
+const dateFormatter = new Intl.DateTimeFormat("en", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+export default async function ProjectPrintPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
+  const project = await getProjectBySlug(slug);
+  if (!project || project.status !== "published") notFound();
+
+  const [steps, qrSvg] = await Promise.all([getContentDoc(project.contentDocId), projectQrSvg(project.id)]);
+
+  return (
+    <div
+      style={{
+        margin: 0,
+        padding: "48px 56px",
+        background: "#ffffff",
+        color: "#1f2022",
+        fontFamily: "Georgia, 'Times New Roman', serif",
+      }}
+    >
+      {project.coverImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={project.coverImageUrl}
+          alt={project.title}
+          style={{
+            width: "100%",
+            maxHeight: 360,
+            objectFit: "cover",
+            borderRadius: 8,
+            marginBottom: 24,
+          }}
+        />
+      ) : null}
+
+      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: 11, letterSpacing: 1, textTransform: "uppercase", color: "#939598" }}>
+            {CATEGORY_LABELS[project.category] ?? project.category}
+          </p>
+
+          <h1 style={{ fontSize: 30, fontWeight: 700, margin: "8px 0", color: "#022f49" }}>
+            {project.title}
+          </h1>
+
+          {project.summary ? (
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: "#1f2022" }}>{project.summary}</p>
+          ) : null}
+
+          <p style={{ fontSize: 13, color: "#939598", margin: "16px 0 32px" }}>
+            By {project.authorName} &middot;{" "}
+            {dateFormatter.format(project.publishedAt ?? project.createdAt)}
+          </p>
+        </div>
+
+        <figure style={{ margin: 0, width: 112, flexShrink: 0, textAlign: "center" }}>
+          <div style={{ width: 112, height: 112 }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          <figcaption style={{ fontSize: 10, lineHeight: 1.4, color: "#939598", marginTop: 6 }}>
+            Scan to see this project online
+          </figcaption>
+        </figure>
+      </div>
+
+      <div style={{ borderTop: "1px solid rgba(147, 149, 152, 0.4)", paddingTop: 24 }}>
+        <div data-color-mode="light">
+          <StepsViewer steps={steps ?? []} />
+        </div>
+      </div>
+    </div>
+  );
+}

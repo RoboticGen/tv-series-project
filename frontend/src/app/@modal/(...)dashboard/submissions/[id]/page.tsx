@@ -1,12 +1,12 @@
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { getSubmissionById } from "@/actions/submissions";
-import { getProjectBySlug } from "@/actions/projects";
-import { getPublicSubmissionsForProject } from "@/actions/submissions";
-import { getContentDoc } from "@/db/content";
-import { ProjectDetailPanel } from "@/components/project-detail-panel";
-import { SubmissionViewPanel } from "@/components/submission-view-panel";
-import { SlidePanelStack } from "@/components/slide-panel-stack";
+import { auth } from "@/lib/auth";
+import { getSubmissionById } from "@/features/submissions/services/queries";
+import { getProjectBySlug } from "@/features/projects/services/queries";
+import { getPublicSubmissionsForProject } from "@/features/submissions/services/queries";
+import { getContentDoc } from "@/lib/db/content";
+import { ProjectDetailPanel } from "@/features/projects/components/project-detail-panel";
+import { SubmissionViewPanel } from "@/features/submissions/components/submission-view-panel";
+import { SlidePanelStack } from "@/shared/components/slide-panel-stack";
 
 export default async function MySubmissionModal({
   params,
@@ -15,7 +15,7 @@ export default async function MySubmissionModal({
 }) {
   const { id } = await params;
   const session = await auth();
-  if (!session?.user) redirect("/landing");
+  if (!session?.user) redirect("/");
   const viewerId = session.user.id;
 
   const submission = await getSubmissionById(id, viewerId);

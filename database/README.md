@@ -14,8 +14,8 @@ docker compose up -d
 
 The scripts in `init/` run once, in filename order, only when the
 `pgdata` volume is first created (empty data directory). To pick up
-schema changes after that, write a migration instead of editing an
-`init/*.sql` file in place — see "Changing the schema" below.
+schema changes, edit the relevant `init/*.sql` file in place and
+recreate the volume (see "Changing the schema" below).
 
 Connect with:
 
@@ -32,12 +32,12 @@ mongodb://roboticgen:roboticgen@localhost:27017
 | File | Contents |
 |---|---|
 | `init/001_extensions.sql` | `pgcrypto`, `citext`, `pg_trgm` |
-| `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category`, `point_reason` enums |
-| `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns, builder points fns |
-| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items`, `point_events` |
+| `init/002_types.sql` | `user_role`, `project_status`, `media_owner_type`, `project_category`, `point_reason`, `notification_type` enums |
+| `init/003_functions.sql` | `updated_at` trigger fn, like/star counter-maintenance fns, builder points fns, notification fns |
+| `init/004_tables.sql` | `users`, `projects`, `media_assets`, `project_likes`, `project_stars`, `submissions`, `collections`, `collection_items`, `point_events`, `notifications` |
 | `init/005_views.sql` | `user_dashboard_stats`, `pending_review_queue`, `user_liked_projects`, `user_starred_projects` |
-| `migrations/*.sql` | Schema changes applied after `init/` already ran once (see "Changing the schema" below) |
-| `frontend/src/db/schema.ts` | Drizzle model of the same schema (hand-maintained, see below) |
+
+| `frontend/src/lib/db/schema.ts` | Drizzle model of the same schema (hand-maintained, see below) |
 
 ## Design notes
 
@@ -46,10 +46,10 @@ mongodb://roboticgen:roboticgen@localhost:27017
   document. Postgres owns everything that needs relational integrity,
   filtering, or transactions (workflow state, ownership, likes); Mongo
   owns the prose. The `mongo` service in `docker-compose.yml` runs it
-  alongside Postgres; the app connects via `frontend/src/db/mongo.ts`
+  alongside Postgres; the app connects via `frontend/src/lib/db/mongo.ts`
   (a `MongoClient` singleton, mirroring the Postgres client pattern in
-  `frontend/src/db/index.ts`) and reads/writes bodies through the typed
-  helpers in `frontend/src/db/content.ts`. There is no schema migration
+  `frontend/src/lib/db/index.ts`) and reads/writes bodies through the typed
+  helpers in `frontend/src/lib/db/content.ts`. There is no schema migration
   for this -- it's a single `content_docs` collection, no fixed shape
   enforced by Mongo itself.
 - **Images live in a private S3 bucket**, referenced by
@@ -129,7 +129,7 @@ mongodb://roboticgen:roboticgen@localhost:27017
 - **Views have no foreign keys, by construction.** A view is a saved
   `SELECT`, not stored data, so Postgres can't attach a constraint to it
   — the relationship to `users`/`projects` lives entirely in the `JOIN`
-  inside `init/005_views.sql`. In `frontend/src/db/schema.ts`, the 4
+  inside `init/005_views.sql`. In `frontend/src/lib/db/schema.ts`, the 4
   views are declared with Drizzle's `.existing()` so app code gets a
   typed `db.select().from(...)` target without Drizzle trying to manage
   their DDL — there's still no DB-enforced constraint tying a view's
@@ -140,15 +140,17 @@ mongodb://roboticgen:roboticgen@localhost:27017
 
 ## Changing the schema
 
-Once the `pgdata` volume exists, `init/*.sql` no longer runs. From here,
-schema changes should go through a migration step -- a new numbered file
-under `migrations/` (plain SQL, run against the running container) --
-rather than editing these files in place. Keep `init/` as the from-scratch
-bootstrap (still updated to match, so a fresh volume gets the same schema
-directly) and let `migrations/` layer on top of it for databases that
-already exist. `frontend/src/db/schema.ts` is a hand-maintained TypeScript mirror of
-this SQL for query typing; update it to match whenever a migration
-changes a table/view shape, but it does not drive the schema itself —
+Edit the relevant `init/*.sql` file directly, then recreate the volume
+so Postgres re-runs the bootstrap scripts:
+
+```bash
+docker compose down -v   # drops the pgdata volume
+docker compose up -d     # re-runs init/ from scratch
+```
+
+`frontend/src/lib/db/schema.ts` is a hand-maintained TypeScript mirror of
+this SQL for query typing; update it to match whenever a table or view
+shape changes, but it does not drive the schema itself —
 `drizzle-kit push`/`generate` are not part of this workflow.
 
 ## Verifying indexes are used

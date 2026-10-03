@@ -4,7 +4,7 @@
 // the point math in JS and testing that instead.
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 import { createTestDb, insertProject, insertUser, type TestDbHandle } from "../setup/pglite-db";
 
 let handle: TestDbHandle;

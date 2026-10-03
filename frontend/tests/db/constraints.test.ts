@@ -1,7 +1,7 @@
 // CHECK constraints and other invariants declared in database/init/004_tables.sql
 // that the app relies on the DB to enforce, rather than re-checking in JS.
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import * as schema from "@/db/schema";
+import * as schema from "@/lib/db/schema";
 import { createTestDb, insertProject, insertUser, type TestDbHandle } from "../setup/pglite-db";
 
 let handle: TestDbHandle;

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Raleway, Inter, Geist_Mono } from "next/font/google";
-import { Providers } from "@/components/providers";
-import { THEME_INIT_SCRIPT } from "@/lib/theme";
-import "./globals.css";
+import { ThemeProvider } from "@wrksz/themes/next";
+import { OfflineBanner } from "@/shared/components/offline-banner";
+import { Providers } from "@/core/providers/providers";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
+import "@/styles/globals.css";
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -20,8 +22,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RoboticGen Projects",
-  description: "Publish, discover, and build RoboticGen student projects.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({
@@ -32,17 +35,17 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${raleway.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}
-      // THEME_INIT_SCRIPT may add `dark` before React hydrates.
+      // ThemeProvider's bootstrap script sets the theme class before React hydrates.
       suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-      </head>
       <body className="min-h-full flex flex-col">
-        <Providers>
-          {children}
-          {modal}
-        </Providers>
+        <ThemeProvider defaultTheme="light">
+          <Providers>
+            {children}
+            {modal}
+          </Providers>
+          <OfflineBanner />
+        </ThemeProvider>
       </body>
     </html>
   );
